@@ -49,7 +49,11 @@ export default defineSchema({
         .index("by_slug", ["slug"])
         .index("by_category", ["categoryId"])
         .index("by_brand", ["brand"])
-        .index("by_gender", ["gender"]),
+        .index("by_gender", ["gender"])
+        .searchIndex("search_by_name", {
+            searchField: "name",
+            filterFields: ["isActive", "categoryId", "gender", "brand"],
+        }),
 
     // ─── Orders ──────────────────────────────────────────────────────────────────
     orders: defineTable({

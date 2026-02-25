@@ -49,3 +49,26 @@ export const isAdmin = query({
         return user?.role === "admin";
     },
 });
+
+/**
+ * Internal helper for mutations/queries to assert the user is an admin.
+ * Throws an error if not authenticated or not an admin.
+ */
+export async function requireAdmin(ctx: any) {
+    const authUserId = await getAuthUserId(ctx);
+    if (!authUserId) throw new Error("Unauthorized");
+
+    const authUser = await ctx.db.get(authUserId);
+    if (!authUser || !authUser.email) throw new Error("Unauthorized");
+
+    const user = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q: any) => q.eq("email", authUser.email as string))
+        .unique();
+
+    if (user?.role !== "admin") {
+        throw new Error("Forbidden: Admin access only");
+    }
+
+    return user;
+}

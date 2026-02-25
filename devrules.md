@@ -74,10 +74,10 @@
 > **Goal:** Full CRUD for products and categories, with search & filtering.
 > **Prompts to Follow:** ⚡ 4 (Performance) · 🏗 3 (Architecture) · 🧪 6 (Code Quality)
 
-- [ ] 4.1 Create product **queries** (list all with pagination, get by slug, filter by category/price/gender/popularity)
-- [ ] 4.2 Create product **mutations** (create, update, soft-delete — admin only)
-- [ ] 4.3 Implement **search with autocomplete** query
-- [ ] 4.4 Create category **queries** and **mutations** (CRUD, admin-only write)
+- [x] 4.1 Create product **queries** (list all with pagination, get by slug, filter by category/price/gender/popularity)
+- [x] 4.2 Create product **mutations** (create, update, soft-delete — admin only)
+- [x] 4.3 Implement **search with autocomplete** query
+- [x] 4.4 Create category **queries** and **mutations** (CRUD, admin-only write)
 - [ ] 4.5 Add **image upload** using **Convex file storage** (or Cloudinary via action)
 - [ ] 4.6 Write unit tests for product query/mutation logic
 
