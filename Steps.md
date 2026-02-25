@@ -38,15 +38,18 @@ The website has two sides:
 4. **App Integration**: We added a "Provider" to the website, allowing our pages to talk to the database in real-time.
 5. **Design System Setup**: We installed shadcn/ui and configured our custom luxury color palette (warm neutrals, dark charcoal, and soft gold) along with our elegant fonts.
 6. **Environment Finalization**: We fully built the `.env.local` file with placeholders for M-Pesa and Resend, and checked `.gitignore` for security.
+7. **Code Quality Automation**: We set up Prettier (beauty) and ESLint (quality) to work together. We also added Husky "hooks," which act like a security checkpoint—every time we try to save a change (commit) to Git, the system automatically checks for errors and fixes formatting before allowing the change.
+8. **Local Verification**: We confirmed that both the storefront (Next.js) and the back office (Convex) start correctly and talk to each other.
 
 **Why we did it:**
-By defining the structure now, we ensure our data remains organized and safe from the very first day. Real-time integration means that the site stays updated instantly without refreshing.
+By defining the structure now, we ensure our data remains organized and safe. The code quality tools ensure that our codebase remains clean and easy for other developers (or our future selves) to read, preventing small mistakes from becoming big bugs later.
 
 **How we did it:**
 - **Convex Dev**: We ran `npx convex dev` to provision the cloud database.
-- **Provider Pattern**: We created a `ConvexClientProvider` component so every page can access data.
 - **Environment Safety**: We stored the secret keys in `.env.local` to keep the database connection secure.
 - **Tailwind & shadcn**: We used `npx shadcn@latest init` to set up beautiful UI components.
+- **Husky & Lint-Staged**: We configured Git to run automated checks before every commit.
+- **Local Run**: We verified the dev server and Convex sync were active simultaneously.
 
 **Next Steps:**
 We've completed the environment setup and are now ready to start Phase 2.
