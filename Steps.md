@@ -39,23 +39,21 @@ The website has two sides:
 **Status:** ✅ Completed
 
 **What we did:**
-We initialized the project directory with Git for version control and scaffolded a modern Next.js 15+ application. This setup includes the App Router, TypeScript for type safety, TailwindCSS for styling, and ESLint for code quality.
+1. **Next.js & Git Setup**: We initialized the project with Next.js 15+, TypeScript, and Git.
+2. **Convex Initialization**: We linked the project to a new Convex backend and database. We installed the Convex client and configured the app to communicate with the cloud database.
+3. **Database Schema**: We defined the initial structure (Phase 2.1) for all our tables (Users, Products, Orders, etc.) so Convex knows exactly how to store our data.
+4. **App Integration**: We added a "Provider" to the website, which is like a permanent bridge that allows our pages to talk to the database in real-time.
+5. **Design System Setup**: We installed shadcn/ui and configured our custom luxury color palette (warm neutrals, dark charcoal, and soft gold) along with our elegant fonts (Playfair Display for headers and Inter for clean text).
 
 **Why we did it:**
-Next.js provides the "storefront" framework that allows for high-performance, SEO-friendly pages. TypeScript ensures our code is robust and less prone to errors as the project grows. Setting up Git right away ensures we can track every change we make from the very beginning.
+Without these steps, the "storefront" wouldn't have a "back office" to store products or handle payments. By defining the schema now, we ensure our data remains organized and safe from the very first day. Real-time integration means that if a customer buys the last perfume in stock, every other customer on the site will see "Out of Stock" instantly without refreshing.
 
 **How we did it:**
-1. **Git Init**: We ran `git init` to turn the folder into a repository.
-2. **.gitignore**: We added a file to tell Git to ignore "noise" files like `node_modules`.
-3. **Scaffolding**: We used `npx create-next-app` to automatically generate the project structure, including the `src` directory for our code and configuration files for Tailwind and TypeScript.
-4. **Cleanup**: We moved the files into the root directory to keep the project structure clean and simple.
-5. **GitHub Push**: We used the GitHub CLI (`gh`) to create a new public repository and pushed our code to the `main` branch. This makes the project available online for collaboration and backup.
-
-**What was created:**
-- `src/app/`: The home for our website pages and layouts.
-- `package.json`: The manifest for all our project dependencies.
-- `tsconfig.json`: Configuration for our TypeScript "strict mode" setup.
-- `tailwind.config.ts`: Our design system foundation.
+- **Convex Dev**: We ran `npx convex dev --once` to provision the cloud database.
+- **Provider Pattern**: We created a `ConvexClientProvider` component and wrapped the entire app in it so every page can access data.
+- **Schema Definition**: We wrote a `schema.ts` file using simple TypeScript rules to define what information each table (like `products` or `orders`) should hold.
+- **Environment Safety**: We stored the secret keys in `.env.local` to keep the database connection secure.
+- **Tailwind & shadcn**: We used `npx shadcn@latest init` to set up accessible, beautiful UI components, and modified `globals.css` to define our exact luxury OKLCH colors.
 
 ---
 
