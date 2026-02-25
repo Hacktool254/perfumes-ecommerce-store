@@ -47,7 +47,7 @@
   - `reviews` (userId, productId, rating, comment, createdAt)
   - `coupons` (code, discountType, discountValue, expiresAt, usageLimit, usedCount)
 - [x] 2.2 Add Convex indexes on: email, product slug, order status, payment transaction ID
-- [ ] 2.3 Push schema to Convex (`npx convex dev` auto-migrates)
+- [x] 2.3 Push schema to Convex (`npx convex dev` auto-migrates)
 - [ ] 2.4 Seed database with sample categories & test products (via Convex mutation)
 
 ---
