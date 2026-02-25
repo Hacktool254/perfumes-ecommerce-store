@@ -79,7 +79,7 @@
 - [x] 4.3 Implement **search with autocomplete** query
 - [x] 4.4 Create category **queries** and **mutations** (CRUD, admin-only write)
 - [x] 4.5 Add **image upload** using **Convex file storage** (or Cloudinary via action)
-- [ ] 4.6 Write unit tests for product query/mutation logic
+- [x] 4.6 Write unit tests for product query/mutation logic
 
 ---
 
