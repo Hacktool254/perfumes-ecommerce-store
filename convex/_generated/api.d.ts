@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as categories from "../categories.js";
+import type * as files from "../files.js";
 import type * as products from "../products.js";
 import type * as users from "../users.js";
 
@@ -22,6 +23,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   categories: typeof categories;
+  files: typeof files;
   products: typeof products;
   users: typeof users;
 }>;
