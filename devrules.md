@@ -24,8 +24,8 @@
 - [x] 1.2 Scaffold **Next.js** app (App Router, TypeScript strict mode)
 - [x] 1.3 Install and initialize **Convex** (`npx convex dev`) — backend + real-time database
 - [x] 1.4 Configure **TailwindCSS** + **shadcn/ui** in the frontend
-- [/] 1.5 Create `.env.local` with Convex deployment URL and any API keys (no secrets committed)
-- [ ] 1.6 Set up **ESLint**, **Prettier**, and **Husky** pre-commit hooks
+- [x] 1.5 Create `.env.local` with Convex deployment URL and any API keys (no secrets committed)
+- [/] 1.6 Set up **ESLint**, **Prettier**, and **Husky** pre-commit hooks
 - [ ] 1.7 Confirm the app runs locally (`npm run dev` + `npx convex dev`)
 
 ---
