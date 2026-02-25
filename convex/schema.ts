@@ -2,32 +2,53 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+    // ─── Users ───────────────────────────────────────────────────────────────────
     users: defineTable({
         email: v.string(),
         hashedPassword: v.string(),
         role: v.union(v.literal("customer"), v.literal("admin")),
+        firstName: v.optional(v.string()),
+        lastName: v.optional(v.string()),
+        phone: v.optional(v.string()),
         createdAt: v.number(),
         updatedAt: v.number(),
     }).index("by_email", ["email"]),
 
+    // ─── Categories ──────────────────────────────────────────────────────────────
+    categories: defineTable({
+        name: v.string(),
+        slug: v.string(),
+        imageUrl: v.optional(v.string()),
+    }).index("by_slug", ["slug"]),
+
+    // ─── Products ────────────────────────────────────────────────────────────────
     products: defineTable({
         name: v.string(),
         slug: v.string(),
         description: v.string(),
-        price: v.number(),
-        discount: v.optional(v.number()),
+        price: v.number(), // stored in KES (whole number, e.g. 4500)
+        discount: v.optional(v.number()), // percentage e.g. 10 = 10%
         stock: v.number(),
         categoryId: v.id("categories"),
-        images: v.array(v.string()),
+        images: v.array(v.string()), // array of URLs / Convex storage IDs
+        brand: v.optional(v.string()),
+        gender: v.optional(
+            v.union(
+                v.literal("men"),
+                v.literal("women"),
+                v.literal("unisex")
+            )
+        ),
+        isActive: v.optional(v.boolean()), // soft delete flag
         createdAt: v.number(),
         updatedAt: v.number(),
-    }).index("by_slug", ["slug"]),
+    })
+        .index("by_slug", ["slug"])
+        .index("by_category", ["categoryId"])
+        .index("by_brand", ["brand"])
+        .index("by_gender", ["gender"]),
 
-    categories: defineTable({
-        name: v.string(),
-        slug: v.string(),
-    }).index("by_slug", ["slug"]),
-
+    // ─── Orders ──────────────────────────────────────────────────────────────────
     orders: defineTable({
         userId: v.id("users"),
         status: v.union(
@@ -37,47 +58,75 @@ export default defineSchema({
             v.literal("delivered"),
             v.literal("cancelled")
         ),
-        totalAmount: v.number(),
+        totalAmount: v.number(), // KES
         shippingAddress: v.string(),
+        couponId: v.optional(v.id("coupons")),
+        discountApplied: v.optional(v.number()), // KES amount deducted
         createdAt: v.number(),
         updatedAt: v.number(),
-    }).index("by_status", ["status"]),
+    })
+        .index("by_user", ["userId"])
+        .index("by_status", ["status"])
+        .index("by_user_status", ["userId", "status"]),
 
+    // ─── Order Items ─────────────────────────────────────────────────────────────
     orderItems: defineTable({
         orderId: v.id("orders"),
         productId: v.id("products"),
         quantity: v.number(),
-        unitPrice: v.number(),
-    }),
+        unitPrice: v.number(), // price at time of purchase
+    })
+        .index("by_order", ["orderId"])
+        .index("by_product", ["productId"]),
 
+    // ─── Payments ────────────────────────────────────────────────────────────────
     payments: defineTable({
         orderId: v.id("orders"),
-        method: v.string(),
+        method: v.union(v.literal("mpesa"), v.literal("card"), v.literal("cash")),
         mpesaReceiptNumber: v.optional(v.string()),
-        status: v.string(),
-        rawCallback: v.optional(v.string()),
+        phoneNumber: v.optional(v.string()), // M-Pesa number used
+        status: v.union(
+            v.literal("pending"),
+            v.literal("success"),
+            v.literal("failed"),
+            v.literal("timeout")
+        ),
+        rawCallback: v.optional(v.string()), // JSON string of Safaricom callback
         createdAt: v.number(),
-    }).index("by_transaction_id", ["mpesaReceiptNumber"]),
+    })
+        .index("by_order", ["orderId"])
+        .index("by_receipt", ["mpesaReceiptNumber"]),
 
+    // ─── Cart Items ──────────────────────────────────────────────────────────────
     cartItems: defineTable({
         userId: v.id("users"),
         productId: v.id("products"),
         quantity: v.number(),
-    }),
+    })
+        .index("by_user", ["userId"])
+        .index("by_user_product", ["userId", "productId"]),
 
+    // ─── Wishlist Items ──────────────────────────────────────────────────────────
     wishlistItems: defineTable({
         userId: v.id("users"),
         productId: v.id("products"),
-    }),
+    })
+        .index("by_user", ["userId"])
+        .index("by_user_product", ["userId", "productId"]),
 
+    // ─── Reviews ─────────────────────────────────────────────────────────────────
     reviews: defineTable({
         userId: v.id("users"),
         productId: v.id("products"),
-        rating: v.number(),
-        comment: v.string(),
+        rating: v.number(), // 1–5
+        comment: v.optional(v.string()),
         createdAt: v.number(),
-    }),
+    })
+        .index("by_product", ["productId"])
+        .index("by_user", ["userId"])
+        .index("by_user_product", ["userId", "productId"]),
 
+    // ─── Coupons ─────────────────────────────────────────────────────────────────
     coupons: defineTable({
         code: v.string(),
         discountType: v.union(v.literal("percentage"), v.literal("fixed")),
@@ -85,5 +134,6 @@ export default defineSchema({
         expiresAt: v.optional(v.number()),
         usageLimit: v.optional(v.number()),
         usedCount: v.number(),
+        isActive: v.optional(v.boolean()),
     }).index("by_code", ["code"]),
 });
