@@ -57,11 +57,12 @@
 > **Goal:** Users can register, log in, and be authenticated. Admin role exists.
 > **Prompts to Follow:** 🛡 2 (Security Enforcement) · 🔐 1 (Global Engineering) · 🧪 6 (Code Quality)
 
-- [ ] 3.1 Set up **Convex Auth** (or custom auth with JWT via Convex actions)
-- [ ] 3.2 Implement **registration** mutation (email + bcrypt-hashed password)
-- [ ] 3.3 Implement **login** mutation (verifies password, returns session/token)
-- [ ] 3.4 Implement **auth middleware** — helper to validate identity in Convex functions
-- [ ] 3.5 Implement **role-based access control** (Admin vs Customer checks in mutations/queries)
+- [x] 3.1 Set up **Convex Auth** (or custom auth with JWT via Convex actions)
+- [x] 3.2 Implement **registration** mutation (email + bcrypt-hashed password)
+- [x] 3.3 Implement **login** mutation (verifies password, returns session/token)
+- [x] 3.4 Implement **auth middleware** — helper to validate identity in Convex functions
+- [x] 3.5 Implement **role-based access control** (Admin vs Customer checks in mutations/queries)
+
 - [ ] 3.6 Implement **password reset** flow (token-based, via Convex action + email)
 - [ ] 3.7 Add **rate limiting** logic on auth-related actions
 - [ ] 3.8 Write unit tests for auth logic
