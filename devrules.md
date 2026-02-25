@@ -35,7 +35,7 @@
 > **Goal:** Define every table your app needs before writing business logic.
 > **Prompts to Follow:** 🧾 8 (Database Safety) · 🏗 3 (Architecture Consistency)
 
-- [ ] 2.1 Define Convex schema (`convex/schema.ts`) with all tables:
+- [/] 2.1 Define Convex schema (`convex/schema.ts`) with all tables:
   - `users` (email, hashedPassword, role, createdAt, updatedAt)
   - `products` (name, slug, description, price, discount, stock, categoryId, images[], createdAt, updatedAt)
   - `categories` (name, slug)
