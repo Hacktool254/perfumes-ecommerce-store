@@ -88,11 +88,11 @@
 > **Goal:** Customers can manage their cart, wishlist, and leave reviews.
 > **Prompts to Follow:** 🛡 2 (Security) · 🧾 8 (Database Safety)
 
-- [ ] 5.1 Cart **mutations** — add, remove, update quantity; **query** — get user's cart
-- [ ] 5.2 Wishlist **mutations** — add, remove; **query** — get user's wishlist
-- [ ] 5.3 Reviews **mutation** — create review (authenticated); **query** — get product reviews (public)
-- [ ] 5.4 Ensure all cart/wishlist functions validate the authenticated user
-- [ ] 5.5 Write unit tests
+- [x] 5.1 Cart **mutations** — add, remove, update quantity; **query** — get user's cart
+- [x] 5.2 Wishlist **mutations** — add, remove; **query** — get user's wishlist
+- [x] 5.3 Reviews **mutation** — create review (authenticated); **query** — get product reviews (public)
+- [x] 5.4 Ensure all cart/wishlist functions validate the authenticated user
+- [x] 5.5 Write unit tests
 
 ---
 

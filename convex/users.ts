@@ -72,3 +72,24 @@ export async function requireAdmin(ctx: any) {
 
     return user;
 }
+
+/**
+ * Internal helper to assert a user is authenticated.
+ * Returns the user from our custom table.
+ */
+export async function requireUser(ctx: any) {
+    const authUserId = await getAuthUserId(ctx);
+    if (!authUserId) throw new Error("Unauthorized");
+
+    const authUser = await ctx.db.get(authUserId);
+    if (!authUser || !authUser.email) throw new Error("Unauthorized");
+
+    const user = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q: any) => q.eq("email", authUser.email as string))
+        .unique();
+
+    if (!user) throw new Error("Unauthorized: User record not found");
+
+    return user;
+}
