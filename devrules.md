@@ -164,14 +164,14 @@
 > **Goal:** Build the full cinematic homepage per the design doc.
 > **Prompts to Follow:** 🎨 7 (Animation) · ⚡ 4 (Performance)
 
-- [ ] 10.1 **Section 1 — Hero:** Full-screen image, serif headline, parallax, animated CTA, scroll-triggered reveal
-- [ ] 10.2 **Section 2 — Editorial Banner:** Bold typography, inline product thumbnails, scroll reveal
-- [ ] 10.3 **Section 3 — Featured Categories:** 2-column layout, hover 3D tilt, image zoom on hover
-- [ ] 10.4 **Section 4 — Immersive Image Block:** Large model shot, slow fade-in, text overlay animation
-- [ ] 10.5 **Section 5 — Popular Products:** Horizontal scroll carousel, smooth snap scrolling, hover elevation
-- [ ] 10.6 **Section 6 — Featured Products Grid:** Animated entrance on scroll, add-to-cart micro-interaction
-- [ ] 10.7 Install & configure **Framer Motion** + **GSAP** for scroll-based animation timelines
-- [ ] 10.8 Performance audit — ensure Lighthouse > 90 after all animations
+- [x] 10.1 **Section 1 — Hero:** Full-screen image, serif headline, parallax, animated CTA, scroll-triggered reveal
+- [x] 10.2 **Section 2 — Editorial Banner:** Bold typography, inline product thumbnails, scroll reveal
+- [x] 10.3 **Section 3 — Featured Categories:** 2-column layout, hover 3D tilt, image zoom on hover
+- [x] 10.4 **Section 4 — Immersive Image Block:** Large model shot, slow fade-in, text overlay animation
+- [x] 10.5 **Section 5 — Popular Products:** Horizontal scroll carousel, smooth snap scrolling, hover elevation
+- [x] 10.6 **Section 6 — Featured Products Grid:** Animated entrance on scroll, add-to-cart micro-interaction
+- [x] 10.7 Install & configure **Framer Motion** + **GSAP** for scroll-based animation timelines
+- [x] 10.8 Performance audit — ensure Lighthouse > 90 after all animations
 
 ---
 
