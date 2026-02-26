@@ -180,16 +180,16 @@
 > **Goal:** Browsable shop page, detailed product page with 3D interaction.
 > **Prompts to Follow:** 🎨 7 (Animation) · ⚡ 4 (Performance) · 🏗 3 (Architecture)
 
-- [ ] 11.1 **Shop page** — product grid with filters (price, brand, gender, popularity), search bar with autocomplete
-- [ ] 11.2 **Product detail page:**
+- [x] 11.1 **Shop page** — product grid with filters (price, brand, gender, popularity), search bar with autocomplete
+- [x] 11.2 **Product detail page:**
   - High-res image gallery
   - 3D interactive rotation (Three.js, optional, graceful degradation)
   - Scroll-triggered animations
   - Stock availability indicator
   - Reviews section
   - Related products carousel
-- [ ] 11.3 Add-to-cart & add-to-wishlist buttons with micro-animations (bounce, heart)
-- [ ] 11.4 Connect pages to Convex queries/mutations via `useQuery` and `useMutation` hooks
+- [x] 11.3 Add-to-cart & add-to-wishlist buttons with micro-animations (bounce, heart)
+- [x] 11.4 Connect pages to Convex queries/mutations via `useQuery` and `useMutation` hooks
 
 ---
 
