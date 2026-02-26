@@ -90,7 +90,8 @@ export default defineSchema({
     payments: defineTable({
         orderId: v.id("orders"),
         method: v.union(v.literal("mpesa"), v.literal("card"), v.literal("cash")),
-        mpesaReceiptNumber: v.optional(v.string()),
+        mpesaReceiptNumber: v.optional(v.string()), // Returned ONLY on success
+        checkoutRequestId: v.optional(v.string()), // Sent by Safaricom in the callback
         phoneNumber: v.optional(v.string()), // M-Pesa number used
         status: v.union(
             v.literal("pending"),
@@ -102,13 +103,15 @@ export default defineSchema({
         createdAt: v.number(),
     })
         .index("by_order", ["orderId"])
-        .index("by_receipt", ["mpesaReceiptNumber"]),
+        .index("by_receipt", ["mpesaReceiptNumber"])
+        .index("by_checkout_request", ["checkoutRequestId"]),
 
     // ─── Cart Items ──────────────────────────────────────────────────────────────
     cartItems: defineTable({
         userId: v.id("users"),
         productId: v.id("products"),
         quantity: v.number(),
+        updatedAt: v.number(),
     })
         .index("by_user", ["userId"])
         .index("by_user_product", ["userId", "productId"]),

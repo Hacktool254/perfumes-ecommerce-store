@@ -1,7 +1,8 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { requireAdmin, requireUser } from "./users";
 import { Id } from "./_generated/dataModel";
+import { api, internal } from "./_generated/api";
 
 /**
  * Core Checkout Mutation.
@@ -202,5 +203,12 @@ export const updateStatus = mutation({
             status: args.status,
             updatedAt: Date.now(),
         });
+
+        // Phase 8: Send Shipping Notification Email
+        if (args.status === "shipped") {
+            await ctx.scheduler.runAfter(0, internal.emails.sendShippingNotification, {
+                orderId: args.id,
+            });
+        }
     },
 });

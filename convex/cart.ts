@@ -47,12 +47,14 @@ export const add = mutation({
         if (existing) {
             await ctx.db.patch(existing._id, {
                 quantity: existing.quantity + args.quantity,
+                updatedAt: Date.now(),
             });
         } else {
             await ctx.db.insert("cartItems", {
                 userId: user._id,
                 productId: args.productId,
                 quantity: args.quantity,
+                updatedAt: Date.now(),
             });
         }
     },
@@ -77,7 +79,10 @@ export const updateQuantity = mutation({
         if (args.quantity <= 0) {
             await ctx.db.delete(args.cartItemId);
         } else {
-            await ctx.db.patch(args.cartItemId, { quantity: args.quantity });
+            await ctx.db.patch(args.cartItemId, {
+                quantity: args.quantity,
+                updatedAt: Date.now(),
+            });
         }
     },
 });

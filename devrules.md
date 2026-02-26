@@ -63,9 +63,9 @@
 - [x] 3.4 Implement **auth middleware** — helper to validate identity in Convex functions
 - [x] 3.5 Implement **role-based access control** (Admin vs Customer checks in mutations/queries)
 
-- [ ] 3.6 Implement **password reset** flow (token-based, via Convex action + email)
-- [ ] 3.7 Add **rate limiting** logic on auth-related actions
-- [ ] 3.8 Write unit tests for auth logic
+- [x] 3.6 Implement **password reset** flow (token-based, via Convex action + email)
+- [x] 3.7 Add **rate limiting** logic on auth-related actions
+- [x] 3.8 Write unit tests for auth logic
 
 ---
 
@@ -116,17 +116,17 @@
 > **Goal:** Customers pay via M-Pesa STK Push. Secure webhook handles Safaricom callbacks.
 > **Prompts to Follow:** 💳 5 (M-Pesa Safety) · 🛡 2 (Security) · 🧾 8 (Database Safety)
 
-- [ ] 7.1 Create payments Convex **action** for Daraja API integration
-- [ ] 7.2 Implement Daraja API **access token generation** (server-side Convex action only)
-- [ ] 7.3 Implement **STK Push** trigger action (called from frontend after order creation)
-- [ ] 7.4 Implement **Convex HTTP route** as the M-Pesa callback/webhook endpoint:
+- [x] 7.1 Create payments Convex **action** for Daraja API integration
+- [x] 7.2 Implement Daraja API **access token generation** (server-side Convex action only)
+- [x] 7.3 Implement **STK Push** trigger action (called from frontend after order creation)
+- [x] 7.4 Implement **Convex HTTP route** as the M-Pesa callback/webhook endpoint:
   - Validate Safaricom callback data
   - Log raw callback
   - Idempotency check (prevent duplicate processing)
   - Update order status only on verified success (via internal mutation)
-- [ ] 7.5 Handle timeout & failure scenarios gracefully
-- [ ] 7.6 Store all transaction logs in `payments` table
-- [ ] 7.7 Write integration tests for the payment flow
+- [x] 7.5 Handle timeout & failure scenarios gracefully
+- [x] 7.6 Store all transaction logs in `payments` table
+- [x] 7.7 Write integration tests for the payment flow
 
 ---
 
@@ -135,12 +135,12 @@
 > **Goal:** Automated transactional emails for order lifecycle.
 > **Prompts to Follow:** 🔐 1 (Global Engineering) · 📊 10 (Analytics Safety)
 
-- [ ] 8.1 Integrate **Resend** (or SendGrid) via Convex **actions** for email delivery
-- [ ] 8.2 **Order confirmation** email on successful payment
-- [ ] 8.3 **Shipping notification** email on status change
-- [ ] 8.4 **Abandoned cart recovery** — Convex **scheduled function** (cron) to email users with items left in cart
-- [ ] 8.5 Email templates (clean, branded HTML)
-- [ ] 8.6 Write unit tests
+- [x] 8.1 Integrate **Resend** (or SendGrid) via Convex **actions** for email delivery
+- [x] 8.2 **Order confirmation** email on successful payment
+- [x] 8.3 **Shipping notification** email on status change
+- [x] 8.4 **Abandoned cart recovery** — Convex **scheduled function** (cron) to email users with items left in cart
+- [x] 8.5 Email templates (clean, branded HTML)
+- [x] 8.6 Write unit tests
 
 ---
 
