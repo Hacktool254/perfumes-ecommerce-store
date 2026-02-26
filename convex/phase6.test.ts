@@ -239,6 +239,6 @@ describe("Admin Order Management", () => {
         });
 
         const updated = await t.run(async ctx => await ctx.db.get(orderId));
-        expect(updated.status).toBe("paid");
+        expect(updated!.status).toBe("paid");
     });
 });

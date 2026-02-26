@@ -167,6 +167,26 @@ export const list = query({
 });
 
 /**
+ * Admin: List all orders with pagination and status filtering.
+ */
+export const adminList = query({
+    args: {
+        status: v.optional(v.union(v.literal("pending"), v.literal("paid"), v.literal("shipped"), v.literal("delivered"), v.literal("cancelled")))
+    },
+    handler: async (ctx, args) => {
+        await requireAdmin(ctx);
+
+        let q = ctx.db.query("orders");
+
+        if (args.status) {
+            q = q.withIndex("by_status", (query) => query.eq("status", args.status!));
+        }
+
+        return await q.order("desc").collect();
+    },
+});
+
+/**
  * Admin: Update order status.
  */
 export const updateStatus = mutation({

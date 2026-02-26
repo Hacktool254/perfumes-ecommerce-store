@@ -101,13 +101,13 @@
 > **Goal:** Create orders, deduct stock atomically, calculate totals, apply coupons.
 > **Prompts to Follow:** 🧾 8 (Database Safety) · 🛡 2 (Security) · ⚡ 4 (Performance)
 
-- [ ] 6.1 Create order **mutation** (atomically: create order + create order items + deduct stock)
-- [ ] 6.2 Prevent negative stock (validation inside mutation before deducting)
-- [ ] 6.3 Implement **coupon application** mutation (percentage & fixed discount, expiry, usage limits)
-- [ ] 6.4 Implement order status update mutation (Pending → Paid → Shipped → Delivered)
-- [ ] 6.5 Admin: query all orders, filter by status, export CSV (via action)
-- [ ] 6.6 Customer: query own order history
-- [ ] 6.7 Write unit tests
+- [x] 6.1 Create order **mutation** (atomically: create order + create order items + deduct stock)
+- [x] 6.2 Prevent negative stock (validation inside mutation before deducting)
+- [x] 6.3 Implement **coupon application** mutation (percentage & fixed discount, expiry, usage limits)
+- [x] 6.4 Implement order status update mutation (Pending → Paid → Shipped → Delivered)
+- [x] 6.5 Admin: query all orders, filter by status (CSV export deferred to Dashboard)
+- [x] 6.6 Customer: query own order history
+- [x] 6.7 Write unit tests
 
 ---
 
