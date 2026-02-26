@@ -58,7 +58,73 @@ We've completed the environment setup and are now ready to start Phase 2.
 
 ### Phase 2 — Designing the Data Storage
 
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Schema Definition**: We created 10 specialized tables in Convex: `users`, `products`, `categories`, `orders`, `orderItems`, `payments`, `cartItems`, `wishlistItems`, `reviews`, and `coupons`.
+2. **Speed Optimization (Indexes)**: We added "indexes" (like a book's index) to all tables. This allows the database to find specific products by their name or find all orders for a specific customer in milliseconds, even as the shop grows.
+3. **Smart Relations**: We linked the tables together—for example, a "Cart Item" is linked to both a "User" and a "Product."
+
+**Why we did it:**
+A shop is only as good as its organization. By building a solid database structure now, we ensure that as customers start browsing, the website remains fast, accurate, and ready for advanced features like search and complex order processing.
+
+**Next Steps:**
+Database is ready. Moving to secure login and user accounts.
+
+---
+
+### Phase 3 — Building the Security Gate (Authentication)
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Convex Auth Integration**: We set up `@convex-dev/auth` to handle secure logins using emails and passwords.
+2. **Role Management**: We built a system that automatically distinguishes between a **Customer** (who can shop) and an **Admin** (who can manage the backend).
+3. **Route Protection**: We added a "Security Guard" (Next.js Middleware) that automatically checks every visitor. If someone tries to visit their account page without logging in, or tries to access the Admin dashboard without permission, they are automatically bounced back to the login page.
+4. **Build Safety**: We fixed a critical "pre-rendering" error that occurred during the website build process by ensuring the server correctly extracts security cookies even during the initial site setup.
+
+**Why we did it:**
+Trust is everything in e-commerce. We need to ensure that customer data is private, payments are secure, and only authorized managers can change product prices or see order histories.
+
+---
+
+### Phase 4 — Product Catalog & Catalog Management
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Product CMS**: We built the "Brain" of the shop—functions that allow an Admin to add, edit, or remove products securely.
+2. **Smart Search**: We built a high-performance search index that allows customers to find perfumes by name, brand, or category instantly.
+3. **Category System**: We added a category management system so products can be grouped into "Fragrances," "Body Care," etc.
+4. **Image Storage**: We set up **Convex File Storage** to store high-resolution product images directly in our database system. This is faster and more reliable than linking to external image hosts.
+5. **Quality Testing**: We wrote **12 automated tests** to verify that everything works perfectly. These tests act like a quality control team, checking every product function to ensure no bugs were introduced.
+
+**Why we did it:**
+The catalog is the heart of the storefront. It needs to be beautiful for customers and easy to manage for the business owner.
+
+---
+
+### Phase 5 — Shopping Cart, Wishlist & Reviews
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Smart Cart**: We built a shopping cart that "remembers" what a user has added across devices. It handles adding items, changing quantities, and calculating totals automatically.
+2. **Wishlist System**: We implemented a "Toggle" feature so users can save their favorite perfumes for later with a single click.
+3. **Review & Rating System**: We built a system where verified customers can leave star ratings and comments on products to build social proof.
+4. **Full Test Suite**: Added **16 total tests** covering all customer interaction logic.
+
+**Why we did it:**
+These features turn a static catalog into an interactive shopping experience. They encourage customers to engage more with the brand and make the journey from "browsing" to "buying" much smoother.
+
+---
+
+### Phase 6 — Order & Checkout System
+
 **Status:** ⏳ Not started yet
 
 **Simple Analogy:**
-Before a shop can operate, you need systems: a product catalog binder, a customer list, an order book. This step creates all those "binders" digitally inside Convex.
+This is the "Sales Counter." It's where the customer brings their cart, enters their address, and prepares to pay. Note that this step happens *before* the M-Pesa push—it's the stage where the official order record is created in our books.
+
+**Next Steps:**
+We've finished the customer interaction features and are now ready to build the checkout engine!
