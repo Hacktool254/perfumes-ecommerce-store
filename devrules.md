@@ -151,11 +151,11 @@
 
 - [x] 9.1 Define **luxury color palette** (neutrals, golds, dark tones) in Tailwind config
 - [x] 9.2 Set up **Google Fonts** (monsta fectro https://ifonts.xyz/monsta-fectro-font.html + nebula https://www.dafont.com/nebula-2.font)
-- [ ] 9.3 Build **global layout**: Header (nav), main content area, Footer
-- [ ] 9.4 Build **Navigation bar** component (Home, Shop, Categories, About, Contact, Cart, Account)
-- [ ] 9.5 Build **Footer** component (newsletter signup, quick links, brand typography)
-- [ ] 9.6 Add **`prefers-reduced-motion`** media query support globally
-- [ ] 9.7 Configure `next/image` with Cloudinary/Convex file storage loader for optimized images
+- [x] 9.3 Build **global layout**: Header (nav), main content area, Footer
+- [x] 9.4 Build **Navigation bar** component (Home, Shop, Categories, About, Contact, Cart, Account)
+- [x] 9.5 Build **Footer** component (newsletter signup, quick links, brand typography)
+- [x] 9.6 Add **`prefers-reduced-motion`** media query support globally
+- [x] 9.7 Configure `next/image` with Cloudinary/Convex file storage loader for optimized images
 
 ---
 
