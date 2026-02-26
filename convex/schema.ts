@@ -138,6 +138,7 @@ export default defineSchema({
         code: v.string(),
         discountType: v.union(v.literal("percentage"), v.literal("fixed")),
         discountValue: v.number(),
+        minOrderAmount: v.optional(v.number()),
         expiresAt: v.optional(v.number()),
         usageLimit: v.optional(v.number()),
         usedCount: v.number(),

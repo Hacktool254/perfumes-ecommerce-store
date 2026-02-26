@@ -121,10 +121,16 @@ These features turn a static catalog into an interactive shopping experience. Th
 
 ### Phase 6 — Order & Checkout System
 
-**Status:** ⏳ Not started yet
+**Status:** ✅ Completed
 
-**Simple Analogy:**
-This is the "Sales Counter." It's where the customer brings their cart, enters their address, and prepares to pay. Note that this step happens *before* the M-Pesa push—it's the stage where the official order record is created in our books.
+**What we did:**
+1. **Atomic Place Order**: We built a single powerful function that creates an order, links the items, deducts stock, and clears the cart all at once. Because it's "atomic," if any step fails (e.g., someone buys the last perfume a second before you), the whole process cancels automatically so your data never gets messy.
+2. **Stock Protection**: Added strict checks to prevent the store from selling more items than it has in stock.
+3. **Smart Coupons**: Created a discount engine that supports both % off and fixed KES amounts. It automatically checks for expiry dates and usage limits (e.g., "First 10 people get 10% off").
+4. **Order History**: Customers can now view their historical orders and track their statuses from "Pending" to "Delivered."
+
+**Why we did it:**
+This is the machine that turns interest into revenue. It ensures inventory is accurate and gives the business owner the tools to run promotions and manage fulfillments.
 
 **Next Steps:**
-We've finished the customer interaction features and are now ready to build the checkout engine!
+Transaction logic is solid. Now it's time for **Phase 7 — M-Pesa Integration (Daraja API).** This is where we handle the real money! 💸
