@@ -1,15 +1,27 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
-import "./globals.css";
+import localFont from "next/font/local";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+const nebula = localFont({
+  src: "../../public/fonts/Nebula-Regular.otf",
+  variable: "--font-nebula",
+  display: "swap",
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
+const monstaFectro = localFont({
+  src: [
+    {
+      path: "../../public/fonts/monsta-fectro.otf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/monsta-fectro-italic.otf",
+      weight: "400",
+      style: "italic",
+    }
+  ],
+  variable: "--font-monsta-fectro",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -20,6 +32,8 @@ export const metadata: Metadata = {
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 
+import "./globals.css";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +43,7 @@ export default function RootLayout({
     <ConvexAuthNextjsServerProvider>
       <html lang="en">
         <body
-          className={`${inter.variable} ${playfair.variable} antialiased`}
+          className={`${nebula.variable} ${monstaFectro.variable} antialiased`}
         >
           <ConvexClientProvider>{children}</ConvexClientProvider>
         </body>

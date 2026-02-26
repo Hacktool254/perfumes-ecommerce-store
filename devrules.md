@@ -150,7 +150,7 @@
 > **Prompts to Follow:** 🎨 7 (Animation Control) · ⚡ 4 (Performance) · 🏗 3 (Architecture)
 
 - [x] 9.1 Define **luxury color palette** (neutrals, golds, dark tones) in Tailwind config
-- [ ] 9.2 Set up **Google Fonts** (monsta fectro + nebula)
+- [x] 9.2 Set up **Google Fonts** (monsta fectro https://ifonts.xyz/monsta-fectro-font.html + nebula https://www.dafont.com/nebula-2.font)
 - [ ] 9.3 Build **global layout**: Header (nav), main content area, Footer
 - [ ] 9.4 Build **Navigation bar** component (Home, Shop, Categories, About, Contact, Cart, Account)
 - [ ] 9.5 Build **Footer** component (newsletter signup, quick links, brand typography)
