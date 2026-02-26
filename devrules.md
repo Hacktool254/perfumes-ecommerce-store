@@ -149,8 +149,8 @@
 > **Goal:** Build the visual foundation — typography, colors, global layout, navigation.
 > **Prompts to Follow:** 🎨 7 (Animation Control) · ⚡ 4 (Performance) · 🏗 3 (Architecture)
 
-- [ ] 9.1 Define **luxury color palette** (neutrals, golds, dark tones) in Tailwind config
-- [ ] 9.2 Set up **Google Fonts** (serif headline + clean sans-serif body)
+- [x] 9.1 Define **luxury color palette** (neutrals, golds, dark tones) in Tailwind config
+- [ ] 9.2 Set up **Google Fonts** (monsta fectro + nebula)
 - [ ] 9.3 Build **global layout**: Header (nav), main content area, Footer
 - [ ] 9.4 Build **Navigation bar** component (Home, Shop, Categories, About, Contact, Cart, Account)
 - [ ] 9.5 Build **Footer** component (newsletter signup, quick links, brand typography)
