@@ -198,16 +198,16 @@
 > **Goal:** Cart page, checkout form, M-Pesa STK Push UI, order confirmation.
 > **Prompts to Follow:** 💳 5 (M-Pesa) · 🛡 2 (Security) · ⚡ 4 (Performance)
 
-- [ ] 12.1 **Cart page** — item list, quantity adjustment, remove, coupon code input, auto-totals
-- [ ] 12.2 **Checkout page:**
+- [x] 12.1 **Cart page** — item list, quantity adjustment, remove, coupon code input, auto-totals
+- [x] 12.2 **Checkout page:**
   - Shipping info form (React Hook Form + Zod)
   - M-Pesa phone number input
   - "Pay Now" → triggers Convex action for STK Push
   - Loading/waiting state while user confirms on phone
   - Success / failure feedback (real-time via Convex subscription)
-- [ ] 12.3 **Order confirmation page** — summary + receipt
-- [ ] 12.4 Connect everything to Convex functions
-- [ ] 12.5 Handle edge cases: timeout, failure, duplicate submission
+- [x] 12.3 **Order confirmation page** — summary + receipt
+- [x] 12.4 Connect everything to Convex functions
+- [x] 12.5 Handle edge cases: timeout, failure, duplicate submission
 
 ---
 
