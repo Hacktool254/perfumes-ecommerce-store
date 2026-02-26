@@ -176,13 +176,15 @@ export const adminList = query({
     handler: async (ctx, args) => {
         await requireAdmin(ctx);
 
-        let q = ctx.db.query("orders");
-
         if (args.status) {
-            q = q.withIndex("by_status", (query) => query.eq("status", args.status!));
+            return await ctx.db
+                .query("orders")
+                .withIndex("by_status", (q) => q.eq("status", args.status!))
+                .order("desc")
+                .collect();
         }
 
-        return await q.order("desc").collect();
+        return await ctx.db.query("orders").order("desc").collect();
     },
 });
 

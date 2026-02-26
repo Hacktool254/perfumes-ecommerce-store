@@ -90,7 +90,7 @@ describe("Orders & Stock Management", () => {
 
         // Verify stock deduction
         const product = await t.run(async (ctx) => await ctx.db.get(productId));
-        expect(product.stock).toBe(8); // 10 - 2
+        expect(product!.stock).toBe(8); // 10 - 2
 
         // Verify cart is cleared
         const cart = await t.run(async (ctx) => {
@@ -182,7 +182,7 @@ describe("Coupons", () => {
         const coupon = await t.run(async (ctx) => {
             return await ctx.db.query("coupons").withIndex("by_code", q => q.eq("code", "UMMIE10")).unique();
         });
-        expect(coupon.usedCount).toBe(1);
+        expect(coupon!.usedCount).toBe(1);
     });
 
     test("expired coupon is rejected", async () => {
