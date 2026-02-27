@@ -132,5 +132,86 @@ These features turn a static catalog into an interactive shopping experience. Th
 **Why we did it:**
 This is the machine that turns interest into revenue. It ensures inventory is accurate and gives the business owner the tools to run promotions and manage fulfillments.
 
+---
+
+### Phase 7 — M-Pesa Payment Integration (Daraja API)
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Daraja API Integration**: We built a secure bridge between Convex and Safaricom's Daraja API.
+2. **STK Push**: Implemented the seamless "STK Push" feature where customers enter their phone number and receive a prompt on their phone to enter their M-Pesa PIN.
+3. **Secure Webhooks**: Created a special "listening" endpoint (HTTP route) that Safaricom talks to when a payment is successful. We added security checks to ensure only Safaricom can trigger payment updates.
+4. **Idempotency**: Ensured that a single payment can never be processed twice, protecting both the customer and the business.
+
+**Why we did it:**
+In Kenya, M-Pesa is the gold standard for payments. Providing a direct "Pay via M-Pesa" button reduces friction and builds immense trust with local shoppers.
+
+---
+
+### Phase 8 — Transactional Email System
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Email Integration**: Connected the shop to **Resend** for reliable email delivery.
+2. **Lifecycle Emails**: Created automated emails for order confirmation and shipping updates.
+3. **Abandoned Cart Recovery**: Set up a "Cron Job" (a timer) that periodically checks for users who left items in their cart and sends them a gentle reminder email.
+
+**Why we did it:**
+Emails keep customers informed and feeling valued. Abandoned cart recovery is a proven way to win back sales that might have otherwise been lost.
+
+---
+
+### Phase 9 — Frontend Design System
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Luxury Palette**: Configured a custom TailwindCSS theme with deep charcoals, rich golds, and warm cream tones.
+2. **Premium Typography**: Integrated the specific **Nebula** and **Monsta Fectro** fonts for a high-end editorial look.
+3. **Layout Separation**: Restructured the app into "Main" and "Auth" sections so each can have its own tailored experience (e.g., no header/footer during login).
+
+---
+
+### Phase 10 — Building the Cinematic Homepage
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Immersive Hero Section**: Built a full-screen welcome experience with parallax effects.
+2. **Editorial Banners**: Created bold typography-driven sections that tell the brand's story.
+3. **Interactive Grids**: Features like 3D hover effects on categories and smooth reveal animations on products.
+4. **GSAP & Framer Motion**: Used world-class animation libraries to make the scroll experience feel "fluid" and alive.
+
+---
+
+### Phase 11 & 12 — Product Catalog & Checkout UI
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Shop & Filters**: Built a high-performance shop page where users can filter by brand, price, or gender without page reloads.
+2. **Product Detail Pages**: Created elegant product views with high-res galleries and related product carousels.
+3. **Streamlined Checkout**: Built a single-page checkout form with real-time validation and M-Pesa integration.
+
+---
+
+### Phase 13 — Auth Features & Account Dashboard
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Premium Auth Experience**: Built a truly "WOW" authentication system with organic pulsing circles and glassmorphism (frosted glass) effects for Login and Registration.
+2. **Password Reset Flow**: Implemented a secure "Forgot Password" system within the same premium UI, allowing users to safely reset their credentials via email links.
+3. **Full Account Dashboard**: Built a luxury account center with a specialized sidebar layout. 
+    - **Profile Management**: Users can now update their personal details and contact information.
+    - **Order History**: A clean, detailed view of all past purchases with real-time status updates.
+    - **Wishlist**: A dedicated space for users to save and manage their favorite fragrances.
+4. **Data Sync**: Fully integrated the dashboard with our Convex backend database.
+
+**Why we did it:**
+Authentication and account management are the foundation of a personalized luxury experience. By providing a beautiful yet functional dashboard, we give customers a sense of ownership and convenience, making it easy for them to return and find their favorite products or track their latest orders.
+
 **Next Steps:**
-Transaction logic is solid. Now it's time for **Phase 7 — M-Pesa Integration (Daraja API).** This is where we handle the real money! 💸
+Site features are now complete for customers. Next is **Phase 14 — Admin Dashboard** to give the business owner full control over products, orders, and analytics. We are also finalizing the ingestion of the full product catalog! 🧴✨

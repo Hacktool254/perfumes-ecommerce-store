@@ -1,0 +1,342 @@
+{
+    "products": [
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Agham",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Yara",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Assad",
+            "gender": "men"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Rave",
+            "name": "Now Rave",
+            "gender": "men"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Rave",
+            "name": "Now Pink (Women)",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Rave",
+            "name": "Now Red",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Khamrah",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Sublime",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Weekend Berries",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Afnan",
+            "name": "9PM Black",
+            "gender": "men"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Afnan",
+            "name": "9PM Rebel",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Afnan",
+            "name": "9PM Pink",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Afnan",
+            "name": "Supremacy Collector Edition",
+            "gender": "men"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Armaf",
+            "name": "Club De Nuit Man",
+            "gender": "men"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Armaf",
+            "name": "Club De Nuit Woman",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Armaf",
+            "name": "Club De Nuit Limited Edition",
+            "gender": "men"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Armaf",
+            "name": "Club De Nuit Untold",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Armaf",
+            "name": "Club De Nuit Maleka",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Armaf",
+            "name": "Club De Nuit Intense Man",
+            "gender": "men"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Atheri",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Rimmah",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Nebras",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Haya",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Mayar",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Swiss Arabian",
+            "name": "Shaghaf Blue",
+            "gender": "men"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Swiss Arabian",
+            "name": "Shaghaf Red",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "The Kingdom",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Teriaq",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Scarlet",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Sakeena",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Fakhar Femme",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Lattafa",
+            "name": "Ansaam Gold",
+            "gender": "women"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Maison Alhambra",
+            "name": "Vanilla Voyage",
+            "gender": "unisex"
+        },
+        {
+            "category": "Perfume",
+            "brand": "Maison Alhambra",
+            "name": "Vanilla Aura",
+            "gender": "unisex"
+        },
+        {
+            "category": "Body Wash",
+            "brand": "Dove",
+            "name": "All Variants"
+        },
+        {
+            "category": "Body Wash",
+            "brand": "St Ives",
+            "name": "Citrus & Cherry Blossom"
+        },
+        {
+            "category": "Body Wash",
+            "brand": "St Ives",
+            "name": "Oatmeal & Shea Butter"
+        },
+        {
+            "category": "Body Wash",
+            "brand": "St Ives",
+            "name": "Vanilla & Oatmilk"
+        },
+        {
+            "category": "Body Wash",
+            "brand": "St Ives",
+            "name": "Fresh Peach & Jasmine"
+        },
+        {
+            "category": "Body Wash",
+            "brand": "Hobby",
+            "name": "Shower Gel (All Variants)"
+        },
+        {
+            "category": "Body Oil",
+            "brand": "Ballet",
+            "name": "Body Oil",
+            "size": "125ml"
+        },
+        {
+            "category": "Body Oil",
+            "brand": "Ballet",
+            "name": "Body Oil",
+            "size": "240ml"
+        },
+        {
+            "category": "Body Oil",
+            "brand": "Vaseline",
+            "name": "Cocoa Radiant Body Oil"
+        },
+        {
+            "category": "Body Oil",
+            "brand": "Vaseline",
+            "name": "Vitamin B3 Body Oil"
+        },
+        {
+            "category": "Body Oil",
+            "brand": "Argan",
+            "name": "Moroccan Argan Oil"
+        },
+        {
+            "category": "Body Oil",
+            "brand": "Palmer’s",
+            "name": "Cocoa Butter Body Oil"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Vaseline",
+            "name": "Cocoa Radiant Lotion",
+            "size": "200ml"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Vaseline",
+            "name": "Cocoa Radiant Lotion",
+            "size": "400ml"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Vaseline",
+            "name": "Men Cooling"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Vaseline",
+            "name": "Advanced Repair"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Nivea",
+            "name": "Radiant & Beauty Even Glow"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Nivea",
+            "name": "Nourishing Cocoa"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Nivea",
+            "name": "Shea Smooth"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Nivea",
+            "name": "Rich Nourishing"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Nivea",
+            "name": "Repair & Care"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Dove",
+            "name": "Essential Care"
+        },
+        {
+            "category": "Body Lotion",
+            "brand": "Dove",
+            "name": "Intensive Care"
+        },
+        {
+            "category": "Body Cream",
+            "brand": "American Dream",
+            "name": "Cocoa Butter Lemon Body Cream"
+        },
+        {
+            "category": "Body Mist",
+            "brand": "Dear Body",
+            "name": "Saturday"
+        },
+        {
+            "category": "Body Mist",
+            "brand": "Dear Body",
+            "name": "Wednesday"
+        }
+    ]
+}

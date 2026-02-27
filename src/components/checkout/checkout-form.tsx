@@ -20,10 +20,23 @@ const checkoutSchema = z.object({
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
-export function CheckoutForm() {
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { useCart } from "@/hooks/use-cart";
+
+interface CheckoutFormProps {
+    items: any[];
+    subtotal: number;
+    total: number;
+}
+
+export function CheckoutForm({ items, subtotal, total }: CheckoutFormProps) {
     const router = useRouter();
+    const { clearCart } = useCart();
     const [paymentStatus, setPaymentStatus] = useState<"idle" | "awaiting_pin" | "success" | "failed">("idle");
     const [errorMessage, setErrorMessage] = useState("");
+
+    const placeOrder = useMutation(api.orders.placeOrder);
 
     const { register, handleSubmit, formState: { errors } } = useForm<CheckoutFormValues>({
         resolver: zodResolver(checkoutSchema),
@@ -35,27 +48,40 @@ export function CheckoutForm() {
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
             setPaymentStatus("awaiting_pin");
-            console.log("Triggering M-Pesa STK Push to:", data.mpesaNumber);
 
-            // Simulate network request to Convex action for STK Push
+            // Prepare guest items for the mutation
+            const guestItemsInput = items.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity
+            }));
+
+            // Call the real Convex mutation
+            const orderId = await placeOrder({
+                customerEmail: data.email,
+                customerName: `${data.firstName} ${data.lastName}`,
+                customerPhone: data.mpesaNumber, // Using M-Pesa number as phone for simplicity
+                shippingAddress: `${data.address}, ${data.city}`,
+                guestItems: guestItemsInput,
+            });
+
+            // Simulate the payment waiting period
             await new Promise(resolve => setTimeout(resolve, 3000));
 
-            // Simulate user entering PIN on their phone
-            console.log("Waiting for user callback...");
-            await new Promise(resolve => setTimeout(resolve, 4000));
-
-            // Simulate Success for now
+            // In a real implementation, you'd wait for a payment record success
             setPaymentStatus("success");
 
-            // Redirect to Order Confirmation after short delay
+            // Clear the local/guest cart
+            await clearCart();
+
+            // Redirect to Order Confirmation
             setTimeout(() => {
-                router.push("/order-confirmation/ORD-0847293"); // Mock ID
+                router.push(`/order-confirmation/${orderId}`);
             }, 2000);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
             setPaymentStatus("failed");
-            setErrorMessage("Payment request timed out or was cancelled. Please try again.");
+            setErrorMessage(error.message || "Something went wrong. Please try again.");
         }
     };
 
@@ -234,7 +260,7 @@ export function CheckoutForm() {
                     disabled={paymentStatus === "awaiting_pin"}
                     className="w-full bg-foreground text-background py-5 rounded-full font-medium text-lg flex items-center justify-center gap-3 hover:bg-foreground/90 transition-all hover:shadow-xl"
                 >
-                    <span>Pay KES 27,500</span>
+                    <span>Pay KES {total.toLocaleString()}</span>
                     <ArrowRight className="w-5 h-5" />
                 </button>
 

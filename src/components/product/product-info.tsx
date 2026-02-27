@@ -4,8 +4,11 @@ import { useState } from "react";
 import { ShoppingBag, Heart, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
 
+import { useCart } from "@/hooks/use-cart";
+
 interface ProductInfoProps {
     product: {
+        id: any;
         name: string;
         brand: string;
         price: number;
@@ -14,19 +17,26 @@ interface ProductInfoProps {
         stockCount?: number;
         notes: string[];
         size: string;
+        images: string[];
     };
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
+    const { addItem } = useCart();
     const [quantity, setQuantity] = useState(1);
     const [isWishlist, setIsWishlist] = useState(false);
     const [isAdding, setIsAdding] = useState(false);
 
-    // Micro-animation for Add to Cart
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         setIsAdding(true);
-        setTimeout(() => setIsAdding(false), 600);
-        // Real implementation will call Convex mutation here
+        try {
+            await addItem(product.id, quantity, product);
+            // Optional: Success toast or feedback
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setTimeout(() => setIsAdding(false), 600);
+        }
     };
 
     return (
@@ -77,8 +87,8 @@ export function ProductInfo({ product }: ProductInfoProps) {
                         onClick={handleAddToCart}
                         disabled={!product.inStock || isAdding}
                         className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-full font-medium transition-colors ${product.inStock
-                                ? "bg-foreground text-background hover:bg-foreground/90 hover:shadow-lg"
-                                : "bg-secondary text-muted-foreground cursor-not-allowed"
+                            ? "bg-foreground text-background hover:bg-foreground/90 hover:shadow-lg"
+                            : "bg-secondary text-muted-foreground cursor-not-allowed"
                             }`}
                     >
                         {isAdding ? "Adding..." : (

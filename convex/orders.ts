@@ -3,6 +3,7 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { requireAdmin, requireUser } from "./users";
 import { Id } from "./_generated/dataModel";
 import { api, internal } from "./_generated/api";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 /**
  * Core Checkout Mutation.
@@ -10,19 +11,48 @@ import { api, internal } from "./_generated/api";
  */
 export const placeOrder = mutation({
     args: {
+        customerEmail: v.string(),
+        customerName: v.string(),
+        customerPhone: v.optional(v.string()),
         shippingAddress: v.string(),
         couponCode: v.optional(v.string()),
+        guestItems: v.optional(v.array(v.object({
+            productId: v.id("products"),
+            quantity: v.number(),
+        }))),
     },
     handler: async (ctx, args) => {
-        const user = await requireUser(ctx);
+        const authUserId = await getAuthUserId(ctx);
+        let userId: Id<"users"> | undefined;
+        let cartItemsData: { productId: Id<"products">, quantity: number, _id?: Id<"cartItems"> }[] = [];
 
-        // 1. Get cart items
-        const cartItems = await ctx.db
-            .query("cartItems")
-            .withIndex("by_user", (q) => q.eq("userId", user._id))
-            .collect();
+        if (authUserId) {
+            // Logged in user: Get their record and cart
+            const authUser = await ctx.db.get(authUserId) as any;
+            if (authUser && authUser.email) {
+                const user = await ctx.db
+                    .query("users")
+                    .withIndex("by_email", (q) => q.eq("email", authUser.email as string))
+                    .unique();
 
-        if (cartItems.length === 0) {
+                if (user) {
+                    userId = user._id;
+                    const dbCartItems = await ctx.db
+                        .query("cartItems")
+                        .withIndex("by_user", (q) => q.eq("userId", user._id))
+                        .collect();
+                    cartItemsData = dbCartItems;
+                }
+            }
+        } else {
+            // Guest user: Use items from arguments
+            if (!args.guestItems || args.guestItems.length === 0) {
+                throw new Error("Guest cart is empty");
+            }
+            cartItemsData = args.guestItems;
+        }
+
+        if (cartItemsData.length === 0) {
             throw new Error("Cart is empty");
         }
 
@@ -30,7 +60,7 @@ export const placeOrder = mutation({
         const productsToOrder = [];
         let subtotal = 0;
 
-        for (const item of cartItems) {
+        for (const item of cartItemsData) {
             const product = await ctx.db.get(item.productId);
             if (!product || !product.isActive) {
                 throw new Error(`Product ${product?.name || "Unknown"} is no longer available`);
@@ -64,7 +94,6 @@ export const placeOrder = mutation({
                 .unique();
 
             if (coupon && coupon.isActive) {
-                // Validation (duplicate of coupons:validate for atomicity)
                 const isExpired = coupon.expiresAt && coupon.expiresAt < Date.now();
                 const limitReached = coupon.usageLimit !== undefined && coupon.usedCount >= coupon.usageLimit;
                 const minMet = !coupon.minOrderAmount || subtotal >= coupon.minOrderAmount;
@@ -77,7 +106,6 @@ export const placeOrder = mutation({
                     }
                     finalCouponId = coupon._id;
 
-                    // Increment usage
                     await ctx.db.patch(coupon._id, {
                         usedCount: coupon.usedCount + 1,
                     });
@@ -89,7 +117,10 @@ export const placeOrder = mutation({
 
         // 4. Create Order record
         const orderId = await ctx.db.insert("orders", {
-            userId: user._id,
+            userId,
+            customerEmail: args.customerEmail,
+            customerName: args.customerName,
+            customerPhone: args.customerPhone,
             status: "pending",
             totalAmount: Math.max(0, totalAmount),
             shippingAddress: args.shippingAddress,
@@ -105,7 +136,7 @@ export const placeOrder = mutation({
                 orderId,
                 productId: item.product._id,
                 quantity: item.quantity,
-                unitPrice: item.product.price, // original price for history
+                unitPrice: item.product.price,
             });
 
             await ctx.db.patch(item.product._id, {
@@ -114,9 +145,13 @@ export const placeOrder = mutation({
             });
         }
 
-        // 6. Clear Cart
-        for (const item of cartItems) {
-            await ctx.db.delete(item._id);
+        // 6. Clear Cart (if logged in)
+        if (userId) {
+            for (const item of cartItemsData) {
+                if (item._id) {
+                    await ctx.db.delete(item._id as Id<"cartItems">);
+                }
+            }
         }
 
         return orderId;

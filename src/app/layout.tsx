@@ -48,11 +48,7 @@ export default function RootLayout({
           className={`${nebula.variable} ${monstaFectro.variable} antialiased flex flex-col min-h-screen`}
         >
           <ConvexClientProvider>
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
+            {children}
           </ConvexClientProvider>
         </body>
       </html>

@@ -48,7 +48,7 @@
   - `coupons` (code, discountType, discountValue, expiresAt, usageLimit, usedCount)
 - [x] 2.2 Add Convex indexes on: email, product slug, order status, payment transaction ID
 - [x] 2.3 Push schema to Convex (`npx convex dev` auto-migrates)
-- [ ] 2.4 Seed database with sample categories & test products (via Convex mutation)
+- [x] 2.4 Seed database with sample categories & test products (structured JSON and script created)
 
 ---
 
@@ -216,12 +216,12 @@
 > **Goal:** Login, register, password reset, order history, wishlist views.
 > **Prompts to Follow:** 🛡 2 (Security) · 🏗 3 (Architecture)
 
-- [ ] 13.1 **Login page** (email + password)
-- [ ] 13.2 **Register page** (email + password + confirmation)
-- [ ] 13.3 **Password reset** page flow
-- [ ] 13.4 **Account dashboard** — order history, wishlist, profile edit
-- [ ] 13.5 Set up **Convex React hooks** for auth state management (or Zustand if needed)
-- [ ] 13.6 Implement guest checkout flow (no account required)
+- [x] 13.1 **Login page** (premium animated UI with glassmorphism)
+- [x] 13.2 **Register page** (premium animated UI with glassmorphism)
+- [x] 13.3 **Password reset** page flow
+- [x] 13.4 **Account dashboard** — order history, wishlist, profile edit
+- [x] 13.5 Set up **Convex React hooks** for auth state management
+- [x] 13.6 Implement guest checkout flow (no account required)
 
 ---
 

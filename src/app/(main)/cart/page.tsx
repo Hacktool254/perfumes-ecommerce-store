@@ -28,20 +28,27 @@ const initialCartItems = [
     }
 ];
 
+import { useCart } from "@/hooks/use-cart";
+
 export default function CartPage() {
-    const [items, setItems] = useState(initialCartItems);
+    const { items, updateQuantity, removeItem, isLoading } = useCart();
 
-    const handleUpdateQuantity = (id: number, newQuantity: number) => {
-        if (newQuantity < 1) return;
-        setItems(items.map(item => item.id === id ? { ...item, quantity: newQuantity } : item));
+    const handleUpdateQuantity = (id: string, newQuantity: number, cartItemId?: any) => {
+        updateQuantity(id as any, newQuantity, cartItemId);
     };
 
-    const handleRemove = (id: number) => {
-        setItems(items.filter(item => item.id !== id));
+    const handleRemove = (id: string, cartItemId?: any) => {
+        removeItem(id as any, cartItemId);
     };
 
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = items.reduce((sum: number, item: any) => {
+        const price = item.product?.price || 0;
+        return sum + (price * item.quantity);
+    }, 0);
+
     const isEmpty = items.length === 0;
+
+    if (isLoading) return <div className="pt-40 text-center">Loading cart...</div>;
 
     return (
         <div className="min-h-screen bg-background pt-24 pb-32">
@@ -75,10 +82,15 @@ export default function CartPage() {
                             <div className="border-t border-border">
                                 {items.map(item => (
                                     <CartItemRow
-                                        key={item.id}
-                                        item={item}
-                                        onUpdateQuantity={handleUpdateQuantity}
-                                        onRemove={handleRemove}
+                                        key={item.productId}
+                                        id={item.productId}
+                                        name={item.product?.name || "Product"}
+                                        brand={item.product?.brand || ""}
+                                        price={item.product?.price || 0}
+                                        image={item.product?.images?.[0] || ""}
+                                        quantity={item.quantity}
+                                        onUpdateQuantity={(newQty) => handleUpdateQuantity(item.productId, newQty, item._id)}
+                                        onRemove={() => handleRemove(item.productId, item._id)}
                                     />
                                 ))}
                             </div>

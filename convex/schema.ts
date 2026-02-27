@@ -57,7 +57,10 @@ export default defineSchema({
 
     // ─── Orders ──────────────────────────────────────────────────────────────────
     orders: defineTable({
-        userId: v.id("users"),
+        userId: v.optional(v.id("users")),
+        customerEmail: v.string(),
+        customerName: v.string(),
+        customerPhone: v.optional(v.string()),
         status: v.union(
             v.literal("pending"),
             v.literal("paid"),
@@ -74,7 +77,8 @@ export default defineSchema({
     })
         .index("by_user", ["userId"])
         .index("by_status", ["status"])
-        .index("by_user_status", ["userId", "status"]),
+        .index("by_user_status", ["userId", "status"])
+        .index("by_email", ["customerEmail"]),
 
     // ─── Order Items ─────────────────────────────────────────────────────────────
     orderItems: defineTable({
