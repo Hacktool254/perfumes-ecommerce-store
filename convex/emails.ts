@@ -44,7 +44,7 @@ export const sendOrderConfirmation = internalAction({
     args: { orderId: v.id("orders") },
     handler: async (ctx, args) => {
         const order = await ctx.runQuery(api.orders.get, { orderId: args.orderId });
-        if (!order) return;
+        if (!order || !order.userId) return;
 
         const user = await ctx.runQuery(internal.emails.getUserEmail, { userId: order.userId });
         if (!user || !user.email) return;
@@ -76,7 +76,7 @@ export const sendShippingNotification = internalAction({
     args: { orderId: v.id("orders") },
     handler: async (ctx, args) => {
         const order = await ctx.runQuery(api.orders.get, { orderId: args.orderId });
-        if (!order) return;
+        if (!order || !order.userId) return;
 
         const user = await ctx.runQuery(internal.emails.getUserEmail, { userId: order.userId });
         if (!user || !user.email) return;

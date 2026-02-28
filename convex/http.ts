@@ -1,9 +1,15 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { auth } from "./auth";
 
 const http = httpRouter();
 
+// ─── Auth routes ─────────────────────────────────────────────────────────────
+// @convex-dev/auth registers its own routes for sign-in, sign-out, etc.
+auth.addHttpRoutes(http);
+
+// ─── M-Pesa Callback ────────────────────────────────────────────────────────
 http.route({
     path: "/mpesa-callback",
     method: "POST",
@@ -22,7 +28,6 @@ http.route({
             });
 
             // Always return HTTP 200 to Safaricom as long as we've stored/processed it
-            // Otherwise Safaricom might keep retrying
             return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: "Success" }), {
                 status: 200,
                 headers: {
@@ -31,8 +36,6 @@ http.route({
             });
         } catch (error) {
             console.error("M-Pesa Webhook Error:", error);
-            // Even on error, we might want to return 200 so Daraja doesn't resend
-            // But if it's a parsing error that we can't recover from, 400 is fine
             return new Response("Internal Server Error", { status: 500 });
         }
     }),

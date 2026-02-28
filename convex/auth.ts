@@ -1,30 +1,35 @@
 import { convexAuth } from "@convex-dev/auth/server";
 import { Password } from "@convex-dev/auth/providers/Password";
 import { DataModel } from "./_generated/dataModel";
-import { GenericDataModel, GenericMutationCtx } from "convex/server";
+import { GenericMutationCtx } from "convex/server";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-    providers: [Password],
+    providers: [
+        Password({
+            profile(params) {
+                return {
+                    email: params.email as string,
+                    ...(params.name ? { name: params.name as string } : {}),
+                };
+            },
+        }),
+    ],
     callbacks: {
         async afterUserCreatedOrUpdated(ctx: GenericMutationCtx<DataModel>, args) {
-            if (args.type === "oauth" || args.type === "email") {
-                // Find existing user in our custom table by email, or create new
-                const existingUser = await ctx.db
-                    .query("users")
-                    .withIndex("by_email", (q) => q.eq("email", args.profile.email as string))
-                    .unique();
+            // The auth library creates/updates the user in its `users` table.
+            // We patch in our app-specific defaults if they're missing.
+            const user = await ctx.db.get(args.userId);
 
+            if (user && !user.role) {
+                // If this is the very first user in the entire database, make them an admin.
+                const allUsers = await ctx.db.query("users").collect();
+                const isFirstUser = allUsers.length === 1;
 
-                if (!existingUser) {
-                    // If fresh signup, create a customer role
-                    await ctx.db.insert("users", {
-                        email: args.profile.email as string,
-                        hashedPassword: "", // Auth provider handles the real hash securely
-                        role: "customer",
-                        createdAt: Date.now(),
-                        updatedAt: Date.now(),
-                    });
-                }
+                await ctx.db.patch(args.userId, {
+                    role: isFirstUser ? "admin" : "customer",
+                    createdAt: Date.now(),
+                    updatedAt: Date.now(),
+                });
             }
         },
     },

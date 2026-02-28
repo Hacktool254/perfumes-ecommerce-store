@@ -1,31 +1,18 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
+import { v } from "convex/values";
 
 /**
- * Returns the currently authenticated user from our custom `users` table.
- * Uses the email from the auth session to perform a lookup.
+ * Returns the currently authenticated user.
+ * Since @convex-dev/auth stores users directly in the `users` table,
+ * the auth userId IS the user document ID.
  */
 export const viewer = query({
     args: {},
     handler: async (ctx) => {
-        const authUserId = await getAuthUserId(ctx);
-        if (authUserId === null) {
-            return null;
-        }
-
-        // Get the auth system user to retrieve their email
-        const authUser = await ctx.db.get(authUserId);
-        if (!authUser || !authUser.email) {
-            return null;
-        }
-
-        // Look up our custom user record by email
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_email", (q) => q.eq("email", authUser.email as string))
-            .unique();
-
-        return user;
+        const userId = await getAuthUserId(ctx);
+        if (userId === null) return null;
+        return await ctx.db.get(userId);
     },
 });
 
@@ -35,17 +22,10 @@ export const viewer = query({
 export const isAdmin = query({
     args: {},
     handler: async (ctx) => {
-        const authUserId = await getAuthUserId(ctx);
-        if (!authUserId) return false;
+        const userId = await getAuthUserId(ctx);
+        if (!userId) return false;
 
-        const authUser = await ctx.db.get(authUserId);
-        if (!authUser || !authUser.email) return false;
-
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_email", (q) => q.eq("email", authUser.email as string))
-            .unique();
-
+        const user = await ctx.db.get(userId);
         return user?.role === "admin";
     },
 });
@@ -55,17 +35,10 @@ export const isAdmin = query({
  * Throws an error if not authenticated or not an admin.
  */
 export async function requireAdmin(ctx: any) {
-    const authUserId = await getAuthUserId(ctx);
-    if (!authUserId) throw new Error("Unauthorized");
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
 
-    const authUser = await ctx.db.get(authUserId);
-    if (!authUser || !authUser.email) throw new Error("Unauthorized");
-
-    const user = await ctx.db
-        .query("users")
-        .withIndex("by_email", (q: any) => q.eq("email", authUser.email as string))
-        .unique();
-
+    const user = await ctx.db.get(userId);
     if (user?.role !== "admin") {
         throw new Error("Forbidden: Admin access only");
     }
@@ -75,21 +48,75 @@ export async function requireAdmin(ctx: any) {
 
 /**
  * Internal helper to assert a user is authenticated.
- * Returns the user from our custom table.
+ * Returns the user document.
  */
 export async function requireUser(ctx: any) {
-    const authUserId = await getAuthUserId(ctx);
-    if (!authUserId) throw new Error("Unauthorized");
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
 
-    const authUser = await ctx.db.get(authUserId);
-    if (!authUser || !authUser.email) throw new Error("Unauthorized");
-
-    const user = await ctx.db
-        .query("users")
-        .withIndex("by_email", (q: any) => q.eq("email", authUser.email as string))
-        .unique();
-
+    const user = await ctx.db.get(userId);
     if (!user) throw new Error("Unauthorized: User record not found");
 
     return user;
 }
+
+/**
+ * Mutation to promote a user to admin by email.
+ * This should only be called from the Convex dashboard or an internal script.
+ */
+export const promoteToAdmin = internalMutation({
+    args: { email: v.string() },
+    handler: async (ctx, { email }) => {
+        const user = await ctx.db
+            .query("users")
+            .withIndex("email", (q) => q.eq("email", email))
+            .unique();
+
+        if (!user) {
+            throw new Error(`No user found with email: ${email}`);
+        }
+
+        await ctx.db.patch(user._id, {
+            role: "admin",
+            updatedAt: Date.now(),
+        });
+
+        return { success: true, userId: user._id, email };
+    },
+});
+
+/**
+ * Seed an admin account directly (for initial setup).
+ * Run this from the Convex dashboard if you need to create a fresh admin.
+ */
+export const seedAdmin = internalMutation({
+    args: {
+        email: v.string(),
+    },
+    handler: async (ctx, { email }) => {
+        // Check if user already exists
+        const existing = await ctx.db
+            .query("users")
+            .withIndex("email", (q) => q.eq("email", email))
+            .unique();
+
+        if (existing) {
+            // Just promote to admin
+            await ctx.db.patch(existing._id, {
+                role: "admin",
+                updatedAt: Date.now(),
+            });
+            return { action: "promoted", userId: existing._id };
+        }
+
+        // Create a new admin user (they'll need to sign up via the auth flow to set a password)
+        const userId = await ctx.db.insert("users", {
+            email,
+            role: "admin",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+
+        return { action: "created", userId };
+    },
+});

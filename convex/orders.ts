@@ -32,7 +32,7 @@ export const placeOrder = mutation({
             if (authUser && authUser.email) {
                 const user = await ctx.db
                     .query("users")
-                    .withIndex("by_email", (q) => q.eq("email", authUser.email as string))
+                    .withIndex("email", (q) => q.eq("email", authUser.email as string))
                     .unique();
 
                 if (user) {

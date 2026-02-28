@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import { format } from "date-fns";
 import { Package, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default function OrdersPage() {
-    const orders = useQuery(api.orders.listOrders) as any[];
+    const orders = useQuery(api.orders.list) as any[];
 
     if (orders === undefined) return <div className="p-8 text-center text-gray-500">Loading orders...</div>;
 

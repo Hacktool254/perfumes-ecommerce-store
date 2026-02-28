@@ -42,11 +42,12 @@ type ResetValues = z.infer<typeof resetSchema>;
 
 interface AuthFormProps {
     mode: "login" | "register" | "forgot" | "reset";
+    redirectPath?: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AuthForm({ mode: initialMode }: AuthFormProps) {
+export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthFormProps) {
     const { signIn } = useAuthActions();
     const router = useRouter();
     const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(initialMode);
@@ -82,7 +83,7 @@ export function AuthForm({ mode: initialMode }: AuthFormProps) {
         setIsLoading(true);
         try {
             await signIn("password", { email: values.email, password: values.password, flow: "signIn" });
-            router.push("/account");
+            router.push(redirectPath);
         } catch {
             setServerError("Invalid email or password. Please try again.");
         } finally {
@@ -95,9 +96,15 @@ export function AuthForm({ mode: initialMode }: AuthFormProps) {
         setIsLoading(true);
         try {
             await signIn("password", { email: values.email, password: values.password, name: values.name, flow: "signUp" });
-            router.push("/account");
-        } catch {
-            setServerError("Could not create account. This email may already be in use.");
+            router.push(redirectPath);
+        } catch (error: any) {
+            console.error("Registration error:", error);
+            const msg = error?.message || "";
+            if (msg.toLowerCase().includes("already")) {
+                setServerError("An account already exists with this email. Please sign in instead.");
+            } else {
+                setServerError("Could not create account. Please try again or contact support.");
+            }
         } finally {
             setIsLoading(false);
         }

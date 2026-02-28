@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import { Heart, ShoppingCart, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function WishlistPage() {
-    const wishlist = useQuery(api.wishlist.list);
+    const wishlist = useQuery(api.wishlist.get);
 
     if (wishlist === undefined) return <div className="p-8 text-center text-gray-500">Loading wishlist...</div>;
 

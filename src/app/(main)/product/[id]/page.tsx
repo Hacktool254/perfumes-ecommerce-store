@@ -66,7 +66,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     <p className="text-muted-foreground italic">No reviews yet for this product. Be the first to review!</p>
                 </div>
 
-                <RelatedProducts />
+                <RelatedProducts currentProductId={product.id as any} />
 
             </div>
         </div>

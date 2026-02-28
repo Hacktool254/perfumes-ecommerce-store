@@ -6,16 +6,31 @@ export default defineSchema({
     ...authTables,
 
     // ─── Users ───────────────────────────────────────────────────────────────────
+    // We extend the auth library's users table with our custom fields.
+    // IMPORTANT: We must keep the fields AND indexes from authTables.users
+    // (name, image, email, emailVerificationTime, phone, phoneVerificationTime, isAnonymous)
+    // plus add our app-specific fields as optional.
     users: defineTable({
-        email: v.string(),
-        hashedPassword: v.string(),
-        role: v.union(v.literal("customer"), v.literal("admin")),
+        // --- Fields required by @convex-dev/auth ---
+        name: v.optional(v.string()),
+        image: v.optional(v.string()),
+        email: v.optional(v.string()),
+        emailVerificationTime: v.optional(v.number()),
+        phone: v.optional(v.string()),
+        phoneVerificationTime: v.optional(v.number()),
+        isAnonymous: v.optional(v.boolean()),
+
+        // --- Our custom fields ---
+        role: v.optional(v.union(v.literal("customer"), v.literal("admin"))),
         firstName: v.optional(v.string()),
         lastName: v.optional(v.string()),
-        phone: v.optional(v.string()),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    }).index("by_email", ["email"]),
+        hashedPassword: v.optional(v.string()),
+        createdAt: v.optional(v.number()),
+        updatedAt: v.optional(v.number()),
+    })
+        // Auth library's required indexes (must keep these exact names)
+        .index("email", ["email"])
+        .index("phone", ["phone"]),
 
     // ─── Categories ──────────────────────────────────────────────────────────────
     categories: defineTable({
