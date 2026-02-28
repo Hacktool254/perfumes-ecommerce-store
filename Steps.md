@@ -209,9 +209,10 @@ Emails keep customers informed and feeling valued. Abandoned cart recovery is a 
     - **Order History**: A clean, detailed view of all past purchases with real-time status updates.
     - **Wishlist**: A dedicated space for users to save and manage their favorite fragrances.
 4. **Data Sync**: Fully integrated the dashboard with our Convex backend database.
+5. **Guest Checkout**: Implemented a complete flow for users to purchase without an account, including persistent carts via `localStorage`.
 
 **Why we did it:**
-Authentication and account management are the foundation of a personalized luxury experience. By providing a beautiful yet functional dashboard, we give customers a sense of ownership and convenience, making it easy for them to return and find their favorite products or track their latest orders.
+Authentication and account management are the foundation of a personalized luxury experience. By providing a beautiful dashboard and a guest checkout option, we give customers the flexibility to shop however they prefer.
 
 **Next Steps:**
 Site features are now complete for customers. Next is **Phase 14 — Admin Dashboard** to give the business owner full control over products, orders, and analytics. We are also finalizing the ingestion of the full product catalog! 🧴✨

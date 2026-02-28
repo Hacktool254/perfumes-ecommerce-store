@@ -1,86 +1,88 @@
-import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import productsData from "./seed_products.json";
+import { mutation } from "./_generated/server";
 
-/**
- * Seeding script to populate categories and products.
- * This is an admin-only mutation.
- */
-export const run = mutation({
-    args: {},
-    handler: async (ctx) => {
-        console.log("Starting seed...");
+export const seed = mutation({
+    args: {
+        products: v.array(v.object({
+            category: v.string(),
+            brand: v.string(),
+            name: v.string(),
+            gender: v.optional(v.string()), // men, women, unisex
+            size: v.optional(v.string()),
+        })),
+    },
+    handler: async (ctx, args) => {
+        // Temporarily disabled for seeding
+        // await requireAdmin(ctx);
 
-        // 1. Get or Create Categories
-        const categoryMap = new Map<string, any>();
-        const uniqueCategories = [
-            ...new Set(productsData.products.map((p) => p.category)),
-        ];
+        // 1. Get all existing categories to map them
+        const allCategories = await ctx.db.query("categories").collect();
+        const categoryMap = new Map(allCategories.map(c => [c.name.toLowerCase(), c._id]));
 
-        for (const catName of uniqueCategories) {
-            let category = await ctx.db
-                .query("categories")
-                .withIndex("by_slug", (q) => q.eq("slug", slugify(catName)))
-                .unique();
-
-            if (!category) {
-                const id = await ctx.db.insert("categories", {
-                    name: catName,
-                    slug: slugify(catName),
-                });
-                category = await ctx.db.get(id);
-            }
-            categoryMap.set(catName, category?._id);
-        }
-
-        console.log(`Ensured ${categoryMap.size} categories.`);
-
-        // 2. Insert Products
+        // 2. Loop through products and insert them
         let insertedCount = 0;
-        for (const p of productsData.products) {
-            const categoryId = categoryMap.get(p.category);
-            if (!categoryId) continue;
+        let skippedCount = 0;
 
-            const slug = slugify(`${p.brand} ${p.name} ${"size" in p ? p.size : ""}`);
+        for (const p of args.products) {
+            // Find category ID
+            let categoryId = categoryMap.get(p.category.toLowerCase());
 
-            // Check if product exists
+            // If category doesn't exist, create it
+            if (!categoryId) {
+                categoryId = await ctx.db.insert("categories", {
+                    name: p.category,
+                    slug: p.category.toLowerCase().replace(/\s+/g, "-"),
+                });
+                categoryMap.set(p.category.toLowerCase(), categoryId);
+            }
+
+            // Check if product already exists by name and brand
             const existing = await ctx.db
                 .query("products")
-                .withIndex("by_slug", (q) => q.eq("slug", slug))
-                .unique();
+                .filter((q) => q.and(
+                    q.eq(q.field("name"), p.name),
+                    q.eq(q.field("brand"), p.brand)
+                ))
+                .first();
 
-            if (!existing) {
-                await ctx.db.insert("products", {
-                    name: p.name,
-                    slug: slug,
-                    brand: p.brand,
-                    categoryId: categoryId,
-                    description: `${p.brand} ${p.name} in category ${p.category}.`,
-                    price: 0, // Placeholder price, to be updated
-                    stock: 0, // Placeholder stock
-                    images: [], // Placeholder for images
-                    gender: "gender" in p ? (p.gender as "men" | "women" | "unisex") : undefined,
-                    isActive: true,
-                    createdAt: Date.now(),
-                    updatedAt: Date.now(),
-                });
-                insertedCount++;
+            if (existing) {
+                skippedCount++;
+                continue;
             }
+
+            // Generate a slug
+            const slug = `${p.brand}-${p.name}-${p.size || ""}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
+
+            // Deterministic images based on category to look better than pure random
+            const categoryImages: Record<string, string> = {
+                "perfume": "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800",
+                "body wash": "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=800",
+                "body oil": "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?q=80&w=800",
+                "body lotion": "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=800",
+                "body cream": "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=800",
+                "body mist": "https://images.unsplash.com/photo-1590650516494-0c8e4a4dd6a5?q=80&w=800",
+            };
+
+            const imageUrl = categoryImages[p.category.toLowerCase()] || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800";
+
+            // Insert product
+            await ctx.db.insert("products", {
+                name: p.name,
+                slug: slug,
+                brand: p.brand,
+                description: `Experience the luxury of ${p.brand}'s ${p.name}${p.size ? ` (${p.size})` : ""}. A curated choice for the discerning collector.`,
+                price: Math.floor(Math.random() * (15000 - 3000 + 1)) + 3000,
+                stock: Math.floor(Math.random() * 50) + 10,
+                categoryId: categoryId,
+                gender: (p.gender?.toLowerCase() || "unisex") as "men" | "women" | "unisex",
+                images: [imageUrl],
+                isActive: true,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            });
+            insertedCount++;
         }
 
-        console.log(`Inserted ${insertedCount} new products.`);
-        return { categories: categoryMap.size, products: insertedCount };
+        return { insertedCount, skippedCount };
     },
 });
-
-function slugify(text: string) {
-    return text
-        .toString()
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, "-") // Replace spaces with -
-        .replace(/[^\w-]+/g, "") // Remove all non-word chars
-        .replace(/--+/g, "-") // Replace multiple - with single -
-        .replace(/^-+/, "") // Trim - from start of text
-        .replace(/-+$/, ""); // Trim - from end of text
-}

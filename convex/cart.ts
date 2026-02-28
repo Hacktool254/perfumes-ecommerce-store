@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./users";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 /**
  * Get the current user's cart items.
@@ -8,7 +9,25 @@ import { requireUser } from "./users";
 export const get = query({
     args: {},
     handler: async (ctx) => {
-        const user = await requireUser(ctx);
+        const authUserId = await getAuthUserId(ctx);
+        if (authUserId === null) {
+            return null;
+        }
+
+        const authUser = await ctx.db.get(authUserId);
+        if (!authUser || !authUser.email) {
+            return null;
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_email", (q) => q.eq("email", authUser.email as string))
+            .unique();
+
+        if (!user) {
+            return null;
+        }
+
         const cartItems = await ctx.db
             .query("cartItems")
             .withIndex("by_user", (q) => q.eq("userId", user._id))

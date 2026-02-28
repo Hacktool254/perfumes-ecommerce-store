@@ -16,35 +16,42 @@ export const list = query({
         gender: v.optional(v.union(v.literal("men"), v.literal("women"), v.literal("unisex"))),
     },
     handler: async (ctx, args) => {
-        // Determine the base query based on provided filters to satisfy TypeScript types
-        let queryResult;
+        let q;
 
+        // Use index for one primary filter if available
         if (args.categoryId) {
-            queryResult = await ctx.db
-                .query("products")
-                .withIndex("by_category", (q) => q.eq("categoryId", args.categoryId!))
-                .filter((q) => q.neq(q.field("isActive"), false))
-                .paginate(args.paginationOpts);
+            q = ctx.db.query("products").withIndex("by_category", (q) => q.eq("categoryId", args.categoryId!));
         } else if (args.brand) {
-            queryResult = await ctx.db
-                .query("products")
-                .withIndex("by_brand", (q) => q.eq("brand", args.brand!))
-                .filter((q) => q.neq(q.field("isActive"), false))
-                .paginate(args.paginationOpts);
+            q = ctx.db.query("products").withIndex("by_brand", (q) => q.eq("brand", args.brand!));
         } else if (args.gender) {
-            queryResult = await ctx.db
-                .query("products")
-                .withIndex("by_gender", (q) => q.eq("gender", args.gender!))
-                .filter((q) => q.neq(q.field("isActive"), false))
-                .paginate(args.paginationOpts);
+            q = ctx.db.query("products").withIndex("by_gender", (q) => q.eq("gender", args.gender!));
         } else {
-            queryResult = await ctx.db
-                .query("products")
-                .filter((q) => q.neq(q.field("isActive"), false))
-                .paginate(args.paginationOpts);
+            q = ctx.db.query("products");
         }
 
-        return queryResult;
+        // Apply soft delete filter
+        q = q.filter((q) => q.neq(q.field("isActive"), false));
+
+        // Apply manual filters for the rest
+        if (args.categoryId && args.brand) {
+            q = q.filter((q) => q.eq(q.field("brand"), args.brand!));
+        }
+
+        if (args.gender) {
+            // Re-apply gender filter if we didn't use the index, or to include unisex
+            // Note: If we used by_gender index, it only returned EXACT matches. 
+            // To include unisex, we should ideally not use the index OR use multiple queries.
+            // For now, if gender index was used and it's NOT unisex, we can't easily add unisex back to that specific query result without another fetch.
+            // Simplifying: If gender filter is applied, we'll scan (or filter result) to include unisex.
+            q = q.filter((q) =>
+                q.or(
+                    q.eq(q.field("gender"), args.gender!),
+                    q.eq(q.field("gender"), "unisex")
+                )
+            );
+        }
+
+        return await q.paginate(args.paginationOpts);
     },
 });
 

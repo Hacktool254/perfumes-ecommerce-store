@@ -13,6 +13,7 @@ import type * as cart from "../cart.js";
 import type * as categories from "../categories.js";
 import type * as coupons from "../coupons.js";
 import type * as crons from "../crons.js";
+import type * as debug from "../debug.js";
 import type * as emails from "../emails.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   categories: typeof categories;
   coupons: typeof coupons;
   crons: typeof crons;
+  debug: typeof debug;
   emails: typeof emails;
   files: typeof files;
   http: typeof http;

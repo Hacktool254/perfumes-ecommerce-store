@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Filter, Search, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { useState, useCallback, useEffect } from "react";
+import { Search, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const sortOptions = [
     { value: "featured", label: "Featured" },
@@ -12,8 +13,34 @@ const sortOptions = [
 ];
 
 export function ShopHeader() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [isSortOpen, setIsSortOpen] = useState(false);
     const [selectedSort, setSelectedSort] = useState(sortOptions[0]);
+    const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
+
+    const createQueryString = useCallback(
+        (name: string, value: string | null) => {
+            const params = new URLSearchParams(searchParams.toString());
+            if (value === null || value === "") {
+                params.delete(name);
+            } else {
+                params.set(name, value);
+            }
+            return params.toString();
+        },
+        [searchParams]
+    );
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        router.push(`/shop?${createQueryString("search", searchValue)}`, { scroll: false });
+    };
+
+    // Update search value if URL changes (e.g. clearing filters)
+    useEffect(() => {
+        setSearchValue(searchParams.get("search") || "");
+    }, [searchParams]);
 
     return (
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-6 border-b border-border">
@@ -21,14 +48,16 @@ export function ShopHeader() {
             {/* Search and Title */}
             <div className="flex-1 w-full md:w-auto">
                 <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-4">Our Collection</h1>
-                <div className="relative max-w-md">
+                <form onSubmit={handleSearch} className="relative max-w-md">
                     <input
                         type="text"
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)}
                         placeholder="Search fragrances..."
                         className="w-full bg-secondary/50 border border-border rounded-full py-2.5 pl-12 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-accent transition-all"
                     />
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                </div>
+                </form>
             </div>
 
             {/* Actions: Filter Toggle & Sort */}
