@@ -224,20 +224,26 @@ Authentication and account management are the foundation of a personalized luxur
 3. **Full Catalog Control**: Implemented a comprehensive Product Management system where admins can add new fragrances, edit existing ones (prices, descriptions, stock), and manage images.
 4. **Order & Inventory Tracking**: Created dedicated views to track customer orders and monitor stock levels in real-time, complete with status updates.
 5. **Campaign Management**: Built a coupon management interface to create and track marketing promotions.
-6. **Unified Security**: Ensured all admin areas are strictly protected, requiring the "Admin" role for access.
+6. **Unified Security & Isolation**: We strictly separated the Admin and Client portals using a specialized "Admin Mode." This ensures that regular customers can never access or even see the administrative routes.
 
 **Why we did it:**
-Scaling a business requires data and control. This dashboard turns the technical backend into a visual environment where the owner can make informed decisions and manage the shop without needing to touch a single line of code.
+Scaling a business requires data and control. This dashboard turns the technical backend into a visual environment where the owner can make informed decisions. The strict isolation also improves security and prevents accidental access to sensitive business data.
 
 ---
 
 ### Phase 15 — SEO & Metadata
 
-**Status:** 🏗 In Progress
+**Status:** ✅ Completed
 
-**What we are doing:**
-1. **Foundational Metadata**: Configured the **Next.js Metadata API** in the root layout to provide search engines with clear titles and descriptions of the shop.
-2. **Brand Visibility**: Ensuring that every page tells Google exactly what it's about, helping the luxury brand reach the right audience in Kenya and beyond.
+**What we did:**
+1. **Global SEO Strategy**: Configured the **Next.js Metadata API** in the root layout with comprehensive branding, keywords, and internationalization settings (en_KE).
+2. **Dynamic Product SEO**: Implemented "Smart Metadata" for every product page, which automatically generates unique titles and descriptions based on the specific perfume being viewed.
+3. **Rich Search Results (JSON-LD)**: Added structured data to product pages so that Google can display rich "snippets" (like price, availability, and brand) directly in search results.
+4. **Search Engine Instructions**: Created `robots.txt` and a dynamic `sitemap.ts` to help search engines index the site efficiently while keeping sensitive pages (like Admin and Account) private.
+5. **Social Media Optimization**: Integrated OpenGraph and Twitter Card tags to ensure the brand looks premium and editorial when links are shared on social platforms.
+
+**Why we did it:**
+Visibility is the key to growth. By telling search engines exactly what each page is about and how to display it, we ensure that Ummie's Essence reaches the right luxury-seeking audience in Kenya.
 
 **Next Steps:**
-Customer and Admin features are now essentially complete. We are now focusing on **Phase 15 — SEO & Metadata** to ensure the site ranks well on search engines. We are also finalizing the ingestion of the full product catalog and preparing for live deployment! 🚀✨
+Core features, security, and SEO are now fully implemented! We are moving into **Phase 16 — Analytics & Monitoring** to track user behavior and ensure system health, followed by final catalog ingestion and launch! 🚀✨

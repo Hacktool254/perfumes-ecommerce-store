@@ -1,5 +1,10 @@
 "use client";
 
+export const metadata = {
+    title: "Contact Our Concierge",
+    description: "Get in touch with Ummie's Essence. Our fragrance curators are here to help you find your signature scent.",
+};
+
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Instagram, MessageSquare, Send } from "lucide-react";
 import { useState } from "react";

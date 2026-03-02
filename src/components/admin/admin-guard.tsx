@@ -17,10 +17,11 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     const isAuthPage = pathname === "/admin/login" || pathname === "/admin/register";
 
     useEffect(() => {
-        if (!isAuthPage && isAdmin === false) {
-            router.push("/");
+        // Strict redirection: If we know for a fact they aren't admin, bounce them.
+        if (isAdmin === false) {
+            router.replace("/");
         }
-    }, [isAdmin, router, isAuthPage]);
+    }, [isAdmin, router]);
 
     // Auth pages bypass the guard completely
     if (isAuthPage) {

@@ -27,8 +27,53 @@ const monstaFectro = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Ummie's Essence | Luxury Perfumes & Cosmetics",
-  description: "Premium selection of perfumes and cosmetics in Kenya.",
+  title: {
+    default: "Ummie's Essence | Luxury Perfumes & Cosmetics Kenya",
+    template: "%s | Ummie's Essence"
+  },
+  description: "Exquisite fragrances and premium cosmetics curated for the modern connoisseur. Experience the essence of luxury in Kenya with M-Pesa convenience.",
+  keywords: ["perfumes Kenya", "luxury fragrances", "designer scents Nairobi", "Oud collection Kenya", "premium cosmetics", "Ummie's Essence"],
+  authors: [{ name: "Ummie's Essence" }],
+  creator: "Ummie's Essence",
+  publisher: "Ummie's Essence",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_KE",
+    url: "https://ummies-essence.vercel.app",
+    siteName: "Ummie's Essence",
+    title: "Ummie's Essence | Luxury Perfumes & Cosmetics Kenya",
+    description: "Exquisite fragrances and premium cosmetics curated for the modern connoisseur.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Ummie's Essence Luxury Collection",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ummie's Essence | Luxury Perfumes & Cosmetics Kenya",
+    description: "Exquisite fragrances and premium cosmetics curated for the modern connoisseur.",
+    images: ["/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";

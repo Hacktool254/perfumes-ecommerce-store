@@ -1,5 +1,10 @@
 "use client";
 
+export const metadata = {
+    title: "Our Heritage & Art of Essence",
+    description: "Discover the story behind Ummie's Essence. Our passion for artisanal fragrances and commitment to authentic luxury in Kenya.",
+};
+
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";

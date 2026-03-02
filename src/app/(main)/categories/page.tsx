@@ -1,5 +1,10 @@
 "use client";
 
+export const metadata = {
+    title: "Fragrance Collections & Categories",
+    description: "Explore our curated collections of luxury perfumes and premium cosmetics. Filter by scent profile, gender, and product type.",
+};
+
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { CategoryCard } from "@/components/categories/category-card";

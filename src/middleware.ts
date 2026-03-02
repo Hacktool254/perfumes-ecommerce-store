@@ -2,41 +2,53 @@ import { convexAuthNextjsMiddleware, createRouteMatcher, nextjsMiddlewareRedirec
 
 const isAdminMode = process.env.ADMIN_MODE === 'true';
 
-const isClientSignInPage = createRouteMatcher(["/login", "/register"]);
+const isClientSignInPage = createRouteMatcher(["/login", "/register", "/reset-password"]);
 const isAdminSignInPage = createRouteMatcher(["/admin/login", "/admin/register"]);
-
-const isProtectedRoute = createRouteMatcher(["/account(.*)", "/admin(.*)"]);
+const isAdminPath = createRouteMatcher(["/admin(.*)"]);
+const isAccountPath = createRouteMatcher(["/account(.*)"]);
 
 export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
-    // If in ADMIN_MODE, force root access to /admin
-    if (isAdminMode && request.nextUrl.pathname === "/") {
-        return nextjsMiddlewareRedirect(request, "/admin");
-    }
-
-    const isClientAuthReq = isClientSignInPage(request);
-    const isAdminAuthReq = isAdminSignInPage(request);
+    const { pathname } = request.nextUrl;
     const isAuthenticated = await convexAuth.isAuthenticated();
 
-    // Block logic: Admin portal vs Client portal
-    if (isAdminMode && isClientAuthReq) {
-        return nextjsMiddlewareRedirect(request, "/admin/login");
-    }
-    if (!isAdminMode && isAdminAuthReq) {
-        return nextjsMiddlewareRedirect(request, "/login");
-    }
-
-    // Handles redirection if already authenticated
-    if ((isAdminMode && isAdminAuthReq) || (!isAdminMode && isClientAuthReq)) {
-        if (isAuthenticated) {
-            return nextjsMiddlewareRedirect(request, isAdminMode ? "/admin" : "/account");
+    // ─── ADMIN MODE ─────────────────────────────────────────────────────────
+    if (isAdminMode) {
+        // If they hit the client homepage/root, take them to the admin dashboard
+        if (pathname === "/") {
+            return nextjsMiddlewareRedirect(request, "/admin");
         }
-        // User is on an auth page and NOT authenticated — let them through
-        return;
-    }
 
-    // Protected Route Handling (auth pages already handled above)
-    if (isProtectedRoute(request) && !isAuthenticated) {
-        return nextjsMiddlewareRedirect(request, isAdminMode ? "/admin/login" : "/login");
+        // If they hit client login/auth, take them to admin login
+        if (isClientSignInPage(request)) {
+            return nextjsMiddlewareRedirect(request, "/admin/login");
+        }
+
+        // Redirect to admin dashboard if already logged in and hitting admin auth pages
+        if (isAdminSignInPage(request) && isAuthenticated) {
+            return nextjsMiddlewareRedirect(request, "/admin");
+        }
+
+        // Standard protected route check for /admin/
+        if (isAdminPath(request) && !isAdminSignInPage(request) && !isAuthenticated) {
+            return nextjsMiddlewareRedirect(request, "/admin/login");
+        }
+    }
+    // ─── CLIENT MODE (Default) ─────────────────────────────────────────────
+    else {
+        // STRICT SECURITY: Clients can never see anything starting with /admin
+        if (isAdminPath(request)) {
+            return nextjsMiddlewareRedirect(request, "/");
+        }
+
+        // Redirect to account if already logged in and hitting client auth pages
+        if (isClientSignInPage(request) && isAuthenticated) {
+            return nextjsMiddlewareRedirect(request, "/account");
+        }
+
+        // Redirect /account to /login if not authenticated
+        if (isAccountPath(request) && !isAuthenticated) {
+            return nextjsMiddlewareRedirect(request, "/login");
+        }
     }
 });
 

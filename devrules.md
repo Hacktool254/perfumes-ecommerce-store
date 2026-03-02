@@ -244,11 +244,11 @@
 > **Goal:** Every page is search-engine optimized.
 > **Prompts to Follow:** ⚡ 4 (Performance)
 
-- [/] 15.1 Configure **Next.js Metadata API** — title tags, meta descriptions on every page
-- [ ] 15.2 Add **structured data** (JSON-LD) for products (schema.org Product markup)
-- [ ] 15.3 Ensure proper heading hierarchy (`<h1>` per page)
-- [ ] 15.4 Generate `sitemap.xml` and `robots.txt`
-- [ ] 15.5 Open Graph + Twitter card meta for social sharing
+- [x] 15.1 Configure **Next.js Metadata API** — title tags, meta descriptions on every page
+- [x] 15.2 Add **structured data** (JSON-LD) for products (schema.org Product markup)
+- [x] 15.3 Ensure proper heading hierarchy (`<h1>` per page)
+- [x] 15.4 Generate `sitemap.xml` and `robots.txt`
+- [x] 15.5 Open Graph + Twitter card meta for social sharing
 
 ---
 
