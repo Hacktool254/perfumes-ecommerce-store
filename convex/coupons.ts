@@ -89,3 +89,25 @@ export const incrementUsageInternal = mutation({
         });
     },
 });
+
+/**
+ * Admin: List all coupons.
+ */
+export const adminList = query({
+    args: {},
+    handler: async (ctx) => {
+        await requireAdmin(ctx);
+        return await ctx.db.query("coupons").collect();
+    },
+});
+
+/**
+ * Admin: Delete a coupon.
+ */
+export const remove = mutation({
+    args: { id: v.id("coupons") },
+    handler: async (ctx, args) => {
+        await requireAdmin(ctx);
+        await ctx.db.delete(args.id);
+    },
+});

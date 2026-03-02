@@ -247,3 +247,73 @@ export const updateStatus = mutation({
         }
     },
 });
+
+/**
+ * Admin: Get dashboard statistics.
+ */
+export const getStats = query({
+    args: {},
+    handler: async (ctx) => {
+        await requireAdmin(ctx);
+
+        const allOrders = await ctx.db.query("orders").collect();
+        const allProducts = await ctx.db.query("products").filter(q => q.eq(q.field("isActive"), true)).collect();
+
+        // 1. Revenue & Sales calculation
+        let totalRevenue = 0;
+        let salesCount = 0;
+        const now = Date.now();
+        const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+
+        let monthlyRevenue = 0;
+        let monthlySales = 0;
+
+        for (const order of allOrders) {
+            if (order.status !== "cancelled" && order.status !== "pending") {
+                totalRevenue += order.totalAmount;
+                salesCount++;
+
+                if (order.createdAt > thirtyDaysAgo) {
+                    monthlyRevenue += order.totalAmount;
+                    monthlySales++;
+                }
+            }
+        }
+
+        // 2. Conversion Rate (Placeholder until we have a real visitors table)
+        // For now, we'll return a mock or semi-calculated value if we have user count
+        const userCount = (await ctx.db.query("users").collect()).length;
+        const conversionRate = userCount > 0 ? (salesCount / userCount) * 100 : 0;
+
+        // 3. Low Stock Alerts
+        const lowStockItems = allProducts.filter(p => p.stock <= 10);
+
+        // 4. Top Products (By quantity sold)
+        // This is expensive to calculate on every query, but fine for small/medium shop
+        const orderItems = await ctx.db.query("orderItems").collect();
+        const productSales: Record<string, number> = {};
+
+        for (const item of orderItems) {
+            productSales[item.productId] = (productSales[item.productId] || 0) + item.quantity;
+        }
+
+        const topProducts = Object.entries(productSales)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5)
+            .map(([id]) => {
+                return allProducts.find(p => p._id === id);
+            })
+            .filter(Boolean);
+
+        return {
+            totalRevenue,
+            totalSales: salesCount,
+            monthlyRevenue,
+            monthlySales,
+            conversionRate: parseFloat(conversionRate.toFixed(2)),
+            lowStockCount: lowStockItems.length,
+            topProducts: topProducts.slice(0, 5),
+            recentOrders: allOrders.slice(0, 5),
+        };
+    },
+});

@@ -145,7 +145,8 @@ describe("Reviews", () => {
         const reviews = await t.query(api.reviews.getByProduct, { productId });
         expect(reviews).toHaveLength(1);
         expect(reviews[0].comment).toBe("Amazing!");
-        expect(reviews[0].user.email).toBe("user@test.com");
+        expect(reviews[0].rating).toBe(5);
+        expect(reviews[0].user!.email).toBe("user@test.com");
 
         // Guest can query reviews
         const guestReviews = await t.query(api.reviews.getByProduct, { productId });

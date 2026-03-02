@@ -48,10 +48,10 @@ export function Hero() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, delay: 0.4 }}
-                    className="font-serif text-5xl md:text-7xl lg:text-8xl mb-8 tracking-tight"
+                    className="font-fredoka text-5xl md:text-7xl lg:text-8xl mb-8 tracking-tight uppercase"
                 >
                     The Essence of <br />
-                    <span className="italic text-gold-muted">True Luxury</span>
+                    <span className="italic text-secondary">True Luxury</span>
                 </motion.h1>
 
                 <motion.div
@@ -61,7 +61,7 @@ export function Hero() {
                 >
                     <Link
                         href="/shop"
-                        className="group inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-medium hover:bg-gold-muted hover:text-white transition-all duration-300"
+                        className="group inline-flex items-center gap-2 bg-primary text-primary-foreground px-10 py-4 rounded-full font-fredoka font-medium hover:bg-primary/90 transition-all duration-300 shadow-xl"
                     >
                         Explore Collection
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

@@ -29,6 +29,8 @@ describe("Email System Integration (Phase 8)", () => {
         const orderId = await t.run(async (ctx) => {
             return await ctx.db.insert("orders", {
                 userId,
+                customerEmail: "customer@example.com",
+                customerName: "Customer One",
                 status: "pending",
                 totalAmount: 1000,
                 shippingAddress: "Street 1",

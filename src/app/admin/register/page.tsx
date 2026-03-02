@@ -1,4 +1,4 @@
-import { AuthForm } from "@/components/auth/auth-form";
+import { AdminAuthForm } from "@/components/admin/admin-auth-form";
 
 export const metadata = {
     title: "Admin Registration - Ummie's Essence",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function AdminRegisterPage() {
-    return <AuthForm mode="register" redirectPath="/admin" />;
+    return <AdminAuthForm mode="register" redirectPath="/admin" />;
 }

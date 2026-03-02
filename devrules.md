@@ -230,12 +230,12 @@
 > **Goal:** Business owner can manage everything from a web interface.
 > **Prompts to Follow:** 🛡 2 (Security) · 🏗 3 (Architecture) · 📊 10 (Analytics)
 
-- [ ] 14.1 **Dashboard overview** — total revenue, daily/weekly/monthly sales, conversion rate, top products, low stock alerts
-- [ ] 14.2 **Product management** — add/edit/delete products, upload images, set price/discount/stock/category
-- [ ] 14.3 **Inventory management** — stock levels, manual adjustments, low-stock threshold alerts
-- [ ] 14.4 **Order management** — view all orders, filter by status, update status, export CSV
-- [ ] 14.5 **Coupon management** — create/edit coupons (percentage, fixed, expiry, usage limit)
-- [ ] 14.6 All admin routes protected by role-based checks (Convex auth guard + frontend redirect)
+- [x] 14.1 **Dashboard overview** — total revenue, daily/weekly/monthly sales, conversion rate, top products, low stock alerts
+- [x] 14.2 **Product management** — add/edit/delete products, upload images, set price/discount/stock/category
+- [x] 14.3 **Inventory management** — stock levels, manual adjustments, low-stock threshold alerts
+- [x] 14.4 **Order management** — view all orders, filter by status, update status, export CSV
+- [x] 14.5 **Coupon management** — create/edit coupons (percentage, fixed, expiry, usage limit)
+- [x] 14.6 All admin routes protected by role-based checks (Convex auth guard + frontend redirect)
 
 ---
 
@@ -244,7 +244,7 @@
 > **Goal:** Every page is search-engine optimized.
 > **Prompts to Follow:** ⚡ 4 (Performance)
 
-- [ ] 15.1 Configure **Next.js Metadata API** — title tags, meta descriptions on every page
+- [/] 15.1 Configure **Next.js Metadata API** — title tags, meta descriptions on every page
 - [ ] 15.2 Add **structured data** (JSON-LD) for products (schema.org Product markup)
 - [ ] 15.3 Ensure proper heading hierarchy (`<h1>` per page)
 - [ ] 15.4 Generate `sitemap.xml` and `robots.txt`
@@ -284,7 +284,7 @@
 > **Goal:** Validate everything works and meets targets.
 > **Prompts to Follow:** 🧪 6 (Code Quality) · ⚡ 4 (Performance)
 
-- [ ] 18.1 Run full **unit test** suite (Convex functions)
+- [x] 18.1 Run full **unit test** suite (Convex functions)
 - [ ] 18.2 Run **end-to-end** tests for critical flows (register → browse → add to cart → checkout → pay)
 - [ ] 18.3 **Lighthouse audit** on all major pages — Score > 90
 - [ ] 18.4 **TTFB** < 500ms check

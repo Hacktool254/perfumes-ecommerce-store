@@ -26,7 +26,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, X, Save, ArrowLeft, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { useRouter } from "next/navigation";
+import { Id } from "../../../convex/_generated/dataModel";
 
 const productSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -34,29 +39,67 @@ const productSchema = z.object({
     price: z.preprocess((val) => Number(val), z.number().min(0, "Price must be at least 0")),
     stock: z.preprocess((val) => Number(val), z.number().min(0, "Stock must be at least 0")),
     categoryId: z.string().min(1, "Category is required"),
+    brand: z.string().min(1, "Brand is required"),
+    gender: z.enum(["men", "women", "unisex"]),
+    isActive: z.boolean().default(true),
     description: z.string().min(10, "Description should be at least 10 characters"),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
 export function ProductForm({ initialData }: { initialData?: any }) {
+    const router = useRouter();
     const [images, setImages] = useState<string[]>(initialData?.images || []);
+    const categories = useQuery(api.categories.list);
+
+    const createProduct = useMutation(api.products.create);
+    const updateProduct = useMutation(api.products.update);
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productSchema) as any,
-        defaultValues: initialData || {
+        defaultValues: initialData ? {
+            name: initialData.name,
+            slug: initialData.slug,
+            price: initialData.price,
+            stock: initialData.stock,
+            categoryId: initialData.categoryId,
+            brand: initialData.brand || "Ummie's Essence",
+            gender: initialData.gender || "unisex",
+            isActive: initialData.isActive ?? true,
+            description: initialData.description,
+        } : {
             name: "",
             slug: "",
             price: 0,
             stock: 0,
             categoryId: "",
+            brand: "Ummie's Essence",
+            gender: "unisex",
+            isActive: true,
             description: "",
         },
     });
 
     const onSubmit = async (data: ProductFormValues) => {
-        // TODO: Implement create/update mutation
-        console.log({ ...data, images });
+        try {
+            const payload = {
+                ...data,
+                categoryId: data.categoryId as Id<"categories">,
+                images,
+            };
+            if (initialData) {
+                await updateProduct({
+                    id: initialData._id,
+                    ...payload,
+                });
+            } else {
+                await createProduct(payload);
+            }
+            router.push("/admin/products");
+            router.refresh();
+        } catch (error) {
+            console.error("Failed to save product", error);
+        }
     };
 
     return (
@@ -121,17 +164,54 @@ export function ProductForm({ initialData }: { initialData?: any }) {
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="text-neutral-400">Category</FormLabel>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select onValueChange={field.onChange} value={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className="bg-neutral-800 border-neutral-700">
                                                             <SelectValue placeholder="Select a category" />
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent className="bg-neutral-900 border-neutral-800 text-neutral-300">
-                                                        <SelectItem value="perfumes">Signature Perfumes</SelectItem>
-                                                        <SelectItem value="cosmetics">Premium Cosmetics</SelectItem>
-                                                        <SelectItem value="oud">Oud Collection</SelectItem>
-                                                        <SelectItem value="floral">Floral Essence</SelectItem>
+                                                        {categories?.map((cat) => (
+                                                            <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="brand"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-neutral-400">Brand</FormLabel>
+                                                <FormControl>
+                                                    <Input {...field} className="bg-neutral-800 border-neutral-700 focus-visible:ring-primary/50" placeholder="e.g. Ummie's Essence" />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="gender"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-neutral-400">Gender</FormLabel>
+                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="bg-neutral-800 border-neutral-700">
+                                                            <SelectValue placeholder="Select gender" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent className="bg-neutral-900 border-neutral-800 text-neutral-300">
+                                                        <SelectItem value="men">Men</SelectItem>
+                                                        <SelectItem value="women">Women</SelectItem>
+                                                        <SelectItem value="unisex">Unisex</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                                 <FormMessage />
@@ -229,22 +309,35 @@ export function ProductForm({ initialData }: { initialData?: any }) {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-neutral-900 border-neutral-800 overflow-hidden">
-                            <div className="p-4 bg-primary/5 border-b border-primary/10">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Visibility</h3>
-                            </div>
-                            <CardContent className="p-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-white">Publicly Visible</p>
-                                        <p className="text-xs text-neutral-500">Show this product in the shop catalog.</p>
+                        <FormField
+                            control={form.control}
+                            name="isActive"
+                            render={({ field }) => (
+                                <Card className="bg-neutral-900 border-neutral-800 overflow-hidden">
+                                    <div className="p-4 bg-primary/5 border-b border-primary/10">
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Visibility</h3>
                                     </div>
-                                    <div className="w-10 h-6 rounded-full bg-primary flex items-center justify-end p-1 transition-colors">
-                                        <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-white">Publicly Visible</p>
+                                                <p className="text-xs text-neutral-500">Show this product in the shop catalog.</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => field.onChange(!field.value)}
+                                                className={cn(
+                                                    "w-10 h-6 rounded-full flex items-center p-1 transition-colors",
+                                                    field.value ? "bg-primary justify-end" : "bg-neutral-700 justify-start"
+                                                )}
+                                            >
+                                                <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
+                                            </button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
+                        />
                     </div>
                 </div>
             </form>

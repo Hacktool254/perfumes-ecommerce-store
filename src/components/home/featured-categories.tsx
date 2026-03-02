@@ -83,7 +83,7 @@ export function FeaturedCategories() {
     const active = items[1]; // The "hero" card is always at index 1
 
     return (
-        <section className="relative w-full bg-neutral-950 overflow-hidden" style={{ height: "90vh", minHeight: "550px" }}>
+        <section className="relative w-full bg-background overflow-hidden" style={{ height: "90vh", minHeight: "550px" }}>
 
             {/* Ambient background glow */}
             <div
@@ -95,7 +95,7 @@ export function FeaturedCategories() {
 
             {/* Section label */}
             <div className="absolute top-8 left-8 z-20">
-                <p className="text-xs text-white/40 tracking-[0.4em] uppercase font-medium">Collections</p>
+                <p className="text-xs text-primary/40 tracking-[0.4em] uppercase font-medium">Collections</p>
             </div>
 
             {/* The Slider Track */}
@@ -181,7 +181,7 @@ export function FeaturedCategories() {
 
                             {/* Gradient overlay — only on hero */}
                             {isHero && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent z-10" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent z-10" />
                             )}
 
                             {/* Thumbnail overlay */}
@@ -206,7 +206,7 @@ export function FeaturedCategories() {
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.15, duration: 0.6 }}
-                                            className="text-xs tracking-[0.4em] text-white/60 uppercase mb-3"
+                                            className="text-xs tracking-[0.4em] text-primary/60 uppercase mb-3"
                                         >
                                             {String(items.indexOf(item)).padStart(2, '0')} / {String(categories.length).padStart(2, '0')}
                                         </motion.p>
@@ -214,7 +214,7 @@ export function FeaturedCategories() {
                                             initial={{ opacity: 0, y: 30 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.1, duration: 0.7 }}
-                                            className="font-serif text-4xl md:text-6xl text-white leading-none mb-4"
+                                            className="font-fredoka text-4xl md:text-6xl text-primary leading-none mb-4 uppercase"
                                         >
                                             {item.title}
                                         </motion.h2>
@@ -222,7 +222,7 @@ export function FeaturedCategories() {
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.25, duration: 0.6 }}
-                                            className="text-white/70 text-sm md:text-base mb-8 leading-relaxed"
+                                            className="text-secondary/80 text-sm md:text-base mb-8 leading-relaxed"
                                         >
                                             {item.description}
                                         </motion.p>
@@ -233,7 +233,7 @@ export function FeaturedCategories() {
                                         >
                                             <Link
                                                 href={item.link}
-                                                className="inline-flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 hover:gap-5"
+                                                className="inline-flex items-center gap-3 bg-primary/80 hover:bg-primary backdrop-blur-md border border-white/20 text-white px-8 py-3.5 rounded-full text-sm font-fredoka font-medium transition-all duration-300 hover:gap-5 shadow-lg"
                                             >
                                                 Explore Collection
                                                 <ArrowRight className="w-4 h-4" />
@@ -252,7 +252,7 @@ export function FeaturedCategories() {
                 <button
                     onClick={goPrev}
                     disabled={isAnimating}
-                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50"
+                    className="w-12 h-12 rounded-full bg-primary/10 hover:bg-primary/20 backdrop-blur-md border border-primary/20 flex items-center justify-center text-primary transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50"
                     aria-label="Previous category"
                 >
                     <ChevronLeft className="w-5 h-5" />
@@ -275,7 +275,7 @@ export function FeaturedCategories() {
                 <button
                     onClick={goNext}
                     disabled={isAnimating}
-                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50"
+                    className="w-12 h-12 rounded-full bg-primary/10 hover:bg-primary/20 backdrop-blur-md border border-primary/20 flex items-center justify-center text-primary transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50"
                     aria-label="Next category"
                 >
                     <ChevronRight className="w-5 h-5" />

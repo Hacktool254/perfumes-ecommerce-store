@@ -139,6 +139,7 @@ export default defineSchema({
     wishlistItems: defineTable({
         userId: v.id("users"),
         productId: v.id("products"),
+        updatedAt: v.number(),
     })
         .index("by_user", ["userId"])
         .index("by_user_product", ["userId", "productId"]),
@@ -150,6 +151,7 @@ export default defineSchema({
         rating: v.number(), // 1–5
         comment: v.optional(v.string()),
         createdAt: v.number(),
+        updatedAt: v.number(),
     })
         .index("by_product", ["productId"])
         .index("by_user", ["userId"])

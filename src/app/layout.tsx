@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Fredoka } from "next/font/google";
 
-const nebula = localFont({
-  src: "../../public/fonts/Nebula-Regular.otf",
-  variable: "--font-nebula",
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-fredoka",
   display: "swap",
 });
 
@@ -45,7 +47,7 @@ export default function RootLayout({
     <ConvexAuthNextjsServerProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${nebula.variable} ${monstaFectro.variable} antialiased flex flex-col min-h-screen`}
+          className={`${fredoka.variable} ${monstaFectro.variable} antialiased flex flex-col min-h-screen bg-background text-foreground`}
         >
           <ConvexClientProvider>
             {children}

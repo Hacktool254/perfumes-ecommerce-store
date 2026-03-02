@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-nebula), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: var(--font-fredoka), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: var(--font-monsta-fectro), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
   /* Explicit Luxury Colors */
@@ -15,6 +15,11 @@
   --color-gold-muted: var(--gold-muted);
   --color-cream: var(--cream);
   --color-charcoal: var(--charcoal);
+
+  /* New Vintage Brand Colors */
+  --color-brand-olive: #414A37;
+  --color-brand-brown: #99744A;
+  --color-brand-beige: #DBC2A6;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -59,38 +64,36 @@
 
   /* Brand Luxury Palette Tokens */
   --gold: oklch(0.75 0.14 85);
-  /* Rich metallic gold */
   --gold-muted: oklch(0.85 0.08 85);
-  /* Softer champagne gold */
   --cream: oklch(0.97 0.01 85);
-  /* Warm cream/off-white */
   --charcoal: oklch(0.18 0.01 85);
-  /* Deep warm charcoal/black */
 
-  /* Luxury Light Theme - warm cream background, deep charcoal text */
-  --background: var(--cream);
-  --foreground: var(--charcoal);
-  --card: oklch(0.99 0.005 85);
-  --card-foreground: var(--charcoal);
-  --popover: var(--cream);
-  --popover-foreground: var(--charcoal);
+  /* Vintage Light Theme - beige background, olive text/cards */
+  --background: #DBC2A6;
+  --foreground: #414A37;
 
-  --primary: var(--charcoal);
-  --primary-foreground: var(--cream);
+  --card: #414A37;
+  --card-foreground: #DBC2A6;
 
-  --secondary: oklch(0.92 0.02 85);
-  --secondary-foreground: var(--charcoal);
+  --popover: #DBC2A6;
+  --popover-foreground: #414A37;
 
-  --muted: oklch(0.92 0.02 85);
-  --muted-foreground: oklch(0.45 0.02 85);
+  --primary: #414A37;
+  --primary-foreground: #DBC2A6;
 
-  --accent: var(--gold-muted);
-  --accent-foreground: var(--charcoal);
+  --secondary: #99744A;
+  --secondary-foreground: #DBC2A6;
+
+  --muted: color-mix(in srgb, #414A37 15%, #DBC2A6);
+  --muted-foreground: color-mix(in srgb, #414A37 65%, #DBC2A6);
+
+  --accent: #99744A;
+  --accent-foreground: #DBC2A6;
 
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.02 85);
-  --input: oklch(0.88 0.02 85);
-  --ring: var(--gold);
+  --border: color-mix(in srgb, #414A37 20%, #DBC2A6);
+  --input: color-mix(in srgb, #414A37 20%, #DBC2A6);
+  --ring: #99744A;
 
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -98,14 +101,14 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
 
-  --sidebar: var(--cream);
-  --sidebar-foreground: var(--charcoal);
-  --sidebar-primary: var(--charcoal);
-  --sidebar-primary-foreground: var(--cream);
-  --sidebar-accent: var(--gold-muted);
-  --sidebar-accent-foreground: var(--charcoal);
-  --sidebar-border: oklch(0.88 0.02 85);
-  --sidebar-ring: var(--gold);
+  --sidebar: #DBC2A6;
+  --sidebar-foreground: #414A37;
+  --sidebar-primary: #414A37;
+  --sidebar-primary-foreground: #DBC2A6;
+  --sidebar-accent: #99744A;
+  --sidebar-accent-foreground: #DBC2A6;
+  --sidebar-border: color-mix(in srgb, #414A37 20%, #DBC2A6);
+  --sidebar-ring: #99744A;
 }
 
 .dark {

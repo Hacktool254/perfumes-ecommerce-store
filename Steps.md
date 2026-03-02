@@ -214,5 +214,30 @@ Emails keep customers informed and feeling valued. Abandoned cart recovery is a 
 **Why we did it:**
 Authentication and account management are the foundation of a personalized luxury experience. By providing a beautiful dashboard and a guest checkout option, we give customers the flexibility to shop however they prefer.
 
+### Phase 14 — Admin Dashboard
+
+**Status:** ✅ Completed
+
+**What we did:**
+1. **Business Command Center**: We built a sophisticated Admin Dashboard that gives the business owner a "bird's eye view" of the entire shop.
+2. **Interactive Analytics**: Integrated **Recharts** to visualize sales performance, visitor trends, and top-selling products using beautiful, dynamic charts.
+3. **Full Catalog Control**: Implemented a comprehensive Product Management system where admins can add new fragrances, edit existing ones (prices, descriptions, stock), and manage images.
+4. **Order & Inventory Tracking**: Created dedicated views to track customer orders and monitor stock levels in real-time, complete with status updates.
+5. **Campaign Management**: Built a coupon management interface to create and track marketing promotions.
+6. **Unified Security**: Ensured all admin areas are strictly protected, requiring the "Admin" role for access.
+
+**Why we did it:**
+Scaling a business requires data and control. This dashboard turns the technical backend into a visual environment where the owner can make informed decisions and manage the shop without needing to touch a single line of code.
+
+---
+
+### Phase 15 — SEO & Metadata
+
+**Status:** 🏗 In Progress
+
+**What we are doing:**
+1. **Foundational Metadata**: Configured the **Next.js Metadata API** in the root layout to provide search engines with clear titles and descriptions of the shop.
+2. **Brand Visibility**: Ensuring that every page tells Google exactly what it's about, helping the luxury brand reach the right audience in Kenya and beyond.
+
 **Next Steps:**
-Site features are now complete for customers. Next is **Phase 14 — Admin Dashboard** to give the business owner full control over products, orders, and analytics. We are also finalizing the ingestion of the full product catalog! 🧴✨
+Customer and Admin features are now essentially complete. We are now focusing on **Phase 15 — SEO & Metadata** to ensure the site ranks well on search engines. We are also finalizing the ingestion of the full product catalog and preparing for live deployment! 🚀✨

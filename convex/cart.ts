@@ -9,25 +9,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 export const get = query({
     args: {},
     handler: async (ctx) => {
-        const authUserId = await getAuthUserId(ctx);
-        if (authUserId === null) {
-            return null;
-        }
-
-        const authUser = await ctx.db.get(authUserId);
-        if (!authUser || !authUser.email) {
-            return null;
-        }
-
-        const user = await ctx.db
-            .query("users")
-            .withIndex("email", (q) => q.eq("email", authUser.email as string))
-            .unique();
-
-        if (!user) {
-            return null;
-        }
-
+        const user = await requireUser(ctx);
 
         const cartItems = await ctx.db
             .query("cartItems")

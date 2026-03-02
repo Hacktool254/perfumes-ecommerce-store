@@ -23,7 +23,7 @@ export function EditorialBanner() {
                 <div className="max-w-5xl mx-auto flex flex-col items-center text-center gap-12">
 
                     <motion.h2
-                        className="font-serif text-4xl md:text-5xl lg:text-7xl leading-tight text-foreground tracking-tight"
+                        className="font-fredoka text-4xl md:text-5xl lg:text-7xl leading-tight text-primary tracking-tight uppercase"
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true, margin: "-100px" }}

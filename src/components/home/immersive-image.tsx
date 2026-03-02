@@ -37,7 +37,7 @@ export function ImmersiveImageBlock() {
                 className="container mx-auto px-4 z-20 text-center text-white"
                 style={{ opacity, y: yText }}
             >
-                <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl mb-6 tracking-tight">
+                <h2 className="font-fredoka text-4xl md:text-6xl lg:text-8xl mb-6 tracking-tight uppercase">
                     Unveil the <br className="hidden md:block" /> Unseen
                 </h2>
                 <p className="max-w-xl mx-auto text-lg md:text-xl text-white/90 font-light">

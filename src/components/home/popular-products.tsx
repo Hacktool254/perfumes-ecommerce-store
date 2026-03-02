@@ -44,7 +44,7 @@ export function PopularProducts() {
         <section className="py-24 bg-background">
             <div className="container mx-auto px-4 mb-10 md:mb-16 flex justify-between items-end">
                 <div>
-                    <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight mb-4">
+                    <h2 className="font-fredoka text-3xl md:text-5xl text-primary tracking-tight mb-4 uppercase">
                         Popular Right Now
                     </h2>
                     <p className="text-muted-foreground max-w-xl">
@@ -53,7 +53,7 @@ export function PopularProducts() {
                 </div>
                 <Link
                     href="/shop?sort=popular"
-                    className="hidden md:block text-sm font-medium hover:text-accent transition-colors underline underline-offset-4"
+                    className="hidden md:block text-sm font-fredoka font-medium text-secondary hover:text-primary transition-colors underline underline-offset-4"
                 >
                     View All Popular
                 </Link>
@@ -78,7 +78,7 @@ export function PopularProducts() {
                             <div className="space-y-1">
                                 <p className="text-xs text-muted-foreground uppercase tracking-wider">{product.brand}</p>
                                 <div className="flex justify-between items-start gap-4">
-                                    <h3 className="font-serif text-lg text-foreground group-hover:text-accent transition-colors">
+                                    <h3 className="font-fredoka text-lg text-primary group-hover:text-secondary transition-colors">
                                         <Link href={product.href}>{product.name}</Link>
                                     </h3>
                                     <p className="font-medium text-foreground">
@@ -91,10 +91,10 @@ export function PopularProducts() {
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 mt-4 md:hidden">
+            <div className="container mx-auto px-4 mt-4 md:hidden text-center">
                 <Link
                     href="/shop?sort=popular"
-                    className="text-sm font-medium hover:text-accent transition-colors underline underline-offset-4"
+                    className="text-sm font-fredoka font-medium text-secondary hover:text-primary transition-colors underline underline-offset-4"
                 >
                     View All Popular
                 </Link>

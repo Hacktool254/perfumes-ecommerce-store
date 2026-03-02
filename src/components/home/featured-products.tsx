@@ -68,11 +68,11 @@ export function FeaturedProductsGrid() {
     const isInView = useInView(ref, { once: true, margin: "-100px" });
 
     return (
-        <section className="py-24 bg-zinc-50 dark:bg-zinc-950">
+        <section className="py-24 bg-background">
             <div className="container mx-auto px-4">
 
                 <div className="text-center mb-16">
-                    <h2 className="font-serif text-3xl md:text-5xl text-foreground mb-4">
+                    <h2 className="font-fredoka text-3xl md:text-5xl text-primary mb-4 uppercase tracking-tight">
                         Curated For You
                     </h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -106,7 +106,7 @@ export function FeaturedProductsGrid() {
 
                                 {/* Add to Cart Overlay */}
                                 <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                                    <button className="w-full bg-white/90 backdrop-blur-sm text-black rounded-full py-3 px-4 flex items-center justify-center gap-2 font-medium hover:bg-gold-muted hover:text-white transition-colors">
+                                    <button className="w-full bg-primary text-primary-foreground rounded-full py-3 px-4 flex items-center justify-center gap-2 font-fredoka font-medium hover:bg-primary/90 transition-colors shadow-lg">
                                         <ShoppingBag className="w-4 h-4" />
                                         <span>Add to Cart</span>
                                     </button>
@@ -114,9 +114,9 @@ export function FeaturedProductsGrid() {
                             </div>
 
                             <div className="flex flex-col flex-1 px-1 text-center">
-                                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">{product.brand}</p>
-                                <h3 className="font-serif text-lg text-foreground mb-2">
-                                    <Link href={product.href} className="hover:text-accent transition-colors">
+                                <p className="text-[10px] text-secondary/80 uppercase tracking-[0.2em] mb-2 font-medium">{product.brand}</p>
+                                <h3 className="font-fredoka text-lg text-primary mb-2">
+                                    <Link href={product.href} className="hover:text-secondary transition-colors">
                                         {product.name}
                                     </Link>
                                 </h3>
@@ -131,7 +131,7 @@ export function FeaturedProductsGrid() {
                 <div className="mt-16 text-center">
                     <Link
                         href="/shop"
-                        className="inline-block border border-border px-8 py-3 rounded-full hover:bg-foreground hover:text-background transition-colors duration-300"
+                        className="inline-block bg-secondary text-secondary-foreground font-fredoka px-10 py-3.5 rounded-full hover:bg-secondary/90 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                     >
                         View Entire Collection
                     </Link>

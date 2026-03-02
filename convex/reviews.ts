@@ -62,7 +62,7 @@ export const add = mutation({
             await ctx.db.patch(existing._id, {
                 rating: args.rating,
                 comment: args.comment,
-                createdAt: Date.now(), // Update timestamp on edit
+                updatedAt: Date.now(),
             });
             return { status: "updated" };
         } else {
@@ -72,6 +72,7 @@ export const add = mutation({
                 rating: args.rating,
                 comment: args.comment,
                 createdAt: Date.now(),
+                updatedAt: Date.now(),
             });
             return { status: "added" };
         }

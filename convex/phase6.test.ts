@@ -69,6 +69,7 @@ describe("Orders & Stock Management", () => {
                 userId,
                 productId: pId,
                 quantity: 2,
+                updatedAt: Date.now(),
             });
 
             return { productId: pId };
@@ -76,6 +77,8 @@ describe("Orders & Stock Management", () => {
 
         // Place order
         const orderId = await asUser.mutation(api.orders.placeOrder, {
+            customerEmail: "jane@doe.com",
+            customerName: "Jane Doe",
             shippingAddress: "123 Aroma Ave, Nairobi",
         });
 
@@ -122,10 +125,13 @@ describe("Orders & Stock Management", () => {
                 userId,
                 productId: pId,
                 quantity: 2, // Trying to buy more than available
+                updatedAt: Date.now(),
             });
         });
 
         await expect(asUser.mutation(api.orders.placeOrder, {
+            customerEmail: "jane@doe.com",
+            customerName: "Jane Doe",
             shippingAddress: "Address",
         })).rejects.toThrow("Insufficient stock");
     });
@@ -165,11 +171,14 @@ describe("Coupons", () => {
                 userId,
                 productId: pId,
                 quantity: 1,
+                updatedAt: Date.now(),
             });
         });
 
         // 3. User places order with coupon
         const orderId = await asUser.mutation(api.orders.placeOrder, {
+            customerEmail: "jane@doe.com",
+            customerName: "Jane Doe",
             shippingAddress: "Street",
             couponCode: "ummie10", // should work with lowercase
         });
@@ -194,7 +203,7 @@ describe("Coupons", () => {
             code: "EXPIRED",
             discountType: "fixed",
             discountValue: 500,
-            expiresAt: Date.now() - 1000, // already expired
+            expiresAt: Date.now() - 3600000, // 1 hour ago
         });
 
         await t.run(async (ctx) => {
@@ -202,10 +211,12 @@ describe("Coupons", () => {
             const pId = await ctx.db.insert("products", {
                 name: "P", slug: "p", description: "D", price: 1000, stock: 5, categoryId: catId, images: [], isActive: true, createdAt: 0, updatedAt: 0
             });
-            await ctx.db.insert("cartItems", { userId, productId: pId, quantity: 1 });
+            await ctx.db.insert("cartItems", { userId, productId: pId, quantity: 1, updatedAt: Date.now() });
         });
 
         const orderId = await asUser.mutation(api.orders.placeOrder, {
+            customerEmail: "jane@doe.com",
+            customerName: "Jane Doe",
             shippingAddress: "Street",
             couponCode: "EXPIRED",
         });
@@ -225,6 +236,8 @@ describe("Admin Order Management", () => {
         const orderId = await t.run(async (ctx) => {
             return await ctx.db.insert("orders", {
                 userId,
+                customerEmail: "jane@doe.com",
+                customerName: "Jane Doe",
                 status: "pending",
                 totalAmount: 500,
                 shippingAddress: "Home",

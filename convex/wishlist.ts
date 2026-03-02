@@ -48,6 +48,7 @@ export const toggle = mutation({
             await ctx.db.insert("wishlistItems", {
                 userId: user._id,
                 productId: args.productId,
+                updatedAt: Date.now(),
             });
             return { status: "added" };
         }

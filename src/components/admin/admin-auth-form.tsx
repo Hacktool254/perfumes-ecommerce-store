@@ -40,14 +40,14 @@ type ResetValues = z.infer<typeof resetSchema>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface AuthFormProps {
+interface AdminAuthFormProps {
     mode: "login" | "register" | "forgot" | "reset";
     redirectPath?: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthFormProps) {
+export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: AdminAuthFormProps) {
     const { signIn } = useAuthActions();
     const router = useRouter();
     const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(initialMode);
@@ -256,53 +256,75 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
           background: rgba(255,255,255,0.75);
           outline: none;
           transition: border-color 0.25s, box-shadow 0.25s;
-          color: #414A37;
+          color: oklch(0.18 0.01 85);
         }
-        .auth-input::placeholder { color: oklch(0.55 0.02 85); }
+
         .auth-input:focus {
           border-color: #414A37;
-          box-shadow: 0 0 0 3px rgba(65, 74, 55, 0.1);
-          background: rgba(255,255,255,0.92);
+          box-shadow: 0 0 0 4px rgba(65, 74, 55, 0.1);
         }
 
         .auth-btn {
           width: 100%;
           padding: 0.75rem 1rem;
+          background: linear-gradient(135deg, #414A37 0%, #99744A 100%);
+          color: white;
           border: none;
           border-radius: 999px;
-          background: linear-gradient(135deg, #414A37 0%, #99744A 100%);
-          color: #fff;
-          font-size: 0.9375rem;
           font-weight: 600;
+          font-size: 0.9375rem;
           cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
-          letter-spacing: 0.02em;
+          transition: transform 0.2s, box-shadow 0.2s;
+          box-shadow: 0 4px 12px rgba(65, 74, 55, 0.2);
         }
-        .auth-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(65, 74, 55, 0.25);
+
+        .auth-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(65, 74, 55, 0.3);
         }
-        .auth-btn:active:not(:disabled) { transform: translateY(0); }
-        .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .auth-btn:active {
+          transform: translateY(1px);
+          box-shadow: 0 2px 8px rgba(139, 21, 56, 0.25);
+        }
+
+        .auth-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none;
+        }
 
         .auth-error {
-          background: rgba(65, 74, 55, 0.05);
-          border: 1px solid rgba(65, 74, 55, 0.2);
+          color: #d32f2f;
+          background-color: #ffebee;
+          border: 1px solid #ffcdd2;
+          padding: 0.75rem;
           border-radius: 12px;
-          color: #414A37;
           font-size: 0.8125rem;
-          padding: 0.6rem 0.9rem;
+          margin-top: 0.5rem;
           text-align: center;
         }
+
+        .auth-success {
+          color: #2e7d32;
+          background-color: #e8f5e9;
+          border: 1px solid #c8e6c9;
+          padding: 0.75rem;
+          border-radius: 12px;
+          font-size: 0.8125rem;
+          margin-top: 0.5rem;
+          text-align: center;
+        }
+
         .field-error {
-          color: #414A37;
+          color: #d32f2f;
           font-size: 0.75rem;
           margin-top: 0.25rem;
           padding-left: 0.75rem;
         }
       `}</style>
 
-            <div className="auth-bg">
+            <div className="auth-bg w-full">
                 {/* Animated circles */}
                 <div className="circles-wrapper">
                     <div className="circles-container">
@@ -317,19 +339,17 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                 <div className="auth-card">
                     {/* Brand header */}
                     <div className="text-center mb-7">
-                        <Link href="/" className="inline-block">
-                            <span
-                                style={{
-                                    fontFamily: "var(--font-monsta-fectro, serif)",
-                                    fontSize: "1.35rem",
-                                    color: "#414A37",
-                                    letterSpacing: "0.04em",
-                                    fontWeight: 600,
-                                }}
-                            >
-                                Ummie&apos;s Essence
-                            </span>
-                        </Link>
+                        <span
+                            style={{
+                                fontFamily: "var(--font-monsta-fectro, serif)",
+                                fontSize: "1.35rem",
+                                color: "#414A37",
+                                letterSpacing: "0.04em",
+                                fontWeight: 600,
+                            }}
+                        >
+                            Ummie&apos;s Essence
+                        </span>
                         <h1
                             style={{
                                 fontSize: "1.5rem",
@@ -344,9 +364,9 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                         </h1>
                         <p style={{ fontSize: "0.8125rem", color: "oklch(0.45 0.02 85)", marginTop: "0.25rem" }}>
                             {isLogin
-                                ? "Sign in to your account to continue"
+                                ? "Sign in to your admin account to continue"
                                 : isRegister
-                                    ? "Join us for the finest fragrances"
+                                    ? "Set up your admin access"
                                     : isForgot
                                         ? "Enter your email to receive a reset link"
                                         : "Please enter your new password"}
@@ -463,7 +483,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                         id="register-password"
                                         type="password"
                                         autoComplete="new-password"
-                                        placeholder="••••••••"
+                                        placeholder="Password (min 8 chars)"
                                         className="auth-input"
                                         {...registerForm.register("password")}
                                     />
@@ -479,20 +499,30 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                     type="submit"
                                     disabled={isLoading}
                                     className="auth-btn"
+                                    style={{ marginTop: "0.25rem" }}
                                 >
                                     {isLoading ? "Creating account…" : "Create Account"}
                                 </button>
 
-                                <p style={{ textAlign: "center", marginTop: "0.5rem", fontSize: "0.8125rem", color: "oklch(0.45 0.02 85)" }}>
-                                    Already have an account?{" "}
-                                    <button
-                                        type="button"
-                                        onClick={() => setMode("login")}
-                                        style={{ color: "#8b1538", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
-                                    >
-                                        Sign In
-                                    </button>
-                                </p>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        marginTop: "0.5rem",
+                                        fontSize: "0.8125rem",
+                                    }}
+                                >
+                                    <span style={{ color: "oklch(0.45 0.02 85)" }}>
+                                        Already have an account?{" "}
+                                        <button
+                                            type="button"
+                                            onClick={() => setMode("login")}
+                                            style={{ color: "#8b1538", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                        >
+                                            Sign In
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
                         </form>
                     )}
@@ -514,32 +544,32 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                     )}
                                 </div>
 
+                                {successMessage && <div className="auth-success">{successMessage}</div>}
                                 {serverError && <div className="auth-error">{serverError}</div>}
-                                {successMessage && (
-                                    <div style={{ background: "rgba(194, 154, 60, 0.1)", border: "1px solid rgba(194, 154, 60, 0.3)", borderRadius: "12px", color: "#c2993c", fontSize: "0.8125rem", padding: "0.6rem 0.9rem", textAlign: "center" }}>
-                                        {successMessage}
-                                    </div>
-                                )}
 
                                 <button
                                     id="forgot-submit"
                                     type="submit"
                                     disabled={isLoading}
                                     className="auth-btn"
+                                    style={{ marginTop: "0.25rem" }}
                                 >
                                     {isLoading ? "Sending link…" : "Send Reset Link"}
                                 </button>
 
-                                <button
-                                    type="button"
-                                    onClick={() => setMode("login")}
-                                    style={{ textAlign: "center", marginTop: "0.5rem", fontSize: "0.8125rem", color: "#8b1538", fontWeight: 600, border: "none", background: "none", cursor: "pointer" }}
-                                >
-                                    Back to Sign In
-                                </button>
+                                <div style={{ display: "flex", justifyContent: "center", marginTop: "0.5rem", fontSize: "0.8125rem" }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setMode("login")}
+                                        style={{ color: "#8b1538", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                    >
+                                        Back to Sign In
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     )}
+
                     {isReset && (
                         <form onSubmit={resetForm.handleSubmit(handleReset)} noValidate>
                             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -558,7 +588,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
 
                                 <div>
                                     <input
-                                        id="reset-confirm-password"
+                                        id="reset-confirm"
                                         type="password"
                                         placeholder="Confirm new password"
                                         className="auth-input"
@@ -570,19 +600,15 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                 </div>
 
                                 {serverError && <div className="auth-error">{serverError}</div>}
-                                {successMessage && (
-                                    <div style={{ background: "rgba(194, 154, 60, 0.1)", border: "1px solid rgba(194, 154, 60, 0.3)", borderRadius: "12px", color: "#c2993c", fontSize: "0.8125rem", padding: "0.6rem 0.9rem", textAlign: "center" }}>
-                                        {successMessage}
-                                    </div>
-                                )}
 
                                 <button
                                     id="reset-submit"
                                     type="submit"
                                     disabled={isLoading}
                                     className="auth-btn"
+                                    style={{ marginTop: "0.25rem" }}
                                 >
-                                    {isLoading ? "Resetting…" : "Reset Password"}
+                                    {isLoading ? "Updating password…" : "Update Password"}
                                 </button>
                             </div>
                         </form>

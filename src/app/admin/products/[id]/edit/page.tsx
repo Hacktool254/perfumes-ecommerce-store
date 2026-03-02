@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Id } from "../../../../../../convex/_generated/dataModel";
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
-    const product = useQuery(api.products.getBySlug, { slug: params.id });
+    const product = useQuery(api.products.getById, { id: params.id as Id<"products"> });
 
     if (product === undefined) {
         return (

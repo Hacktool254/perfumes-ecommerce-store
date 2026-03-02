@@ -33,6 +33,8 @@ describe("Daraja API Integration (Phase 7.1)", () => {
         const orderId = await t.run(async (ctx: any) => {
             return await ctx.db.insert("orders", {
                 userId,
+                customerEmail: "jane@doe.com",
+                customerName: "Jane Doe",
                 status: "pending",
                 totalAmount: 500,
                 shippingAddress: "Home",
@@ -100,6 +102,8 @@ describe("Daraja API Integration (Phase 7.1)", () => {
         const orderId = await t.run(async (ctx: any) => {
             return await ctx.db.insert("orders", {
                 userId,
+                customerEmail: "jane@doe.com",
+                customerName: "Jane Doe",
                 status: "pending",
                 totalAmount: 500,
                 shippingAddress: "Home",
@@ -164,6 +168,8 @@ describe("Daraja API Integration (Phase 7.1)", () => {
         const orderId = await t.run(async (ctx: any) => {
             return await ctx.db.insert("orders", {
                 userId,
+                customerEmail: "jane@doe.com",
+                customerName: "Jane Doe",
                 status: "pending",
                 totalAmount: 500,
                 shippingAddress: "Home",

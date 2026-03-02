@@ -37,14 +37,14 @@ export function AdminSidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="w-64 h-screen bg-white shadow-[2px_0_10px_0_rgba(0,0,0,0.02)] flex flex-col sticky top-0 z-50">
+        <aside className="w-64 h-screen bg-card shadow-sm border-r border-border flex flex-col sticky top-0 z-50">
             {/* Logo area */}
             <div className="p-6 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700">
-                        <ShoppingBag size={20} className="fill-gray-300 stroke-gray-600" />
+                    <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary">
+                        <ShoppingBag size={20} className="fill-primary/20 stroke-primary" />
                     </div>
-                    <span className="font-bold text-2xl text-gray-900 tracking-tight">Bazar</span>
+                    <span className="font-bold text-2xl text-foreground tracking-tight">Ummie&apos;s</span>
                 </Link>
                 <div className="w-6 h-6 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center cursor-pointer text-gray-400 hover:text-gray-600">
                     <ChevronRight size={14} />
@@ -64,8 +64,8 @@ export function AdminSidebar() {
                                     className={cn(
                                         "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group font-medium text-[15px]",
                                         isActive
-                                            ? "bg-[#0b5cff] text-white shadow-md shadow-blue-500/20"
-                                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                            ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                     )}
                                 >
                                     <item.icon className={cn("w-5 h-5", isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600")} strokeWidth={isActive ? 2.5 : 2} />
@@ -93,7 +93,7 @@ export function AdminSidebar() {
                                     <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">{msg.name}</span>
                                 </div>
                                 {msg.unread > 0 && (
-                                    <span className="text-[10px] w-4 h-4 rounded-full bg-[#0b5cff] text-white flex items-center justify-center font-semibold">
+                                    <span className="text-[10px] w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
                                         {msg.unread}
                                     </span>
                                 )}

@@ -69,6 +69,16 @@ export const getBySlug = query({
 });
 
 /**
+ * Get a single product by ID.
+ */
+export const getById = query({
+    args: { id: v.id("products") },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.id);
+    },
+});
+
+/**
  * Search products by name (for autocomplete and shop search).
  * Supports optional filters.
  */
@@ -187,5 +197,28 @@ export const softDelete = mutation({
             isActive: false,
             updatedAt: Date.now(),
         });
+    },
+});
+
+/**
+ * Admin: Update product stock directly.
+ */
+export const updateStock = mutation({
+    args: {
+        id: v.id("products"),
+        increment: v.number(), // positive to add, negative to subtract
+    },
+    handler: async (ctx, args) => {
+        await requireAdmin(ctx);
+        const product = await ctx.db.get(args.id);
+        if (!product) throw new Error("Product not found");
+
+        const newStock = Math.max(0, product.stock + args.increment);
+        await ctx.db.patch(args.id, {
+            stock: newStock,
+            updatedAt: Date.now(),
+        });
+
+        return { success: true, newStock };
     },
 });
