@@ -41,12 +41,12 @@ export default function CartPage() {
         removeItem(id as any, cartItemId);
     };
 
-    const subtotal = items.reduce((sum: number, item: any) => {
+    const subtotal = (items || []).reduce((sum: number, item: any) => {
         const price = item.product?.price || 0;
         return sum + (price * item.quantity);
     }, 0);
 
-    const isEmpty = items.length === 0;
+    const isEmpty = !items || items.length === 0;
 
     if (isLoading) return <div className="pt-40 text-center">Loading cart...</div>;
 
@@ -80,7 +80,7 @@ export default function CartPage() {
                         {/* Left: Cart Items List */}
                         <div className="flex-1">
                             <div className="border-t border-border">
-                                {items.map(item => (
+                                {(items || []).map((item: any) => (
                                     <CartItemRow
                                         key={item.productId}
                                         id={item.productId}
