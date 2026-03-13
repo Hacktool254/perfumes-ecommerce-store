@@ -9,11 +9,14 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 export const get = query({
     args: {},
     handler: async (ctx) => {
-        const user = await requireUser(ctx);
+        const userId = await getAuthUserId(ctx);
+        if (!userId) {
+            return null;
+        }
 
         const cartItems = await ctx.db
             .query("cartItems")
-            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .withIndex("by_user", (q) => q.eq("userId", userId))
             .collect();
 
         // Join with product data
@@ -37,12 +40,15 @@ export const add = mutation({
         quantity: v.number(),
     },
     handler: async (ctx, args) => {
-        const user = await requireUser(ctx);
+        const userId = await getAuthUserId(ctx);
+        if (!userId) {
+            throw new Error("You must be logged in to modify cart items on the server");
+        }
 
         const existing = await ctx.db
             .query("cartItems")
             .withIndex("by_user_product", (q) =>
-                q.eq("userId", user._id).eq("productId", args.productId)
+                q.eq("userId", userId).eq("productId", args.productId)
             )
             .unique();
 
@@ -53,7 +59,7 @@ export const add = mutation({
             });
         } else {
             await ctx.db.insert("cartItems", {
-                userId: user._id,
+                userId: userId,
                 productId: args.productId,
                 quantity: args.quantity,
                 updatedAt: Date.now(),
@@ -71,10 +77,12 @@ export const updateQuantity = mutation({
         quantity: v.number(),
     },
     handler: async (ctx, args) => {
-        const user = await requireUser(ctx);
+        const userId = await getAuthUserId(ctx);
+        if (!userId) throw new Error("Unauthorized");
+
         const item = await ctx.db.get(args.cartItemId);
 
-        if (!item || item.userId !== user._id) {
+        if (!item || item.userId !== userId) {
             throw new Error("Unauthorized");
         }
 
@@ -95,10 +103,12 @@ export const updateQuantity = mutation({
 export const remove = mutation({
     args: { cartItemId: v.id("cartItems") },
     handler: async (ctx, args) => {
-        const user = await requireUser(ctx);
+        const userId = await getAuthUserId(ctx);
+        if (!userId) throw new Error("Unauthorized");
+
         const item = await ctx.db.get(args.cartItemId);
 
-        if (!item || item.userId !== user._id) {
+        if (!item || item.userId !== userId) {
             throw new Error("Unauthorized");
         }
 
@@ -112,10 +122,12 @@ export const remove = mutation({
 export const clear = mutation({
     args: {},
     handler: async (ctx) => {
-        const user = await requireUser(ctx);
+        const userId = await getAuthUserId(ctx);
+        if (!userId) throw new Error("Unauthorized");
+
         const items = await ctx.db
             .query("cartItems")
-            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .withIndex("by_user", (q) => q.eq("userId", userId))
             .collect();
 
         for (const item of items) {

@@ -1,0 +1,54 @@
+
+> web@0.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\pc\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\pc\OneDrive\Desktop\Dev\Ummiesessence\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 7.8s
+  Running TypeScript ...
+  Collecting page data using 19 workers ...
+  Generating static pages using 19 workers (0/21) ...
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+  Generating static pages using 19 workers (5/21) 
+  Generating static pages using 19 workers (10/21) 
+  Generating static pages using 19 workers (15/21) 
+✓ Generating static pages using 19 workers (21/21) in 987.0ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /about
+├ ƒ /account
+├ ƒ /account/addresses
+├ ƒ /account/dashboard
+├ ƒ /account/orders
+├ ƒ /account/wishlist
+├ ƒ /cart
+├ ƒ /categories
+├ ƒ /checkout
+├ ƒ /contact
+├ ƒ /login
+├ ƒ /order-confirmation/[id]
+├ ƒ /product/[id]
+├ ƒ /register
+├ ƒ /reset-password
+├ ○ /robots.txt
+├ ƒ /seed
+├ ƒ /shop
+└ ○ /sitemap.xml
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
