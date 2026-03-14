@@ -8,7 +8,8 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "vitest",
-    "test:once": "vitest run"
+    "test:once": "vitest run",
+    "postinstall": "npx convex codegen"
   },
   "workspaces": [
     "apps/*",
