@@ -21,14 +21,16 @@ function ShopLoading() {
 export default function ShopPage() {
     return (
         <div className="min-h-screen bg-background pt-24 pb-32">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 max-w-7xl">
                 <Suspense fallback={<ShopLoading />}>
                     <ShopHeader />
 
-                    <div className="flex flex-col md:flex-row mt-8 gap-8">
+                    <div className="flex flex-col md:flex-row mt-8 gap-10">
+                        {/* Left Sidebar — Filters */}
                         <ShopFilters />
 
-                        <main className="flex-1">
+                        {/* Right Content — Product Grid */}
+                        <main className="flex-1 min-w-0">
                             <ProductGrid />
                         </main>
                     </div>
