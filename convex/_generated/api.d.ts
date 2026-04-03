@@ -21,8 +21,10 @@ import type * as http from "../http.js";
 import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
 import type * as products from "../products.js";
+import type * as renameProduct from "../renameProduct.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
+import type * as updateImages from "../updateImages.js";
 import type * as users from "../users.js";
 import type * as wishlist from "../wishlist.js";
 
@@ -46,8 +48,10 @@ declare const fullApi: ApiFromModules<{
   orders: typeof orders;
   payments: typeof payments;
   products: typeof products;
+  renameProduct: typeof renameProduct;
   reviews: typeof reviews;
   seed: typeof seed;
+  updateImages: typeof updateImages;
   users: typeof users;
   wishlist: typeof wishlist;
 }>;

@@ -156,7 +156,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
           align-items: center;
           overflow: hidden;
           position: relative;
-          background: radial-gradient(ellipse at 60% 40%, #DBC2A6 0%, #E5D5C5 60%, #C4AE95 100%);
+          background: var(--background);
         }
 
         .circles-wrapper {
@@ -186,19 +186,19 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         }
 
         .auth-circle:nth-child(1) {
-          border-color: rgba(65, 74, 55, 0.4);
+          border-color: color-mix(in srgb, var(--primary) 40%, transparent);
           animation: pulse1 3.5s ease-in-out infinite;
         }
         .auth-circle:nth-child(2) {
-          border-color: rgba(153, 116, 74, 0.3);
+          border-color: color-mix(in srgb, var(--ring) 30%, transparent);
           animation: pulse2 3.5s ease-in-out infinite 0.6s;
         }
         .auth-circle:nth-child(3) {
-          border-color: rgba(219, 194, 166, 0.5);
+          border-color: color-mix(in srgb, var(--background) 50%, var(--foreground) 10%);
           animation: pulse3 3.5s ease-in-out infinite 1.2s;
         }
         .auth-circle:nth-child(4) {
-          border-color: rgba(65, 74, 55, 0.1);
+          border-color: color-mix(in srgb, var(--primary) 10%, transparent);
           animation: pulse4 3.5s ease-in-out infinite 1.8s;
         }
 
@@ -234,15 +234,15 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         .auth-card {
           position: relative;
           z-index: 20;
-          background: rgba(255, 255, 255, 0.18);
+          background: color-mix(in srgb, var(--card) 60%, transparent);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.35);
+          border: 1px solid color-mix(in srgb, var(--border) 50%, white);
           border-radius: 24px;
           padding: 2.5rem 2.25rem;
           width: min(360px, 90vw);
           box-shadow:
-            0 8px 32px rgba(65, 74, 55, 0.08),
+            0 8px 32px color-mix(in srgb, var(--primary) 8%, transparent),
             0 2px 8px rgba(0,0,0,0.06),
             inset 0 1px 0 rgba(255,255,255,0.6);
         }
@@ -250,42 +250,44 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         .auth-input {
           width: 100%;
           padding: 0.7rem 1.1rem;
-          border: 1.5px solid rgba(65, 74, 55, 0.2);
+          border: 1.5px solid color-mix(in srgb, var(--input) 50%, transparent);
           border-radius: 999px;
           font-size: 0.875rem;
-          background: rgba(255,255,255,0.75);
+          background: var(--background);
           outline: none;
           transition: border-color 0.25s, box-shadow 0.25s;
-          color: oklch(0.18 0.01 85);
+          color: var(--foreground);
         }
 
+        .auth-input::placeholder { color: var(--muted-foreground); }
+
         .auth-input:focus {
-          border-color: #414A37;
-          box-shadow: 0 0 0 4px rgba(65, 74, 55, 0.1);
+          border-color: var(--primary);
+          box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 10%, transparent);
         }
 
         .auth-btn {
           width: 100%;
           padding: 0.75rem 1rem;
-          background: linear-gradient(135deg, #414A37 0%, #99744A 100%);
-          color: white;
+          background: var(--primary);
+          color: var(--primary-foreground);
           border: none;
           border-radius: 999px;
           font-weight: 600;
           font-size: 0.9375rem;
           cursor: pointer;
           transition: transform 0.2s, box-shadow 0.2s;
-          box-shadow: 0 4px 12px rgba(65, 74, 55, 0.2);
+          box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent);
         }
 
         .auth-btn:hover {
           transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(65, 74, 55, 0.3);
+          box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 30%, transparent);
         }
 
         .auth-btn:active {
           transform: translateY(1px);
-          box-shadow: 0 2px 8px rgba(139, 21, 56, 0.25);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .auth-btn:disabled {
@@ -295,9 +297,9 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         }
 
         .auth-error {
-          color: #d32f2f;
-          background-color: #ffebee;
-          border: 1px solid #ffcdd2;
+          color: var(--destructive);
+          background-color: color-mix(in srgb, var(--destructive) 10%, var(--background));
+          border: 1px solid color-mix(in srgb, var(--destructive) 20%, transparent);
           padding: 0.75rem;
           border-radius: 12px;
           font-size: 0.8125rem;
@@ -306,9 +308,9 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         }
 
         .auth-success {
-          color: #2e7d32;
-          background-color: #e8f5e9;
-          border: 1px solid #c8e6c9;
+          color: var(--primary);
+          background-color: color-mix(in srgb, var(--primary) 10%, var(--background));
+          border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
           padding: 0.75rem;
           border-radius: 12px;
           font-size: 0.8125rem;
@@ -317,7 +319,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         }
 
         .field-error {
-          color: #d32f2f;
+          color: var(--destructive);
           font-size: 0.75rem;
           margin-top: 0.25rem;
           padding-left: 0.75rem;
@@ -343,7 +345,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
                             style={{
                                 fontFamily: "var(--font-monsta-fectro, serif)",
                                 fontSize: "1.35rem",
-                                color: "#414A37",
+                                color: "var(--primary)",
                                 letterSpacing: "0.04em",
                                 fontWeight: 600,
                             }}
@@ -354,7 +356,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
                             style={{
                                 fontSize: "1.5rem",
                                 fontWeight: 700,
-                                color: "oklch(0.18 0.01 85)",
+                                color: "var(--foreground)",
                                 marginTop: "0.5rem",
                                 fontFamily: "var(--font-monsta-fectro, serif)",
                                 letterSpacing: "-0.01em",
@@ -362,7 +364,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
                         >
                             {isLogin ? "Welcome back" : isRegister ? "Create account" : isForgot ? "Reset password" : "Set new password"}
                         </h1>
-                        <p style={{ fontSize: "0.8125rem", color: "oklch(0.45 0.02 85)", marginTop: "0.25rem" }}>
+                        <p style={{ fontSize: "0.8125rem", color: "var(--muted-foreground)", marginTop: "0.25rem" }}>
                             {isLogin
                                 ? "Sign in to your admin account to continue"
                                 : isRegister
@@ -430,7 +432,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
                                         <button
                                             type="button"
                                             onClick={() => setMode("register")}
-                                            style={{ color: "#414A37", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                            style={{ color: "var(--primary)", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
                                         >
                                             Sign Up
                                         </button>
@@ -438,7 +440,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
                                     <button
                                         type="button"
                                         onClick={() => setMode("forgot")}
-                                        style={{ color: "#414A37", fontWeight: 500, border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                        style={{ color: "var(--primary)", fontWeight: 500, border: "none", background: "none", cursor: "pointer", padding: 0 }}
                                     >
                                         Forgot password?
                                     </button>
@@ -517,7 +519,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
                                         <button
                                             type="button"
                                             onClick={() => setMode("login")}
-                                            style={{ color: "#8b1538", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                            style={{ color: "var(--primary)", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
                                         >
                                             Sign In
                                         </button>
@@ -561,7 +563,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
                                     <button
                                         type="button"
                                         onClick={() => setMode("login")}
-                                        style={{ color: "#8b1538", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                        style={{ color: "var(--primary)", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
                                     >
                                         Back to Sign In
                                     </button>

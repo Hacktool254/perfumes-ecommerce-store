@@ -106,7 +106,7 @@ export function FeaturedProductsGrid() {
 
                                 {/* Add to Cart Overlay */}
                                 <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                                    <button className="w-full bg-primary text-primary-foreground rounded-full py-3 px-4 flex items-center justify-center gap-2 font-fredoka font-medium hover:bg-primary/90 transition-colors shadow-lg">
+                                    <button className="btn-lattafa-primary btn-lattafa-dark btn-pill font-fredoka w-full py-3 shadow-lg">
                                         <ShoppingBag className="w-4 h-4" />
                                         <span>Add to Cart</span>
                                     </button>
@@ -131,9 +131,10 @@ export function FeaturedProductsGrid() {
                 <div className="mt-16 text-center">
                     <Link
                         href="/shop"
-                        className="inline-block bg-secondary text-secondary-foreground font-fredoka px-10 py-3.5 rounded-full hover:bg-secondary/90 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                        className="btn-lattafa-primary btn-lattafa-dark btn-pill font-fredoka shadow-md"
                     >
                         View Entire Collection
+                        <span className="btn-arrow">→</span>
                     </Link>
                 </div>
 

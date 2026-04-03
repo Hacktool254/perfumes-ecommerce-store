@@ -56,6 +56,26 @@ export const list = query({
 });
 
 /**
+ * List recent products (non-paginated, for mega menus and homepage strips).
+ */
+export const listRecent = query({
+    args: {
+        limit: v.optional(v.number()),
+        sortBy: v.optional(v.string()), // "newest" | "oldest"
+    },
+    handler: async (ctx, args) => {
+        const limit = args.limit ?? 4;
+        const products = await ctx.db
+            .query("products")
+            .filter((q) => q.neq(q.field("isActive"), false))
+            .order("desc")
+            .take(limit);
+
+        return products;
+    },
+});
+
+/**
  * Get a single product by slug.
  */
 export const getBySlug = query({

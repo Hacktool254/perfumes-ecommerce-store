@@ -156,7 +156,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
           align-items: center;
           overflow: hidden;
           position: relative;
-          background: radial-gradient(ellipse at 60% 40%, #DBC2A6 0%, #E5D5C5 60%, #C4AE95 100%);
+          background: var(--background);
         }
 
         .circles-wrapper {
@@ -186,19 +186,19 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
         }
 
         .auth-circle:nth-child(1) {
-          border-color: rgba(65, 74, 55, 0.4);
+          border-color: color-mix(in srgb, var(--primary) 40%, transparent);
           animation: pulse1 3.5s ease-in-out infinite;
         }
         .auth-circle:nth-child(2) {
-          border-color: rgba(153, 116, 74, 0.3);
+          border-color: color-mix(in srgb, var(--ring) 30%, transparent);
           animation: pulse2 3.5s ease-in-out infinite 0.6s;
         }
         .auth-circle:nth-child(3) {
-          border-color: rgba(219, 194, 166, 0.5);
+          border-color: color-mix(in srgb, var(--background) 50%, var(--foreground) 10%);
           animation: pulse3 3.5s ease-in-out infinite 1.2s;
         }
         .auth-circle:nth-child(4) {
-          border-color: rgba(65, 74, 55, 0.1);
+          border-color: color-mix(in srgb, var(--primary) 10%, transparent);
           animation: pulse4 3.5s ease-in-out infinite 1.8s;
         }
 
@@ -234,15 +234,15 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
         .auth-card {
           position: relative;
           z-index: 20;
-          background: rgba(255, 255, 255, 0.18);
+          background: color-mix(in srgb, var(--card) 60%, transparent);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.35);
+          border: 1px solid color-mix(in srgb, var(--border) 50%, white);
           border-radius: 24px;
           padding: 2.5rem 2.25rem;
           width: min(360px, 90vw);
           box-shadow:
-            0 8px 32px rgba(65, 74, 55, 0.08),
+            0 8px 32px color-mix(in srgb, var(--primary) 8%, transparent),
             0 2px 8px rgba(0,0,0,0.06),
             inset 0 1px 0 rgba(255,255,255,0.6);
         }
@@ -250,19 +250,19 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
         .auth-input {
           width: 100%;
           padding: 0.7rem 1.1rem;
-          border: 1.5px solid rgba(65, 74, 55, 0.2);
+          border: 1.5px solid color-mix(in srgb, var(--input) 50%, transparent);
           border-radius: 999px;
           font-size: 0.875rem;
-          background: rgba(255,255,255,0.75);
+          background: var(--background);
           outline: none;
           transition: border-color 0.25s, box-shadow 0.25s;
-          color: #414A37;
+          color: var(--foreground);
         }
-        .auth-input::placeholder { color: oklch(0.55 0.02 85); }
+        .auth-input::placeholder { color: var(--muted-foreground); }
         .auth-input:focus {
-          border-color: #414A37;
-          box-shadow: 0 0 0 3px rgba(65, 74, 55, 0.1);
-          background: rgba(255,255,255,0.92);
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+          background: var(--background);
         }
 
         .auth-btn {
@@ -270,8 +270,8 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
           padding: 0.75rem 1rem;
           border: none;
           border-radius: 999px;
-          background: linear-gradient(135deg, #414A37 0%, #99744A 100%);
-          color: #fff;
+          background: var(--primary);
+          color: var(--primary-foreground);
           font-size: 0.9375rem;
           font-weight: 600;
           cursor: pointer;
@@ -280,22 +280,22 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
         }
         .auth-btn:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(65, 74, 55, 0.25);
+          box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 25%, transparent);
         }
         .auth-btn:active:not(:disabled) { transform: translateY(0); }
         .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .auth-error {
-          background: rgba(65, 74, 55, 0.05);
-          border: 1px solid rgba(65, 74, 55, 0.2);
+          background: color-mix(in srgb, var(--destructive) 10%, var(--background));
+          border: 1px solid color-mix(in srgb, var(--destructive) 20%, transparent);
           border-radius: 12px;
-          color: #414A37;
+          color: var(--destructive);
           font-size: 0.8125rem;
           padding: 0.6rem 0.9rem;
           text-align: center;
         }
         .field-error {
-          color: #414A37;
+          color: var(--destructive);
           font-size: 0.75rem;
           margin-top: 0.25rem;
           padding-left: 0.75rem;
@@ -322,7 +322,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                 style={{
                                     fontFamily: "var(--font-monsta-fectro, serif)",
                                     fontSize: "1.35rem",
-                                    color: "#414A37",
+                                    color: "var(--primary)",
                                     letterSpacing: "0.04em",
                                     fontWeight: 600,
                                 }}
@@ -334,7 +334,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                             style={{
                                 fontSize: "1.5rem",
                                 fontWeight: 700,
-                                color: "oklch(0.18 0.01 85)",
+                                color: "var(--foreground)",
                                 marginTop: "0.5rem",
                                 fontFamily: "var(--font-monsta-fectro, serif)",
                                 letterSpacing: "-0.01em",
@@ -342,7 +342,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                         >
                             {isLogin ? "Welcome back" : isRegister ? "Create account" : isForgot ? "Reset password" : "Set new password"}
                         </h1>
-                        <p style={{ fontSize: "0.8125rem", color: "oklch(0.45 0.02 85)", marginTop: "0.25rem" }}>
+                        <p style={{ fontSize: "0.8125rem", color: "var(--muted-foreground)", marginTop: "0.25rem" }}>
                             {isLogin
                                 ? "Sign in to your account to continue"
                                 : isRegister
@@ -410,7 +410,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                         <button
                                             type="button"
                                             onClick={() => setMode("register")}
-                                            style={{ color: "#414A37", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                            style={{ color: "var(--primary)", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
                                         >
                                             Sign Up
                                         </button>
@@ -418,7 +418,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                     <button
                                         type="button"
                                         onClick={() => setMode("forgot")}
-                                        style={{ color: "#414A37", fontWeight: 500, border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                        style={{ color: "var(--primary)", fontWeight: 500, border: "none", background: "none", cursor: "pointer", padding: 0 }}
                                     >
                                         Forgot password?
                                     </button>

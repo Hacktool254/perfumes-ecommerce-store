@@ -233,10 +233,10 @@ export function FeaturedCategories() {
                                         >
                                             <Link
                                                 href={item.link}
-                                                className="inline-flex items-center gap-3 bg-primary/80 hover:bg-primary backdrop-blur-md border border-white/20 text-white px-8 py-3.5 rounded-full text-sm font-fredoka font-medium transition-all duration-300 hover:gap-5 shadow-lg"
+                                                className="btn-lattafa-primary btn-lattafa-ghost btn-pill font-fredoka shadow-lg"
                                             >
                                                 Explore Collection
-                                                <ArrowRight className="w-4 h-4" />
+                                                <ArrowRight className="w-4 h-4 btn-arrow" />
                                             </Link>
                                         </motion.div>
                                     </motion.div>
@@ -252,7 +252,7 @@ export function FeaturedCategories() {
                 <button
                     onClick={goPrev}
                     disabled={isAnimating}
-                    className="w-12 h-12 rounded-full bg-primary/10 hover:bg-primary/20 backdrop-blur-md border border-primary/20 flex items-center justify-center text-primary transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50"
+                    className="btn-lattafa-icon backdrop-blur-md border border-primary/20 disabled:opacity-50"
                     aria-label="Previous category"
                 >
                     <ChevronLeft className="w-5 h-5" />
@@ -275,7 +275,7 @@ export function FeaturedCategories() {
                 <button
                     onClick={goNext}
                     disabled={isAnimating}
-                    className="w-12 h-12 rounded-full bg-primary/10 hover:bg-primary/20 backdrop-blur-md border border-primary/20 flex items-center justify-center text-primary transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50"
+                    className="btn-lattafa-icon backdrop-blur-md border border-primary/20 disabled:opacity-50"
                     aria-label="Next category"
                 >
                     <ChevronRight className="w-5 h-5" />

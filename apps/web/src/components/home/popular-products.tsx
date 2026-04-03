@@ -53,9 +53,10 @@ export function PopularProducts() {
                 </div>
                 <Link
                     href="/shop?sort=popular"
-                    className="hidden md:block text-sm font-fredoka font-medium text-secondary hover:text-primary transition-colors underline underline-offset-4"
+                    className="hidden md:inline-flex btn-lattafa-underline font-fredoka text-secondary"
                 >
                     View All Popular
+                    <span className="btn-arrow">→</span>
                 </Link>
             </div>
 
@@ -94,9 +95,10 @@ export function PopularProducts() {
             <div className="container mx-auto px-4 mt-4 md:hidden text-center">
                 <Link
                     href="/shop?sort=popular"
-                    className="text-sm font-fredoka font-medium text-secondary hover:text-primary transition-colors underline underline-offset-4"
+                    className="btn-lattafa-underline font-fredoka text-secondary"
                 >
                     View All Popular
+                    <span className="btn-arrow">→</span>
                 </Link>
             </div>
         </section>
