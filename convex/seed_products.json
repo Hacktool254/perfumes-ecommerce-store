@@ -10,7 +10,12 @@
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Yara",
-            "gender": "women"
+            "gender": "women",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/65b924e4d82a43a9bfeba371e2738966_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632002",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/14bea6a270134ceabbdc92ec9cdb7c2e_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632002",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/0984a707f6e943769900bdfcdabf7236_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632002"
+            ]
         },
         {
             "category": "Perfume",
@@ -40,13 +45,23 @@
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Khamrah",
-            "gender": "unisex"
+            "gender": "unisex",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/ce143305a3c94d56a3c86db375bd6456_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764633415",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/9e7a7033f4d74d2b9262dee6195752aa_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764633414",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/12a1e09c48b242dd8146d810b956e043_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764633415"
+            ]
         },
         {
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Sublime",
-            "gender": "unisex"
+            "gender": "unisex",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/ce873b64de89401da52da77068878183_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632749",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/1392931032ea44e9a53dec8ec90a4c26_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632749",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/1ac920200201428db65d12e9e19a0c63_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632749"
+            ]
         },
         {
             "category": "Perfume",
@@ -130,19 +145,34 @@
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Nebras",
-            "gender": "women"
+            "gender": "women",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/IMG-1145.png?v=1755360827",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/IMG-1146.png?v=1755360830",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/IMG-1148.png?v=1755360901"
+            ]
         },
         {
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Haya",
-            "gender": "women"
+            "gender": "women",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/HayaGiftset.png?v=1762901333",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/HayaGiftsetbox.png?v=1762901333",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/HayaGiftsetback.png?v=1762901333"
+            ]
         },
         {
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Mayar",
-            "gender": "women"
+            "gender": "women",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/423f92b3bceb4e07884e54af7c82bb09_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764633579",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/dabd848435ef47969365c09f909e26b7_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764633579",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/cdb9c5f35ea8464ea06190d85863a859_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764633579"
+            ]
         },
         {
             "category": "Perfume",
@@ -160,25 +190,45 @@
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "The Kingdom",
-            "gender": "unisex"
+            "gender": "unisex",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/TheKingdomMenGiftSet.png?v=1762901626",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/TheKingdomMenGiftSetbox.png?v=1762901627",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/TheKingdomMenGiftSetback.png?v=1762901626"
+            ]
         },
         {
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Teriaq",
-            "gender": "unisex"
+            "gender": "unisex",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/274a9aa7401944c09ecdcdc2d95deb1e_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632151",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/8f90ac71118a4555acf948fb5871302f_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632151",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/4b4199e1c3444e12a6aad96831e42a95_tplv-fhlh96nyum-origin-jpeg.jpg?v=1764632151"
+            ]
         },
         {
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Scarlet",
-            "gender": "women"
+            "gender": "women",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/ANA_ABIYEDH_SCARLET.png?v=1756142896",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/ANA_ABIYEDH_SCARLET_BOX_BOTTLE.png?v=1756142940",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/ANA_ABIYEDH_SCARLET_BOX.png?v=1756142969"
+            ]
         },
         {
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Sakeena",
-            "gender": "women"
+            "gender": "women",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/Sakeena-1.png?v=1747422013",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/Sakeena-2.png?v=1747422013",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/Sakeena-3.png?v=1747422013"
+            ]
         },
         {
             "category": "Perfume",
@@ -190,7 +240,12 @@
             "category": "Perfume",
             "brand": "Lattafa",
             "name": "Ansaam Gold",
-            "gender": "women"
+            "gender": "women",
+            "images": [
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/1_97553617-4548-450d-88eb-2fb032306f94.png?v=1749363699",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/2_0ad3ab2f-4e15-4d6c-ba12-0c5195869866.png?v=1749363699",
+                "https://cdn.shopify.com/s/files/1/0754/4936/8799/files/3_bf404d79-5c65-4bdd-b081-a891c485cdd9.png?v=1749363699"
+            ]
         },
         {
             "category": "Perfume",
@@ -265,78 +320,6 @@
             "category": "Body Oil",
             "brand": "Palmer’s",
             "name": "Cocoa Butter Body Oil"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Vaseline",
-            "name": "Cocoa Radiant Lotion",
-            "size": "200ml"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Vaseline",
-            "name": "Cocoa Radiant Lotion",
-            "size": "400ml"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Vaseline",
-            "name": "Men Cooling"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Vaseline",
-            "name": "Advanced Repair"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Nivea",
-            "name": "Radiant & Beauty Even Glow"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Nivea",
-            "name": "Nourishing Cocoa"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Nivea",
-            "name": "Shea Smooth"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Nivea",
-            "name": "Rich Nourishing"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Nivea",
-            "name": "Repair & Care"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Dove",
-            "name": "Essential Care"
-        },
-        {
-            "category": "Body Lotion",
-            "brand": "Dove",
-            "name": "Intensive Care"
-        },
-        {
-            "category": "Body Cream",
-            "brand": "American Dream",
-            "name": "Cocoa Butter Lemon Body Cream"
-        },
-        {
-            "category": "Body Mist",
-            "brand": "Dear Body",
-            "name": "Saturday"
-        },
-        {
-            "category": "Body Mist",
-            "brand": "Dear Body",
-            "name": "Wednesday"
         }
     ]
 }

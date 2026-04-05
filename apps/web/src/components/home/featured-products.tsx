@@ -2,143 +2,232 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { ShoppingBag } from "lucide-react";
 
-// Mock data, in a real app this would come from a database/Convex
-const featuredProducts = [
+const curatedProducts = [
     {
         id: 1,
-        name: "Golden Sands",
-        brand: "Desert Collection",
-        price: 15000,
-        image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800&auto=format&fit=crop",
-        href: "/shop/golden-sands"
+        name: "Asad",
+        brand: "Lattafa",
+        price: 3499,
+        image: "/products/Lattafa-Assad.jpg",
+        href: "/product/lattafa-asad"
     },
     {
         id: 2,
-        name: "Noir Elegance",
-        brand: "Evening Wear",
-        price: 24000,
-        image: "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?q=80&w=800&auto=format&fit=crop",
-        href: "/shop/noir-elegance"
+        name: "Yara",
+        brand: "Lattafa",
+        price: 3500,
+        image: "/products/Lattafa-Yara.jpg",
+        href: "/product/lattafa-yara-pink"
     },
     {
         id: 3,
-        name: "Citrus Bloom",
-        brand: "Summer Essentials",
-        price: 12500,
-        image: "https://images.unsplash.com/photo-1557170334-a9632e77c6e4?q=80&w=800&auto=format&fit=crop",
-        href: "/shop/citrus-bloom"
+        name: "Khamrah",
+        brand: "Lattafa",
+        price: 4900,
+        image: "/products/Lattafa-Khamrah.jpg",
+        href: "/product/lattafa-khamrah"
     },
     {
         id: 4,
-        name: "Amber Wood",
-        brand: "Signature",
-        price: 19800,
-        image: "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=800&auto=format&fit=crop",
-        href: "/shop/amber-wood"
+        name: "Sakeena",
+        brand: "Lattafa",
+        price: 4200,
+        image: "/products/Lattafa-Sakeena.jpg",
+        href: "/product/lattafa-sakeena"
+    },
+    {
+        id: 5,
+        name: "Nebras",
+        brand: "Lattafa",
+        price: 3600,
+        image: "/products/Lattafa-Nebras.jpg",
+        href: "/product/lattafa-nebras"
+    },
+    {
+        id: 6,
+        name: "Angham",
+        brand: "Lattafa",
+        price: 4999,
+        image: "/products/Lattafa-Angham.jpg",
+        href: "/product/lattafa-angham"
+    },
+    {
+        id: 7,
+        name: "Teriaq",
+        brand: "Lattafa",
+        price: 4500,
+        image: "/products/Lattafa-Teriaq.jpg",
+        href: "/product/lattafa-teriaq"
+    },
+    {
+        id: 8,
+        name: "Mayar",
+        brand: "Lattafa",
+        price: 3800,
+        image: "/products/Lattafa-Mayar.jpg",
+        href: "/product/lattafa-mayar"
+    },
+    {
+        id: 9,
+        name: "Sublime",
+        brand: "Lattafa",
+        price: 5200,
+        image: "/products/Lattafa-Sublime.jpg",
+        href: "/product/lattafa-sublime"
+    },
+    {
+        id: 10,
+        name: "Scarlet",
+        brand: "Lattafa",
+        price: 4100,
+        image: "/products/Lattafa-Scarlet.jpg",
+        href: "/product/lattafa-scarlet"
     }
 ];
 
-const containerVariants = {
-    hidden: {},
-    visible: {
-        transition: {
-            staggerChildren: 0.15
-        }
-    }
-};
-
-const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.6,
-            ease: "easeOut"
-        }
-    }
-};
-
 export function FeaturedProductsGrid() {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, margin: "-100px" });
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const [progress, setProgress] = useState(0);
+
+    const itemCount = curatedProducts.length;
+
+    const getZIndex = useCallback((index: number, activeIndex: number) => {
+        return index === activeIndex
+            ? itemCount
+            : itemCount - Math.abs(index - activeIndex);
+    }, [itemCount]);
+
+    const activeIndex = Math.floor((progress / 100) * (itemCount - 1));
+
+    // Scroll-linked progress logic via native CSS sticky scrolling
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!sectionRef.current) return;
+            // The bounding rectangle of the 400vh container
+            const rect = sectionRef.current.getBoundingClientRect();
+            // The scrollable distance is the container height minus the viewport height
+            const scrollableDistance = rect.height - window.innerHeight;
+            
+            // How far into the container have we scrolled? 
+            // When rect.top is 0, we're at the very start of the container (progress 0)
+            // When rect.top is -scrollableDistance, we're at the very end of the container (progress 100)
+            const scrollDistance = -rect.top;
+            
+            let newProgress = (scrollDistance / scrollableDistance) * 100;
+            // Clamp between 0 and 100
+            newProgress = Math.max(0, Math.min(100, newProgress));
+            
+            setProgress(newProgress);
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        // Initial setup
+        handleScroll();
+
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    // Click to jump to item
+    const handleItemClick = (index: number) => {
+        if (!sectionRef.current) return;
+        const targetProgress = (index / itemCount) * 100;
+        // Calculate where to scroll to on the page to reach this progress
+        const scrollableDistance = sectionRef.current.getBoundingClientRect().height - window.innerHeight;
+        const targetScrollY = window.scrollY + sectionRef.current.getBoundingClientRect().top + (targetProgress / 100) * scrollableDistance;
+        
+        window.scrollTo({
+            top: targetScrollY,
+            behavior: "smooth"
+        });
+    };
 
     return (
-        <section className="py-24 bg-background">
-            <div className="container mx-auto px-4">
+        <div ref={sectionRef} className="relative w-full" style={{ height: "400vh" }}>
+            <section className="curated-carousel-section">
+            {/* Section Header */}
+            <div className="curated-carousel-header">
+                <h2 className="font-fredoka curated-carousel-title">
+                    Curated For You
+                </h2>
+                <p className="curated-carousel-subtitle">
+                    Explore our hand-picked selection of premium fragrances that define luxury and elegance.
+                </p>
+            </div>
 
-                <div className="text-center mb-16">
-                    <h2 className="font-fredoka text-3xl md:text-5xl text-primary mb-4 uppercase tracking-tight">
-                        Curated For You
-                    </h2>
-                    <p className="text-muted-foreground max-w-2xl mx-auto">
-                        Explore our hand-picked selection of premium fragrances that define luxury and elegance.
-                    </p>
-                </div>
+            {/* 3D Carousel */}
+            <div className="curated-3d-carousel">
+                {curatedProducts.map((product, index) => {
+                    const zIndex = getZIndex(index, activeIndex);
+                    const activeFraction = (index - activeIndex) / itemCount;
+                    const opacity = (zIndex / itemCount) * 3 - 2;
 
-                <motion.div
-                    ref={ref}
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate={isInView ? "visible" : "hidden"}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto"
-                >
-                    {featuredProducts.map((product) => (
-                        <motion.div
+                    return (
+                        <div
                             key={product.id}
-                            variants={itemVariants as any}
-                            className="group flex flex-col"
+                            className="curated-carousel-item"
+                            style={{
+                                "--zIndex": zIndex,
+                                "--active": activeFraction,
+                                "--opacity": Math.max(0, Math.min(1, opacity)),
+                            } as React.CSSProperties}
+                            onClick={() => handleItemClick(index)}
                         >
-                            <div className="relative aspect-[3/4] bg-secondary/30 mb-4 overflow-hidden rounded-sm">
-                                <Link href={product.href} className="absolute inset-0 z-10">
-                                    <span className="sr-only">View {product.name}</span>
-                                </Link>
-                                <Image
-                                    src={product.image}
-                                    alt={product.name}
-                                    fill
-                                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                                />
-
-                                {/* Add to Cart Overlay */}
-                                <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                                    <button className="btn-lattafa-primary btn-lattafa-dark btn-pill font-fredoka w-full py-3 shadow-lg">
-                                        <ShoppingBag className="w-4 h-4" />
-                                        <span>Add to Cart</span>
-                                    </button>
+                            <div className="curated-carousel-box">
+                                <div className="curated-carousel-img-wrap">
+                                    <Image
+                                        src={product.image}
+                                        alt={product.name}
+                                        fill
+                                        className="object-contain"
+                                        sizes="300px"
+                                    />
+                                </div>
+                                <div className="curated-carousel-num">
+                                    {String(index + 1).padStart(2, "0")}
+                                </div>
+                                <div className="curated-carousel-info">
+                                    <span className="curated-carousel-brand">{product.brand}</span>
+                                    <h3 className="curated-carousel-name font-fredoka">{product.name}</h3>
+                                    <span className="curated-carousel-price">
+                                        KES {product.price.toLocaleString()}
+                                    </span>
                                 </div>
                             </div>
-
-                            <div className="flex flex-col flex-1 px-1 text-center">
-                                <p className="text-[10px] text-secondary/80 uppercase tracking-[0.2em] mb-2 font-medium">{product.brand}</p>
-                                <h3 className="font-fredoka text-lg text-primary mb-2">
-                                    <Link href={product.href} className="hover:text-secondary transition-colors">
-                                        {product.name}
-                                    </Link>
-                                </h3>
-                                <p className="font-medium text-foreground mt-auto">
-                                    KES {product.price.toLocaleString()}
-                                </p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </motion.div>
-
-                <div className="mt-16 text-center">
-                    <Link
-                        href="/shop"
-                        className="btn-lattafa-primary btn-lattafa-dark btn-pill font-fredoka shadow-md"
-                    >
-                        View Entire Collection
-                        <span className="btn-arrow">→</span>
-                    </Link>
-                </div>
-
+                        </div>
+                    );
+                })}
             </div>
-        </section>
+
+            {/* Progress indicator */}
+            <div className="curated-carousel-progress-track">
+                <div
+                    className="curated-carousel-progress-fill"
+                    style={{ width: `${progress}%` }}
+                />
+            </div>
+
+            {/* Scroll hint */}
+            <div className="curated-carousel-scroll-hint" style={{ opacity: progress < 5 ? 1 : 0 }}>
+                <div className="curated-scroll-mouse">
+                    <div className="curated-scroll-wheel" />
+                </div>
+                <span>Scroll to explore</span>
+            </div>
+
+            {/* View All CTA */}
+            <div className="curated-carousel-cta">
+                <Link
+                    href="/shop"
+                    className="btn-lattafa-primary btn-lattafa-dark btn-pill font-fredoka shadow-md"
+                >
+                    View Entire Collection
+                    <span className="btn-arrow">→</span>
+                </Link>
+            </div>
+            </section>
+        </div>
     );
 }

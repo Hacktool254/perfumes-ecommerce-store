@@ -15,8 +15,8 @@ interface ProductInfoProps {
         description: string;
         inStock: boolean;
         stockCount?: number;
-        notes: string[];
-        size: string;
+        notes?: string[];
+        size?: string;
         images: string[];
     };
 }
@@ -60,16 +60,24 @@ export function ProductInfo({ product }: ProductInfoProps) {
             </div>
 
             {/* Fragrance Notes & Size */}
-            <div className="grid grid-cols-2 gap-6 mb-10 py-6 border-y border-border">
-                <div>
-                    <h4 className="text-sm font-medium text-foreground mb-2">Key Notes</h4>
-                    <p className="text-sm text-muted-foreground">{product.notes.join(", ")}</p>
+            {(product.notes?.length || product.size) ? (
+                <div className="grid grid-cols-2 gap-6 mb-10 py-6 border-y border-border">
+                    {product.notes && product.notes.length > 0 && (
+                        <div>
+                            <h4 className="text-sm font-medium text-foreground mb-2">Key Notes</h4>
+                            <p className="text-sm text-muted-foreground">{product.notes.join(", ")}</p>
+                        </div>
+                    )}
+                    {product.size && (
+                        <div>
+                            <h4 className="text-sm font-medium text-foreground mb-2">Size</h4>
+                            <p className="text-sm text-muted-foreground">{product.size}</p>
+                        </div>
+                    )}
                 </div>
-                <div>
-                    <h4 className="text-sm font-medium text-foreground mb-2">Size</h4>
-                    <p className="text-sm text-muted-foreground">{product.size}</p>
-                </div>
-            </div>
+            ) : (
+                <div className="mb-10 py-3 border-t border-border"></div>
+            )}
 
             {/* Add to Cart / Actions */}
             <div className="flex flex-col gap-4 mb-10">

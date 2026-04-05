@@ -9,6 +9,7 @@ export const seed = mutation({
             name: v.string(),
             gender: v.optional(v.string()), // men, women, unisex
             size: v.optional(v.string()),
+            images: v.optional(v.array(v.string())),
         })),
     },
     handler: async (ctx, args) => {
@@ -64,6 +65,7 @@ export const seed = mutation({
             };
 
             const imageUrl = categoryImages[p.category.toLowerCase()] || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800";
+            const productImages = p.images && p.images.length > 0 ? p.images : [imageUrl];
 
             // Insert product
             await ctx.db.insert("products", {
@@ -75,7 +77,7 @@ export const seed = mutation({
                 stock: Math.floor(Math.random() * 50) + 10,
                 categoryId: categoryId,
                 gender: (p.gender?.toLowerCase() || "unisex") as "men" | "women" | "unisex",
-                images: [imageUrl],
+                images: productImages,
                 isActive: true,
                 createdAt: Date.now(),
                 updatedAt: Date.now(),

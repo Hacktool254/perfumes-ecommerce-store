@@ -10,17 +10,17 @@ const genderCollections = [
     {
         slug: "men",
         name: "Men's Fragrances",
-        image: "https://images.unsplash.com/photo-1595150913920-565492ac6917?q=80&w=600&auto=format&fit=crop",
+        image: "/categories/mens-fragrance.jpg",
     },
     {
         slug: "women",
         name: "Women's Fragrances",
-        image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=600&auto=format&fit=crop",
+        image: "/categories/womens-fragrance.jpg",
     },
     {
         slug: "unisex",
         name: "Unisex Fragrances",
-        image: "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=600&auto=format&fit=crop",
+        image: "/categories/unisex-fragrance.jpg",
     },
 ];
 
@@ -42,6 +42,18 @@ export function CategoriesClient() {
         );
     }
 
+    const getCategoryImage = (slug: string, name: string, dbUrl?: string) => {
+        if (dbUrl) return dbUrl;
+        
+        const testName = `${slug} ${name}`.toLowerCase();
+        
+        if (testName.includes("perfume")) return "/categories/perfumes.jpg";
+        if (testName.includes("wash")) return "/categories/bodywash.jpg";
+        if (testName.includes("oil")) return "/categories/body-oil.jpg";
+            
+        return "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=600&auto=format&fit=crop";
+    };
+
     const allCollections = [
         ...genderCollections,
         ...categories
@@ -49,7 +61,7 @@ export function CategoriesClient() {
             .map((c: any) => ({
                 slug: c.slug,
                 name: c.name,
-                image: c.imageUrl || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=600&auto=format&fit=crop",
+                image: getCategoryImage(c.slug, c.name, c.imageUrl),
                 _id: c._id,
             })),
     ];
@@ -172,7 +184,7 @@ export function CategoriesClient() {
                                         >
                                             <div className="relative aspect-square rounded-xl overflow-hidden bg-secondary/40 mb-3">
                                                 <Image
-                                                    src={category.imageUrl || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=600&auto=format&fit=crop"}
+                                                    src={getCategoryImage(category.slug, category.name, category.imageUrl)}
                                                     alt={category.name}
                                                     fill
                                                     className="object-cover transition-transform duration-700 group-hover:scale-110"

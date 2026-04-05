@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.lattafa-usa.com",
       },
+      {
+        protocol: "https",
+        hostname: "lattafa-usa.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.shopify.com",
+      },
     ],
   },
 };

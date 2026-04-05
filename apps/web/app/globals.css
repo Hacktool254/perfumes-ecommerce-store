@@ -398,3 +398,274 @@
 .lattafa-nav-link > span:last-child {
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ─── Curated For You 3D Carousel ──────────────────────────────── */
+
+.curated-carousel-section {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(
+    160deg,
+    var(--color-5) 0%,
+    color-mix(in srgb, var(--color-1) 12%, var(--color-5)) 50%,
+    var(--color-5) 100%
+  );
+}
+
+.curated-carousel-header {
+  position: absolute;
+  top: clamp(24px, 5vh, 56px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 10;
+  padding: 0 1rem;
+}
+
+.curated-carousel-title {
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.curated-carousel-subtitle {
+  color: var(--muted-foreground);
+  max-width: 36rem;
+  margin: 0 auto;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ─── 3D Carousel Container ──────────────────────────────────── */
+
+.curated-3d-carousel {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.curated-carousel-item {
+  --items: 10;
+  --width: clamp(180px, 28vw, 320px);
+  --height: clamp(260px, 42vw, 440px);
+  --x: calc(var(--active) * 800%);
+  --y: calc(var(--active) * 200%);
+  --rot: calc(var(--active) * 120deg);
+
+  position: absolute;
+  z-index: var(--zIndex);
+  width: var(--width);
+  height: var(--height);
+  top: 50%;
+  left: 50%;
+  margin: calc(var(--height) * -0.5) 0 0 calc(var(--width) * -0.5);
+  border-radius: 20px;
+  overflow: hidden;
+  user-select: none;
+  transform-origin: 0% 100%;
+  transform: translate(var(--x), var(--y)) rotate(var(--rot));
+  transition: transform 0.8s cubic-bezier(0, 0.02, 0, 1);
+  pointer-events: all;
+  cursor: pointer;
+  box-shadow:
+    0 10px 40px -10px rgba(0, 0, 0, 0.25),
+    0 20px 60px -20px rgba(0, 0, 0, 0.15);
+}
+
+.curated-carousel-box {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: var(--opacity);
+  transition: opacity 0.8s cubic-bezier(0, 0.02, 0, 1);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #fcf1f1;
+}
+
+/* Glass overlay gradient */
+.curated-carousel-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 20px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.02) 0%,
+    transparent 30%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  pointer-events: none;
+}
+
+.curated-carousel-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 70%;
+  padding: 1rem;
+}
+
+.curated-carousel-img-wrap img {
+  object-fit: contain !important;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.1));
+}
+
+/* Number overlay */
+.curated-carousel-num {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  right: 16px;
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  font-weight: 700;
+  color: var(--primary);
+  opacity: 0.3;
+  letter-spacing: 0.05em;
+}
+
+/* Product info at bottom of card */
+.curated-carousel-info {
+  position: absolute;
+  z-index: 3;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.curated-carousel-brand {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted-foreground);
+}
+
+.curated-carousel-name {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.curated-carousel-price {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: 0.1rem;
+}
+
+/* ─── Progress Bar ────────────────────────────────────────────── */
+
+.curated-carousel-progress-track {
+  position: absolute;
+  bottom: clamp(60px, 10vh, 100px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(280px, 60vw);
+  height: 3px;
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.curated-carousel-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.3s ease-out;
+}
+
+/* ─── Scroll Hint ─────────────────────────────────────────────── */
+
+.curated-carousel-scroll-hint {
+  position: absolute;
+  bottom: clamp(20px, 5vh, 50px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+  transition: opacity 0.6s ease;
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.curated-scroll-mouse {
+  width: 20px;
+  height: 32px;
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  position: relative;
+  opacity: 0.6;
+}
+
+.curated-scroll-wheel {
+  width: 3px;
+  height: 6px;
+  background: var(--primary);
+  border-radius: 3px;
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: curated-scroll-bounce 1.6s ease-in-out infinite;
+}
+
+@keyframes curated-scroll-bounce {
+  0%, 100% { top: 6px; opacity: 1; }
+  50% { top: 16px; opacity: 0.3; }
+}
+
+/* ─── CTA Button ──────────────────────────────────────────────── */
+
+.curated-carousel-cta {
+  position: absolute;
+  bottom: clamp(60px, 10vh, 100px);
+  right: clamp(16px, 5vw, 80px);
+  z-index: 10;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .curated-3d-carousel {
+    height: 60vh;
+  }
+
+  .curated-carousel-item {
+    --width: clamp(160px, 55vw, 260px);
+    --height: clamp(230px, 75vw, 380px);
+  }
+
+  .curated-carousel-cta {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: clamp(20px, 4vh, 50px);
+  }
+
+  .curated-carousel-progress-track {
+    bottom: clamp(80px, 12vh, 110px);
+  }
+}
