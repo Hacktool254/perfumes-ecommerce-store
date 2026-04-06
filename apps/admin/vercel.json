@@ -1,0 +1,7 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "buildCommand": "cd ../.. && npx convex codegen --typecheck=disable 2>/dev/null; cd apps/admin && npx next build",
+    "installCommand": "cd ../.. && npm install",
+    "outputDirectory": ".next",
+    "framework": "nextjs"
+}
