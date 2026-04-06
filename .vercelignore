@@ -1,6 +1,5 @@
 node_modules
 .next
 .turbo
-apps/admin
 *.log
 *.test.ts

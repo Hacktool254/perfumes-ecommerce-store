@@ -157,8 +157,8 @@ export function PopularProducts() {
                                         <Search className="w-4 h-4" />
                                     </div>
 
-                                    {/* Add to Cart Button placed precisely on hovering product bottom */}
-                                    <div className="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                                    {/* Add to Cart Button placed permanently on product bottom */}
+                                    <div className="absolute inset-x-4 bottom-4 z-20">
                                         <button 
                                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
                                             className="btn-lattafa-primary btn-add-to-cart btn-pill w-full py-3 shadow-xl flex items-center justify-center gap-2 group/btn"

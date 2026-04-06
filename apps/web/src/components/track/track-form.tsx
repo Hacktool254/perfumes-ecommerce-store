@@ -125,7 +125,7 @@ export function TrackForm() {
             )}
             
             {/* Results */}
-            {hasAttemptedTrack && !isLoading && (
+            {hasAttemptedTrack && !isLoading && orderData !== undefined && (
                 <div className="w-full mt-12 text-left animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {orderData === null ? (
                         <div className="bg-red-50 text-red-600 p-4 rounded text-center text-sm border border-red-100">

@@ -176,8 +176,8 @@ export function ProductGrid() {
                                     Sold out
                                 </span>
                             )}
-                            {/* Quick Add Cart Button — Appears on hover */}
-                            <div className="absolute inset-x-3 bottom-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-30">
+                            {/* Quick Add Cart Button — Always visible */}
+                            <div className="absolute inset-x-3 bottom-3 z-30">
                                 <button
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                                     className="btn-lattafa-primary btn-add-to-cart btn-pill w-full py-2.5 shadow-xl flex items-center justify-center gap-2 text-[10px] sm:text-[11px] group/btn"
