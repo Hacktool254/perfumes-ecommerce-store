@@ -9,7 +9,7 @@
     "lint": "turbo run lint",
     "test": "vitest",
     "test:once": "vitest run",
-    "postinstall": "node -e \"if(process.env.CONVEX_DEPLOY_KEY){require('child_process').execSync('npx convex codegen',{stdio:'inherit'})}else{console.log('Skipping convex codegen: no CONVEX_DEPLOY_KEY set')}\""
+    "postinstall": "node -e \"if(process.env.CONVEX_DEPLOY_KEY){try{require('child_process').execSync('npx convex codegen',{stdio:'inherit'})}catch(e){console.warn('Convex codegen failed. Ignoring.')}}else{console.log('Skipping convex codegen')}\""
   },
   "workspaces": [
     "apps/*",
