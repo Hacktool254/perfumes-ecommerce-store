@@ -37,38 +37,106 @@ const megaMenuProducts = [
     }
 ];
 
-function MegaMenuDropdown() {
+function ProductDropdown() {
     return (
-        <div className="absolute left-0 top-[100%] w-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50 pointer-events-none group-hover:pointer-events-auto">
-            {/* The actual dropdown panel */}
-            <div className="w-full bg-white/95 backdrop-blur-xl border border-black/5 shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-b-xl border-t-0">
-                <div className="container mx-auto px-6 py-10 relative">
-                    {/* Horizontally scrollable container */}
-                    <div 
-                        className="flex gap-4 md:gap-8 overflow-x-auto pb-4 snap-x justify-center"
-                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                    >
-                        {/* CSS trick to hide webkit scrollbars inline since no-scrollbar isn't guaranteed */}
-                        <style>{`
-                            div::-webkit-scrollbar {
-                                display: none;
-                            }
-                        `}</style>
-                        
+        <div className="absolute left-0 top-full w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-[60] pointer-events-none group-hover:pointer-events-auto">
+            <div className="w-full bg-white shadow-xl shadow-black/10 border-t border-gray-100">
+                <div className="w-full px-4 md:px-8 xl:px-12 py-10 relative">
+                    <div className="flex justify-between gap-6 w-full">
                         {megaMenuProducts.map((p) => (
-                            <Link key={p.id} href={p.href} className="flex-none w-[180px] md:w-[220px] snap-center group/item flex flex-col focus:outline-none">
-                                <div className="relative aspect-[4/5] bg-[#f5f5f5] hover:bg-[#eaeaea] overflow-hidden mb-4 border border-black/5 flex items-center justify-center p-4 transition-colors">
-                                    <Image src={p.image} alt={p.name} fill className="object-contain transition-transform duration-500 ease-out group-hover/item:scale-105" />
+                            <Link key={p.id} href={p.href} className="group/item flex flex-col flex-1 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1">
+                                <div className="relative aspect-[4/3] bg-[#f7f7f7] w-full overflow-hidden">
+                                    <Image src={p.image} alt={p.name} fill className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-[1.03]" />
                                 </div>
-                                <div className="flex items-center justify-between px-2">
-                                    <div>
-                                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{p.brand}</p>
-                                        <p className="font-serif font-medium text-primary text-sm">{p.name}</p>
+                                <div className="flex items-center justify-between p-5 bg-white">
+                                    <p className="font-serif text-[#1c2e36] text-[15px]">{p.name}</p>
+                                    <div className="w-8 h-8 rounded-full bg-[#f4f4f4] flex items-center justify-center transition-colors group-hover/item:bg-[#1c2e36] group-hover/item:text-white">
+                                        <ArrowUpRight className="w-4 h-4" />
                                     </div>
                                 </div>
                             </Link>
                         ))}
                     </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ShopDropdown() {
+    return (
+        <div className="absolute left-0 top-full w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-[60] pointer-events-none group-hover:pointer-events-auto">
+            <div className="w-full bg-white shadow-xl shadow-black/10 border-t border-gray-100">
+                <div className="w-full px-4 md:px-8 xl:px-12 py-12 relative flex">
+                    
+                    {/* Columns Wrapper */}
+                    <div className="flex gap-16 xl:gap-24 flex-1">
+                        
+                        {/* Col 1: Main Links */}
+                        <div className="flex flex-col gap-6">
+                            <Link href="/shop?sort=trending" className="font-serif text-lg text-[#1c2e36] hover:text-[#5C4D42] transition-colors">Best Sellers</Link>
+                            <Link href="/shop?sort=new" className="font-serif text-lg text-[#1c2e36] hover:text-[#5C4D42] transition-colors">New Arrivals</Link>
+                            <Link href="/shop?category=bundles" className="font-serif text-lg text-[#1c2e36] hover:text-[#5C4D42] transition-colors">Bundles</Link>
+                        </div>
+
+                        {/* Col 2: By Category */}
+                        <div className="flex flex-col gap-4">
+                            <h3 className="font-serif text-[#1c2e36] text-[15px] mb-1">By Category</h3>
+                            <Link href="/shop" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">All Fragrances</Link>
+                            <Link href="/shop?gender=women" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Women's Fragrances</Link>
+                            <Link href="/shop?gender=men" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Men's Fragrances</Link>
+                            <Link href="/shop?gender=unisex" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Unisex Fragrances</Link>
+                        </div>
+
+                        {/* Col 3: By Type */}
+                        <div className="flex flex-col gap-4">
+                            <h3 className="font-serif text-[#1c2e36] text-[15px] mb-1">By Type</h3>
+                            <Link href="/shop" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Eau de Parfum (EDP)</Link>
+                            <Link href="/shop" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Deodorant</Link>
+                            <Link href="/shop" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Air Freshener</Link>
+                            <Link href="/shop" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">All Over Spray</Link>
+                        </div>
+
+                        {/* Col 4: By Brand */}
+                        <div className="flex flex-col gap-4">
+                            <h3 className="font-serif text-[#1c2e36] text-[15px] mb-1">By Brand</h3>
+                            <Link href="/shop?brand=Lattafa" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Lattafa</Link>
+                            <Link href="/shop?brand=Swiss+Arabian" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Swiss Arabian</Link>
+                            <Link href="/shop?brand=Rave" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Rave</Link>
+                        </div>
+
+                    </div>
+
+                    {/* Trend This Week */}
+                    <div className="w-[450px] shrink-0 border-l border-gray-100 pl-12 flex flex-col">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-serif text-[#1c2e36] text-[15px]">Trend This Week</h3>
+                            <div className="flex items-center gap-2 text-xs text-gray-500 tracking-widest font-medium">
+                                <span className="cursor-pointer hover:text-black">&lt;</span>
+                                <span>1 / 5</span>
+                                <span className="cursor-pointer hover:text-black">&gt;</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <Link href="/product/lattafa-sakeena" className="flex-1 group/item">
+                                <div className="relative aspect-[4/5] bg-[#f7f7f7] rounded-xl overflow-hidden mb-4">
+                                    <Image src={megaMenuProducts[0].image} alt="Sakeena" fill className="object-contain group-hover/item:scale-105 transition-transform duration-500 p-2" />
+                                </div>
+                                <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-1">LATTAFA</p>
+                                <p className="font-medium text-[#1c2e36] mb-1">Sakeena</p>
+                                <p className="font-bold text-[#1c2e36]">KES 6,500</p>
+                            </Link>
+                            <Link href="/product/lattafa-asad" className="flex-1 group/item">
+                                <div className="relative aspect-[4/5] bg-[#f7f7f7] rounded-xl overflow-hidden mb-4">
+                                    <Image src={megaMenuProducts[1].image} alt="Asad" fill className="object-contain group-hover/item:scale-105 transition-transform duration-500 p-2" />
+                                </div>
+                                <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-1">LATTAFA</p>
+                                <p className="font-medium text-[#1c2e36] mb-1">Asad</p>
+                                <p className="font-bold text-[#1c2e36]">From KES 8,000</p>
+                            </Link>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -81,7 +149,7 @@ const navItems = [
     { label: "BEST SELLERS", href: "/shop?sort=trending", hasDropdown: true },
     { label: "COLLECTIONS", href: "/categories", hasDropdown: true },
     { label: "BUNDLES", href: "/shop?category=bundles" },
-    { label: "TRACK MY ORDER", href: "/account" },
+    { label: "TRACK MY ORDER", href: "/track" },
 ];
 
 export function Header() {
@@ -95,30 +163,28 @@ export function Header() {
                 <div className="w-full flex items-center justify-between h-24 px-4 md:px-8 xl:px-12 relative">
                     
                     {/* Left: Logo */}
-                    <div className="flex flex-1 items-center gap-4 lg:min-w-[200px]">
-                        <Link href="/" className="absolute top-0 -left-1 md:-left-4 xl:-left-6 z-10 hover:opacity-90 transition-opacity">
+                    <div className="flex flex-1 items-center">
+                        <Link href="/" className="z-10 hover:opacity-90 transition-opacity">
                             <img
-                                src="/logo.png"
+                                src="/logo_transparent.png"
                                 alt="Ummie's Essence Logo"
-                                className="h-24 w-auto object-contain"
+                                className="h-20 md:h-24 w-auto object-contain scale-110 md:scale-125 transform origin-left"
                             />
                         </Link>
-                        {/* Spacer to push nav away from logo area */}
-                        <div className="w-[120px] md:w-[180px] flex-shrink-0" />
                     </div>
 
                     {/* Center: Navigation (Desktop) */}
                     <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 h-full">
                         {navItems.map(item => (
-                            <div key={item.label} className="group h-full flex items-center border-b-2 border-transparent hover:border-[#5C4D42] transition-all relative">
+                            <div key={item.label} className="group h-full flex items-center border-b-2 border-transparent hover:border-[#5C4D42] transition-all">
                                 <Link 
                                     href={item.href}
-                                    className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-[#2f2f2f] hover:text-[#5C4D42] transition-colors whitespace-nowrap px-1 uppercase"
+                                    className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-[#2f2f2f] hover:text-[#5C4D42] transition-colors whitespace-nowrap px-1 uppercase h-full"
                                 >
                                     {item.label}
                                     {item.hasDropdown && <ChevronDown className="w-3.5 h-3.5 text-current opacity-70 group-hover:rotate-180 transition-transform duration-300" />}
                                 </Link>
-                                {item.hasDropdown && <MegaMenuDropdown />}
+                                {item.hasDropdown && (item.label === "SHOP" ? <ShopDropdown /> : <ProductDropdown />)}
                             </div>
                         ))}
                     </nav>
@@ -166,7 +232,7 @@ export function Header() {
                 <div className="p-5 flex justify-between items-center">
                     <Link href="/" onClick={() => setIsSidebarOpen(false)}>
                         <img
-                            src="/logo.png"
+                            src="/logo_transparent.png"
                             alt="Ummie's Essence"
                             className="h-14 w-auto object-contain"
                         />
@@ -283,8 +349,8 @@ export function Header() {
                                 <div className="flex flex-col gap-1.5">
                                     <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">Atheri</h4>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[15px] font-bold text-[#d14b39]">$44.99 USD</span>
-                                        <span className="text-sm text-[#8c8c8c] line-through decoration-1">$47.99 USD</span>
+                                        <span className="text-[15px] font-bold text-[#d14b39]">KES 6,500</span>
+                                        <span className="text-sm text-[#8c8c8c] line-through decoration-1">KES 7,500</span>
                                     </div>
                                 </div>
                             </Link>
@@ -297,8 +363,8 @@ export function Header() {
                                 <div className="flex flex-col gap-1.5">
                                     <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">Fakhar Femme</h4>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[15px] font-bold text-[#d14b39]">$39.99 USD</span>
-                                        <span className="text-sm text-[#8c8c8c] line-through decoration-1">$49.99 USD</span>
+                                        <span className="text-[15px] font-bold text-[#d14b39]">KES 5,500</span>
+                                        <span className="text-sm text-[#8c8c8c] line-through decoration-1">KES 6,800</span>
                                     </div>
                                 </div>
                             </Link>
@@ -311,7 +377,7 @@ export function Header() {
                                 <div className="flex flex-col gap-1.5">
                                     <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">Haya</h4>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[15px] font-bold text-[#1a2c3a]">$35.00 USD</span>
+                                        <span className="text-[15px] font-bold text-[#1a2c3a]">KES 4,500</span>
                                     </div>
                                 </div>
                             </Link>

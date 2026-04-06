@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Heart, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingBag, Heart, Eye, Loader2, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
 import { usePaginatedQuery } from "convex/react";
@@ -14,20 +14,35 @@ const ITEMS_PER_PAGE = 12;
 
 export function ProductGrid() {
     const searchParams = useSearchParams();
-    const rawCategory = searchParams?.get("category");
-    const categoryId = rawCategory && rawCategory.length >= 30 ? rawCategory as Id<"categories"> : null;
+    const activeCategoriesRaw = searchParams?.get("category");
+    const activeBrandsRaw = searchParams?.get("brand");
     const gender = searchParams?.get("gender") as "men" | "women" | "unisex" | null;
-    const brand = searchParams?.get("brand") || undefined;
     const currentView = searchParams?.get("view") || "grid";
+    const minPriceRaw = searchParams?.get("minPrice");
+    const maxPriceRaw = searchParams?.get("maxPrice");
+    const inStockRaw = searchParams?.get("inStock");
+
+    const categoryIds = activeCategoriesRaw 
+        ? (activeCategoriesRaw.split(",").filter(id => id.length >= 30) as Id<"categories">[]) 
+        : [];
+    
+    const brands = activeBrandsRaw ? activeBrandsRaw.split(",").filter(Boolean) : [];
+
+    const minPrice = minPriceRaw ? parseInt(minPriceRaw, 10) : undefined;
+    const maxPrice = maxPriceRaw ? parseInt(maxPriceRaw, 10) : undefined;
+    const inStock = inStockRaw ? inStockRaw === "true" : undefined;
 
     const [currentPage, setCurrentPage] = useState(1);
 
     const { results, status, loadMore } = usePaginatedQuery(
         api.products.list,
         {
-            categoryId: categoryId || undefined,
+            categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
             gender: gender || undefined,
-            brand: brand
+            brands: brands.length > 0 ? brands : undefined,
+            minPrice: minPrice,
+            maxPrice: maxPrice,
+            inStock: inStock
         },
         { initialNumItems: 200 } // Load all for pagination
     );
@@ -35,7 +50,7 @@ export function ProductGrid() {
     // Reset to page 1 when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [rawCategory, gender, brand]);
+    }, [activeCategoriesRaw, gender, activeBrandsRaw, minPriceRaw, maxPriceRaw, inStockRaw]);
 
     // Keep loading until we have all items
     useEffect(() => {
@@ -161,18 +176,18 @@ export function ProductGrid() {
                                     Sold out
                                 </span>
                             )}
+                            {/* Quick Add Cart Button — Appears on hover */}
+                            <div className="absolute inset-x-3 bottom-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-30">
+                                <button
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                    className="btn-lattafa-primary btn-add-to-cart btn-pill w-full py-2.5 shadow-xl flex items-center justify-center gap-2 text-[10px] sm:text-[11px] group/btn"
+                                    aria-label="Add to cart"
+                                >
+                                    <span className="relative z-10 font-bold tracking-widest text-white">ADD TO CART</span>
+                                    <ArrowRight className="w-3.5 h-3.5 btn-arrow relative z-10 text-white" />
+                                </button>
+                            </div>
                         </Link>
-
-                        {/* Quick Add Cart button */}
-                        <div className="relative -mt-[52px] mb-0 mr-3 self-end z-20">
-                            <button
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                className="w-11 h-11 bg-white rounded-full border border-gray-100 shadow-sm flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
-                                aria-label="Add to cart"
-                            >
-                                <ShoppingBag className="w-5 h-5 text-gray-700 stroke-[1.5]" />
-                            </button>
-                        </div>
 
                         {/* Product Info — fully clickable */}
                         <Link href={`/product/${product.slug}`} className="flex flex-col flex-1 px-1 text-left">

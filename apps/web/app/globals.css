@@ -9,7 +9,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-fredoka), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-serif: var(--font-monsta-fectro), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-serif: var(--font-playfair-display), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-script: "Great Vibes", cursive;
 
   /* Explicit Luxury Colors */
@@ -388,6 +388,21 @@
 /* Rounded pill shapes */
 .btn-pill { border-radius: 9999px; }
 .btn-rounded { border-radius: 0.5rem; }
+
+/* Add to Cart Premium Variant */
+.btn-add-to-cart {
+  background-color: #1a1a1a;
+  color: white;
+  border: none;
+}
+
+.btn-add-to-cart::before {
+  background-color: var(--color-1); /* Dusty Rose */
+}
+
+.btn-add-to-cart:hover {
+  color: white;
+}
 
 /* ─── Navigation Underline Hover Effect (Lattafa-style) ──────── */
 /* The underline span inside nav links grows from left to right on hover */

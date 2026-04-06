@@ -15,7 +15,7 @@ interface RelatedProductsProps {
 
 export function RelatedProducts({ currentProductId, categoryId }: RelatedProductsProps) {
     const productsResponse = useQuery(api.products.list, {
-        categoryId,
+        categoryIds: categoryId ? [categoryId] : undefined,
         paginationOpts: { numItems: 5, cursor: null }
     });
 

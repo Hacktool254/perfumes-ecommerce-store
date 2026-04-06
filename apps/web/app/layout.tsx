@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Fredoka } from "next/font/google";
+import { Fredoka, Playfair_Display } from "next/font/google";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -9,20 +9,11 @@ const fredoka = Fredoka({
   display: "swap",
 });
 
-const monstaFectro = localFont({
-  src: [
-    {
-      path: "../public/fonts/monsta-fectro.otf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/monsta-fectro-italic.otf",
-      weight: "400",
-      style: "italic",
-    }
-  ],
-  variable: "--font-monsta-fectro",
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair-display",
   display: "swap",
 });
 
@@ -63,6 +54,13 @@ export const metadata: Metadata = {
     description: "Exquisite fragrances and premium cosmetics curated for the modern connoisseur.",
     images: ["/og-image.jpg"],
   },
+  icons: {
+    icon: [
+      { url: '/favicon_32x32.png', type: 'image/png' }
+    ],
+    shortcut: '/favicon_192x192.png',
+    apple: '/favicon_180x180.png',
+  },
   robots: {
     index: true,
     follow: true,
@@ -92,7 +90,7 @@ export default function RootLayout({
     <ConvexAuthNextjsServerProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${fredoka.variable} ${monstaFectro.variable} antialiased flex flex-col min-h-screen bg-background text-foreground`}
+          className={`${fredoka.variable} ${playfairDisplay.variable} antialiased flex flex-col min-h-screen bg-background text-foreground`}
         >
           <ConvexClientProvider>
             {children}

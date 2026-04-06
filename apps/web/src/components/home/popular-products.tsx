@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 
 // Mock data for the two tabs
 const newArrivals: Array<{id: string, name: string, brand: string, price: number, originalPrice?: number, image: string, hoverImage: string, href: string}> = [
@@ -12,8 +12,8 @@ const newArrivals: Array<{id: string, name: string, brand: string, price: number
         id: "na1",
         name: "Angham Second Song",
         brand: "Lattafa",
-        price: 49.99,
-        originalPrice: 59.99,
+        price: 6500,
+        originalPrice: 7500,
         image: "/products/Lattafa-Angham.jpg",
         hoverImage: "/products/Lattafa-Angham-1.jpg",
         href: "/product/lattafa-angham"
@@ -22,7 +22,7 @@ const newArrivals: Array<{id: string, name: string, brand: string, price: number
         id: "na2",
         name: "Mishlah",
         brand: "Lattafa",
-        price: 49.99,
+        price: 6500,
         image: "/products/Lattafa-Sakeena.jpg",
         hoverImage: "/products/Lattafa-Sakeena-1.jpg",
         href: "/product/lattafa-sakeena"
@@ -31,7 +31,7 @@ const newArrivals: Array<{id: string, name: string, brand: string, price: number
         id: "na3",
         name: "Asad Collection 4x25ml",
         brand: "Lattafa",
-        price: 59.99,
+        price: 8000,
         image: "/products/Lattafa-Assad.jpg",
         hoverImage: "/products/Lattafa-Assad-1.jpg",
         href: "/product/lattafa-asad"
@@ -40,7 +40,7 @@ const newArrivals: Array<{id: string, name: string, brand: string, price: number
         id: "na4",
         name: "Teriaq",
         brand: "Lattafa",
-        price: 45.00,
+        price: 6000,
         image: "/products/Lattafa-Teriaq.jpg",
         hoverImage: "/products/Lattafa-Teriaq-1.jpg",
         href: "/product/lattafa-teriaq"
@@ -52,7 +52,7 @@ const bestSellers: Array<{id: string, name: string, brand: string, price: number
         id: "bs1",
         name: "Nebras",
         brand: "Lattafa",
-        price: 36.00,
+        price: 4800,
         image: "/products/Lattafa-Nebras.jpg",
         hoverImage: "/products/Lattafa-Nebras-1.jpg",
         href: "/product/lattafa-nebras"
@@ -61,7 +61,7 @@ const bestSellers: Array<{id: string, name: string, brand: string, price: number
         id: "bs2",
         name: "Yara",
         brand: "Lattafa",
-        price: 35.00,
+        price: 4700,
         image: "/products/Lattafa-Yara.jpg",
         hoverImage: "/products/Lattafa-Yara-1.jpg",
         href: "/product/lattafa-yara-pink"
@@ -70,7 +70,7 @@ const bestSellers: Array<{id: string, name: string, brand: string, price: number
         id: "bs3",
         name: "Khamrah",
         brand: "Lattafa",
-        price: 49.00,
+        price: 6500,
         image: "/products/Lattafa-Khamrah.jpg",
         hoverImage: "/products/Lattafa-Khamrah-1.jpg",
         href: "/product/lattafa-khamrah"
@@ -79,7 +79,7 @@ const bestSellers: Array<{id: string, name: string, brand: string, price: number
         id: "bs4",
         name: "Mayar",
         brand: "Lattafa",
-        price: 38.00,
+        price: 5000,
         image: "/products/Lattafa-Mayar.jpg",
         hoverImage: "/products/Lattafa-Mayar-1.jpg",
         href: "/product/lattafa-mayar"
@@ -161,9 +161,10 @@ export function PopularProducts() {
                                     <div className="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20">
                                         <button 
                                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
-                                            className="bg-black text-white font-medium rounded-[30px] w-full py-3.5 tracking-wide text-sm flex items-center justify-center hover:bg-gray-800 transition-colors"
+                                            className="btn-lattafa-primary btn-add-to-cart btn-pill w-full py-3 shadow-xl flex items-center justify-center gap-2 group/btn"
                                         >
-                                            ADD TO CART
+                                            <span className="relative z-10">ADD TO CART</span>
+                                            <ArrowRight className="w-4 h-4 btn-arrow relative z-10" />
                                         </button>
                                     </div>
                                 </div>
@@ -176,11 +177,11 @@ export function PopularProducts() {
                                     </h3>
                                     <div className="flex items-center gap-2 mt-auto">
                                         <span className={`text-[14px] font-bold ${product.originalPrice ? "text-[#d12020]" : "text-black"}`}>
-                                            ${product.price.toFixed(2)} USD
+                                            KES {product.price.toLocaleString()}
                                         </span>
                                         {product.originalPrice && (
                                             <span className="text-[14px] text-gray-400 line-through">
-                                                ${product.originalPrice.toFixed(2)} USD
+                                                KES {product.originalPrice.toLocaleString()}
                                             </span>
                                         )}
                                     </div>

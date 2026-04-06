@@ -1,56 +1,44 @@
 import sharp from 'sharp';
-import { readdir, stat, mkdir } from 'fs/promises';
-import { join, parse } from 'path';
+import { readdir, mkdir } from 'fs/promises';
+import { join } from 'path';
 
-const INPUT_DIR = 'apps/web/public/images/yara';
-const OUTPUT_DIR = 'apps/web/public/images/yara-webp';
-const WEBP_QUALITY = 85; // Much higher quality than the original JPGs (~30-40)
+const INPUT_DIR = './apps/web/public/images/sequence';
+const OUTPUT_DIR = './apps/web/public/images/sequence-webp';
 
 async function convert() {
-  // Create output directory
   await mkdir(OUTPUT_DIR, { recursive: true });
-
-  // Get all frame JPGs
-  const files = (await readdir(INPUT_DIR))
-    .filter(f => f.startsWith('ezgif-frame-') && f.endsWith('.jpg'))
-    .sort();
-
-  console.log(`Found ${files.length} frames to convert`);
-  console.log(`Output quality: WebP ${WEBP_QUALITY}%\n`);
-
-  let totalInputKB = 0;
-  let totalOutputKB = 0;
-  let converted = 0;
-
-  for (const file of files) {
-    const inputPath = join(INPUT_DIR, file);
-    const { name } = parse(file);
-    const outputPath = join(OUTPUT_DIR, `${name}.webp`);
-
-    const inputStat = await stat(inputPath);
-    const inputKB = inputStat.size / 1024;
-    totalInputKB += inputKB;
-
+  
+  const files = (await readdir(INPUT_DIR)).filter(f => f.endsWith('.png')).sort();
+  console.log(`Converting ${files.length} PNG files to WebP (quality 85)...`);
+  
+  let totalPng = 0;
+  let totalWebp = 0;
+  
+  for (let i = 0; i < files.length; i++) {
+    const inputPath = join(INPUT_DIR, files[i]);
+    const outputName = files[i].replace('.png', '.webp');
+    const outputPath = join(OUTPUT_DIR, outputName);
+    
+    const inputInfo = await sharp(inputPath).metadata();
+    const inputSize = (await import('fs')).statSync(inputPath).size;
+    
     await sharp(inputPath)
-      .webp({ quality: WEBP_QUALITY, effort: 4 }) // effort 4 = good balance of speed + compression
+      .webp({ quality: 85 })
       .toFile(outputPath);
-
-    const outputStat = await stat(outputPath);
-    const outputKB = outputStat.size / 1024;
-    totalOutputKB += outputKB;
-    converted++;
-
-    if (converted % 20 === 0 || converted === files.length) {
-      console.log(`  Converted ${converted}/${files.length} — ${name}.webp (${inputKB.toFixed(1)} KB → ${outputKB.toFixed(1)} KB)`);
+    
+    const outputSize = (await import('fs')).statSync(outputPath).size;
+    totalPng += inputSize;
+    totalWebp += outputSize;
+    
+    if (i % 20 === 0 || i === files.length - 1) {
+      console.log(`  [${i + 1}/${files.length}] ${files[i]} → ${outputName} (${(inputSize/1024).toFixed(0)}KB → ${(outputSize/1024).toFixed(0)}KB)`);
     }
   }
-
-  console.log(`\n✅ Done! Converted ${converted} frames`);
-  console.log(`   Input total:  ${(totalInputKB / 1024).toFixed(1)} MB (JPG avg ${(totalInputKB / converted).toFixed(0)} KB)`);
-  console.log(`   Output total: ${(totalOutputKB / 1024).toFixed(1)} MB (WebP avg ${(totalOutputKB / converted).toFixed(0)} KB)`);
-  console.log(`   Size change:  ${((totalOutputKB / totalInputKB - 1) * 100).toFixed(1)}%`);
-  console.log(`   Quality:      WebP ${WEBP_QUALITY}% (vs original JPG ~30-40%)\n`);
-  console.log(`Next step: Update hero.tsx to use .webp extension from /images/yara-webp/`);
+  
+  console.log(`\nDone!`);
+  console.log(`  Total PNG:  ${(totalPng / 1024 / 1024).toFixed(1)} MB`);
+  console.log(`  Total WebP: ${(totalWebp / 1024 / 1024).toFixed(1)} MB`);
+  console.log(`  Savings:    ${((1 - totalWebp/totalPng) * 100).toFixed(1)}%`);
 }
 
 convert().catch(console.error);

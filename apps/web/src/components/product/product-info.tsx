@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, Heart, Star, ShieldCheck } from "lucide-react";
+import { ShoppingBag, Heart, Star, ShieldCheck, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { useCart } from "@/hooks/use-cart";
@@ -543,18 +543,20 @@ export function ProductInfo({ product }: ProductInfoProps) {
                     </button>
                 </div>
 
-                <motion.button
-                    whileTap={{ scale: 0.95 }}
+                <button
                     onClick={handleAddToCart}
                     disabled={!product.inStock || isAdding}
-                    className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-full font-bold text-sm tracking-[0.1em] uppercase transition-all ${
+                    className={`btn-lattafa-primary btn-pill flex-1 flex items-center justify-center gap-3 py-4 text-sm font-bold tracking-widest uppercase transition-all shadow-xl group/atc ${
                         product.inStock
-                            ? "bg-[#2f2f2f] text-white hover:bg-[#1a1a1a] hover:shadow-lg active:scale-[0.98]"
-                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            ? "btn-add-to-cart"
+                            : "bg-gray-200 text-gray-400 cursor-not-allowed opacity-50"
                     }`}
                 >
-                    {isAdding ? "ADDING..." : "ADD TO CART"}
-                </motion.button>
+                    <span className="relative z-10 font-bold tracking-widest">
+                        {isAdding ? "ADDING..." : "ADD TO CART"}
+                    </span>
+                    <ArrowRight className="w-5 h-5 btn-arrow relative z-10" />
+                </button>
             </div>
 
             {/* Authenticity badge */}

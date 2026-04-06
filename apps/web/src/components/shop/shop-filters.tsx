@@ -2,46 +2,31 @@
 
 import { useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
-import { Check, X, Plus, Minus } from "lucide-react";
+import { Check, Plus, Minus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const brands = [
-    { name: "Lattafa", count: 140 }, 
-    { name: "Lattafa Pride", count: 55 }
-];
-
-const fragranceTypes = [
-    { label: "Eau de Parfum (EDP)", count: 194 },
-    { label: "Perfume Oil", count: 3 },
-    { label: "Deodorant", count: 6 },
-    { label: "Air Freshener", count: 9 },
-    { label: "Eau de Toilette (EDT)", count: 1 },
-    { label: "All Over Spray", count: 6 },
+    "Lattafa",
+    "Rave",
+    "Afnan",
+    "Armaf",
+    "Swiss Arabian",
+    "Maison Alhambra",
+    "Dove",
+    "St Ives",
+    "Hobby",
+    "Ballet",
+    "Vaseline",
+    "Argan",
+    "Palmer's"
 ];
 
 const gendersList = [
-    { label: "Men", count: 29 },
-    { label: "Unisex", count: 160 },
-    { label: "Women", count: 45 },
-];
-
-const sizesList = [
-    { label: "5ML", count: 1 },
-    { label: "5ml", count: 1 },
-    { label: "20ML", count: 1 },
-    { label: "25ml", count: 2 },
-    { label: "50ML", count: 1 },
-    { label: "55ML", count: 1 },
-    { label: "60ML", count: 4 },
-    { label: "75ML", count: 13 },
-    { label: "80ML", count: 3 },
-    { label: "90ML", count: 4 },
-    { label: "100ML", count: 162 },
-    { label: "100ml", count: 2 },
-    { label: "110ML", count: 1 },
-    { label: "250ml", count: 12 },
+    { label: "Men", value: "men" },
+    { label: "Unisex", value: "unisex" },
+    { label: "Women", value: "women" },
 ];
 
 function FilterAccordion({ title, children, defaultOpen = true }: {
@@ -85,9 +70,8 @@ function FilterAccordion({ title, children, defaultOpen = true }: {
     );
 }
 
-function FilterCheckbox({ label, count, active, onClick }: {
+function FilterCheckbox({ label, active, onClick }: {
     label: string;
-    count?: number;
     active: boolean;
     onClick: () => void;
 }) {
@@ -107,9 +91,6 @@ function FilterCheckbox({ label, count, active, onClick }: {
             <span className={`text-[14px] transition-colors flex-1 ${active ? "text-[#2f2f2f] font-medium" : "text-[#2f2f2f]"}`}>
                 {label}
             </span>
-            {count !== undefined && (
-                <span className="text-[13px] text-gray-500">({count})</span>
-            )}
         </label>
     );
 }
@@ -119,71 +100,73 @@ export function ShopFilters() {
     const searchParams = useSearchParams();
     const categories = useQuery(api.categories.list);
 
-    const activeCategory = searchParams?.get("category");
+    const activeCategories = searchParams?.get("category")?.split(",").filter(Boolean) || [];
+    const activeBrands = searchParams?.get("brand")?.split(",").filter(Boolean) || [];
     const activeGender = searchParams?.get("gender");
-    const activeBrand = searchParams?.get("brand");
+    const activeAvailability = searchParams?.get("inStock");
 
-    const createQueryString = useCallback(
-        (name: string, value: string | null) => {
-            const params = new URLSearchParams(searchParams?.toString() || "");
-            if (value === null) {
-                params.delete(name);
-            } else {
-                params.set(name, value);
-            }
-            return params.toString();
-        },
-        [searchParams]
-    );
-
-    const handleFilterChange = (name: string, value: string | null) => {
-        const current = searchParams?.get(name);
-        const nextValue = current === value ? null : value;
-        router.push(`/shop?${createQueryString(name, nextValue)}`, { scroll: false });
+    const handleMultiSelect = (name: string, value: string) => {
+        const currentValues = searchParams?.get(name)?.split(",").filter(Boolean) || [];
+        const nextValues = currentValues.includes(value) 
+            ? currentValues.filter(v => v !== value) 
+            : [...currentValues, value];
+        
+        const params = new URLSearchParams(searchParams?.toString() || "");
+        if (nextValues.length === 0) {
+            params.delete(name);
+        } else {
+            params.set(name, nextValues.join(","));
+        }
+        router.push(`/shop?${params.toString()}`, { scroll: false });
     };
 
-    const clearAll = () => {
-        router.push("/shop");
+    const handleSingleSelect = (name: string, value: string | null) => {
+        const params = new URLSearchParams(searchParams?.toString() || "");
+        if (value === null || params.get(name) === value) {
+            params.delete(name);
+        } else {
+            params.set(name, value);
+        }
+        router.push(`/shop?${params.toString()}`, { scroll: false });
     };
 
-    const hasActiveFilters = activeCategory || activeGender || activeBrand;
+    // Price State
+    const [minPrice, setMinPrice] = useState(searchParams?.get("minPrice") || "0");
+    const [maxPrice, setMaxPrice] = useState(searchParams?.get("maxPrice") || "20000");
+
+    const applyPrice = () => {
+        const params = new URLSearchParams(searchParams?.toString() || "");
+        if (minPrice && minPrice !== "0") params.set("minPrice", minPrice); else params.delete("minPrice");
+        if (maxPrice && maxPrice !== "20000") params.set("maxPrice", maxPrice); else params.delete("maxPrice");
+        router.push(`/shop?${params.toString()}`, { scroll: false });
+    };
 
     return (
         <aside className="w-full h-full pr-4">
             <div className="sticky top-28">
-                {/* Visual filter sections mimicking the screenshot */}
-                <FilterAccordion title="Scent Profile" defaultOpen={false}>
-                    <FilterCheckbox label="Fresh" active={false} onClick={() => {}} />
-                    <FilterCheckbox label="Woody" active={false} onClick={() => {}} />
-                    <FilterCheckbox label="Floral" active={false} onClick={() => {}} />
-                </FilterAccordion>
-
-                <FilterAccordion title="Type" defaultOpen={false}>
-                    <FilterCheckbox label="Eau De Parfum" active={false} onClick={() => {}} />
-                    <FilterCheckbox label="Extrait De Parfum" active={false} onClick={() => {}} />
+                
+                {/* Categories */}
+                <FilterAccordion title="Categories" defaultOpen={true}>
+                    {categories ? categories.map((cat) => (
+                        <FilterCheckbox
+                            key={cat._id}
+                            label={cat.name}
+                            active={activeCategories.includes(cat._id)}
+                            onClick={() => handleMultiSelect("category", cat._id)}
+                        />
+                    )) : (
+                        <div className="text-sm text-gray-500">Loading...</div>
+                    )}
                 </FilterAccordion>
 
                 {/* Brand */}
                 <FilterAccordion title="Brand" defaultOpen={true}>
                     {brands.map((b) => (
                         <FilterCheckbox
-                            key={b.name}
-                            label={b.name}
-                            count={b.count}
-                            active={activeBrand === b.name}
-                            onClick={() => handleFilterChange("brand", b.name)}
-                        />
-                    ))}
-                </FilterAccordion>
-
-                <FilterAccordion title="Fragrance Type" defaultOpen={true}>
-                    {fragranceTypes.map((item) => (
-                        <FilterCheckbox
-                            key={item.label}
-                            label={item.label}
-                            count={item.count}
-                            active={activeCategory === item.label}
-                            onClick={() => handleFilterChange("category", item.label)}
+                            key={b}
+                            label={b}
+                            active={activeBrands.includes(b)}
+                            onClick={() => handleMultiSelect("brand", b)}
                         />
                     ))}
                 </FilterAccordion>
@@ -191,40 +174,68 @@ export function ShopFilters() {
                 <FilterAccordion title="Gender" defaultOpen={true}>
                     {gendersList.map((g) => (
                         <FilterCheckbox
-                            key={g.label}
+                            key={g.value}
                             label={g.label}
-                            count={g.count}
-                            active={activeGender === g.label.toLowerCase()}
-                            onClick={() => handleFilterChange("gender", g.label.toLowerCase())}
+                            active={activeGender === g.value}
+                            onClick={() => handleSingleSelect("gender", g.value)}
                         />
                     ))}
                 </FilterAccordion>
 
-                <FilterAccordion title="Price" defaultOpen={false}>
-                    <FilterCheckbox label="Under $30" active={false} onClick={() => {}} />
-                    <FilterCheckbox label="$30 - $50" active={false} onClick={() => {}} />
-                    <FilterCheckbox label="Over $50" active={false} onClick={() => {}} />
-                </FilterAccordion>
-
-                <FilterAccordion title="Size" defaultOpen={true}>
-                    {sizesList.map((s) => (
-                        <FilterCheckbox
-                            key={s.label}
-                            label={s.label}
-                            count={s.count}
-                            active={false}
-                            onClick={() => {}}
-                        />
-                    ))}
-                    <button className="text-[14px] text-black font-medium underline underline-offset-4 mt-2 text-left hover:text-gray-700 w-fit">
-                        + Show More
-                    </button>
+                <FilterAccordion title="Price" defaultOpen={true}>
+                    <div className="flex flex-col gap-6 pt-2 pb-2">
+                        {/* Visual Slider Track mock */}
+                        <div className="relative h-1 bg-black w-full my-3 rounded-full">
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full shadow-sm" />
+                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full shadow-sm" />
+                        </div>
+                        
+                        {/* Inputs */}
+                        <div className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 font-medium text-sm">KES</span>
+                                <input 
+                                    type="number"
+                                    min="0"
+                                    max="20000"
+                                    value={minPrice}
+                                    onChange={(e) => setMinPrice(e.target.value)}
+                                    onBlur={applyPrice}
+                                    onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
+                                    className="w-full bg-[#f8f8f8] border border-gray-200 focus:border-black rounded-full py-3.5 pl-12 pr-3 outline-none text-right font-medium text-[#2f2f2f] text-sm transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                            </div>
+                            <span className="text-gray-900 font-medium text-sm">To</span>
+                            <div className="relative flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 font-medium text-sm">KES</span>
+                                <input 
+                                    type="number"
+                                    min="0"
+                                    max="20000"
+                                    value={maxPrice}
+                                    onChange={(e) => setMaxPrice(e.target.value)}
+                                    onBlur={applyPrice}
+                                    onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
+                                    className="w-full bg-[#f8f8f8] border border-gray-200 focus:border-black rounded-full py-3.5 pl-12 pr-3 outline-none text-right font-medium text-[#2f2f2f] text-sm transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </FilterAccordion>
 
                 <FilterAccordion title="Availability" defaultOpen={true}>
-                    <FilterCheckbox label="In stock" count={223} active={false} onClick={() => {}} />
-                    <FilterCheckbox label="Out of stock" count={47} active={false} onClick={() => {}} />
+                    <FilterCheckbox 
+                        label="In stock" 
+                        active={activeAvailability === "true"} 
+                        onClick={() => handleSingleSelect("inStock", "true")} 
+                    />
+                    <FilterCheckbox 
+                        label="Out of stock" 
+                        active={activeAvailability === "false"} 
+                        onClick={() => handleSingleSelect("inStock", "false")} 
+                    />
                 </FilterAccordion>
+
             </div>
         </aside>
     );

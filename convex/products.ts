@@ -11,38 +11,85 @@ import { paginationOptsValidator } from "convex/server";
 export const list = query({
     args: {
         paginationOpts: paginationOptsValidator,
-        categoryId: v.optional(v.id("categories")),
-        brand: v.optional(v.string()),
+        categoryIds: v.optional(v.array(v.id("categories"))),
+        brands: v.optional(v.array(v.string())),
         gender: v.optional(v.union(v.literal("men"), v.literal("women"), v.literal("unisex"))),
+        minPrice: v.optional(v.number()),
+        maxPrice: v.optional(v.number()),
+        inStock: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
+        console.log("==> products:list CALLED with args:", JSON.stringify(args));
         let q;
 
-        // Use index for one primary filter if available
-        if (args.categoryId) {
-            q = ctx.db.query("products").withIndex("by_category", (q) => q.eq("categoryId", args.categoryId!));
-        } else if (args.brand) {
-            q = ctx.db.query("products").withIndex("by_brand", (q) => q.eq("brand", args.brand!));
-        } else if (args.gender) {
-            q = ctx.db.query("products").withIndex("by_gender", (q) => q.eq("gender", args.gender!));
-        } else {
-            q = ctx.db.query("products");
+        try {
+            // Use index for one primary filter if available
+            if (args.categoryIds && args.categoryIds.length === 1) {
+                console.log("==> Using by_category index");
+                q = ctx.db.query("products").withIndex("by_category", (q) => q.eq("categoryId", args.categoryIds![0]));
+            } else if (args.brands && args.brands.length === 1) {
+                console.log("==> Using by_brand index");
+                q = ctx.db.query("products").withIndex("by_brand", (q) => q.eq("brand", args.brands![0]));
+            } else if (args.gender) {
+                console.log("==> Using by_gender index");
+                q = ctx.db.query("products").withIndex("by_gender", (q) => q.eq("gender", args.gender!));
+            } else {
+                console.log("==> Using generic query");
+                q = ctx.db.query("products");
+            }
+        } catch (err) {
+            console.error("==> Error during index selection:", err);
+            throw err;
         }
 
         // Apply soft delete filter
         q = q.filter((q) => q.neq(q.field("isActive"), false));
 
-        // Apply manual filters for the rest
-        if (args.categoryId && args.brand) {
-            q = q.filter((q) => q.eq(q.field("brand"), args.brand!));
+        // Let's use simple .or() chaining if possible, or just not filter if not strictly needed
+        // Since Convex filter closure DSL does not easily loop over variable conditions safely
+        // Another pattern: filter out what DOES NOT match if it's simpler, 
+        // but since we want OR logic across brands, we'll serialize gracefully.
+        
+        if (args.categoryIds && args.categoryIds.length > 1) {
+            q = q.filter((q) => {
+                let expr = q.eq(q.field("categoryId"), args.categoryIds![0]);
+                for (let i = 1; i < args.categoryIds!.length; i++) {
+                    expr = q.or(expr, q.eq(q.field("categoryId"), args.categoryIds![i]));
+                }
+                return expr;
+            });
         }
 
+        if (args.brands && args.brands.length > 1) {
+            q = q.filter((q) => {
+                let expr = q.eq(q.field("brand"), args.brands![0]);
+                for (let i = 1; i < args.brands!.length; i++) {
+                    expr = q.or(expr, q.eq(q.field("brand"), args.brands![i]));
+                }
+                return expr;
+            });
+        }
+
+
+        // Price filters
+        if (args.minPrice !== undefined) {
+            q = q.filter((q) => q.gte(q.field("price"), args.minPrice!));
+        }
+        if (args.maxPrice !== undefined) {
+            q = q.filter((q) => q.lte(q.field("price"), args.maxPrice!));
+        }
+
+        // Availability filter
+        if (args.inStock !== undefined) {
+            if (args.inStock) {
+                q = q.filter((q) => q.gt(q.field("stock"), 0));
+            } else {
+                q = q.filter((q) => q.lte(q.field("stock"), 0));
+            }
+        }
+
+        // Gender filter (includes unisex results)
         if (args.gender) {
-            // Re-apply gender filter if we didn't use the index, or to include unisex
-            // Note: If we used by_gender index, it only returned EXACT matches. 
-            // To include unisex, we should ideally not use the index OR use multiple queries.
-            // For now, if gender index was used and it's NOT unisex, we can't easily add unisex back to that specific query result without another fetch.
-            // Simplifying: If gender filter is applied, we'll scan (or filter result) to include unisex.
             q = q.filter((q) =>
                 q.or(
                     q.eq(q.field("gender"), args.gender!),

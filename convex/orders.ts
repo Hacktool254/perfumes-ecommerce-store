@@ -317,3 +317,41 @@ export const getStats = query({
         };
     },
 });
+
+/**
+ * Publicly track an order using its ID and the customer's email.
+ */
+export const publicTrack = query({
+    args: {
+        orderId: v.string(),
+        email: v.string(),
+    },
+    handler: async (ctx, args) => {
+        try {
+            const normalizedId = ctx.db.normalizeId("orders", args.orderId);
+            if (!normalizedId) return null;
+
+            const order = await ctx.db.get(normalizedId);
+
+            if (!order || order.customerEmail.toLowerCase() !== args.email.toLowerCase()) {
+                return null;
+            }
+
+            const items = await ctx.db
+                .query("orderItems")
+                .withIndex("by_order", (q) => q.eq("orderId", order._id))
+                .collect();
+
+            const itemsWithProducts = await Promise.all(
+                items.map(async (item) => {
+                    const product = await ctx.db.get(item.productId);
+                    return { ...item, product };
+                })
+            );
+
+            return { ...order, items: itemsWithProducts };
+        } catch (e) {
+            return null;
+        }
+    },
+});

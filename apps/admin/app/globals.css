@@ -68,32 +68,39 @@
   --cream: oklch(0.97 0.01 85);
   --charcoal: oklch(0.18 0.01 85);
 
-  /* Vintage Light Theme - beige background, olive text/cards */
-  --background: #DBC2A6;
-  --foreground: #414A37;
+  /* New Brand Palette Options */
+  --color-1: #BF8A68; /* Dusty rose */
+  --color-2: #A6568A; /* Mauve */
+  --color-3: #732A24; /* Deep burgundy */
+  --color-4: #D99C9C; /* Soft pink */
+  --color-5: #F3CECE; /* Pale pink */
 
-  --card: #414A37;
-  --card-foreground: #DBC2A6;
+  /* Light Theme - Pale pink background, dusty rose accents */
+  --background: var(--color-5);
+  --foreground: #2A2121; /* Dark brownish text for contrast */
 
-  --popover: #DBC2A6;
-  --popover-foreground: #414A37;
+  --card: #FCF1F1; /* Even lighter pink/white for cards */
+  --card-foreground: #2A2121;
 
-  --primary: #414A37;
-  --primary-foreground: #DBC2A6;
+  --popover: #FCF1F1;
+  --popover-foreground: #2A2121;
 
-  --secondary: #99744A;
-  --secondary-foreground: #DBC2A6;
+  --primary: var(--color-1);
+  --primary-foreground: #FFFFFF;
 
-  --muted: color-mix(in srgb, #414A37 15%, #DBC2A6);
-  --muted-foreground: color-mix(in srgb, #414A37 65%, #DBC2A6);
+  --secondary: var(--color-5);
+  --secondary-foreground: var(--color-1);
 
-  --accent: #99744A;
-  --accent-foreground: #DBC2A6;
+  --muted: color-mix(in srgb, var(--color-1) 15%, var(--color-5));
+  --muted-foreground: color-mix(in srgb, var(--color-1) 70%, var(--color-5));
+
+  --accent: color-mix(in srgb, var(--color-1) 15%, var(--color-5));
+  --accent-foreground: var(--color-1);
 
   --destructive: oklch(0.577 0.245 27.325);
-  --border: color-mix(in srgb, #414A37 20%, #DBC2A6);
-  --input: color-mix(in srgb, #414A37 20%, #DBC2A6);
-  --ring: #99744A;
+  --border: color-mix(in srgb, var(--color-1) 25%, var(--color-5));
+  --input: color-mix(in srgb, var(--color-1) 25%, var(--color-5));
+  --ring: var(--color-1);
 
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -101,41 +108,50 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
 
-  --sidebar: #DBC2A6;
-  --sidebar-foreground: #414A37;
-  --sidebar-primary: #414A37;
-  --sidebar-primary-foreground: #DBC2A6;
-  --sidebar-accent: #99744A;
-  --sidebar-accent-foreground: #DBC2A6;
-  --sidebar-border: color-mix(in srgb, #414A37 20%, #DBC2A6);
-  --sidebar-ring: #99744A;
+  --sidebar: var(--color-5);
+  --sidebar-foreground: #2A2121;
+  --sidebar-primary: var(--color-1);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: color-mix(in srgb, var(--color-1) 15%, var(--color-5));
+  --sidebar-accent-foreground: #2A2121;
+  --sidebar-border: color-mix(in srgb, var(--color-1) 25%, var(--color-5));
+  --sidebar-ring: var(--color-1);
+
+  /* Serene Architect Tonal Hierarchy */
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #fff0f1;
+  --surface-container: #f9eaeb;
+  --surface-container-high: #f4e5e6;
+  --surface-container-highest: #eedfe0;
 }
 
 .dark {
-  /* Luxury Dark Theme - deep charcoal background, soft gold/cream text */
-  --background: var(--charcoal);
-  --foreground: var(--cream);
-  --card: oklch(0.22 0.01 85);
-  --card-foreground: var(--cream);
-  --popover: var(--charcoal);
-  --popover-foreground: var(--cream);
+  /* Dark Theme - Deep burgundy background, mauve/soft pink accents */
+  --background: var(--color-3);
+  --foreground: var(--color-5);
+  
+  --card: color-mix(in srgb, var(--color-3) 90%, black);
+  --card-foreground: var(--color-5);
+  
+  --popover: color-mix(in srgb, var(--color-3) 90%, black);
+  --popover-foreground: var(--color-5);
 
-  --primary: var(--gold);
-  --primary-foreground: var(--charcoal);
+  --primary: var(--color-2);
+  --primary-foreground: #FFFFFF;
 
-  --secondary: oklch(0.28 0.01 85);
-  --secondary-foreground: var(--cream);
+  --secondary: var(--color-4);
+  --secondary-foreground: var(--color-3);
 
-  --muted: oklch(0.28 0.01 85);
-  --muted-foreground: oklch(0.75 0.02 85);
+  --muted: color-mix(in srgb, var(--color-3) 80%, white);
+  --muted-foreground: var(--color-4);
 
-  --accent: var(--gold);
-  --accent-foreground: var(--charcoal);
+  --accent: color-mix(in srgb, var(--color-2) 30%, var(--color-3));
+  --accent-foreground: var(--color-4);
 
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.35 0.01 85);
-  --input: oklch(0.35 0.01 85);
-  --ring: var(--gold);
+  --border: color-mix(in srgb, var(--color-2) 40%, var(--color-3));
+  --input: color-mix(in srgb, var(--color-2) 40%, var(--color-3));
+  --ring: var(--color-2);
 
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -143,14 +159,14 @@
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
 
-  --sidebar: var(--charcoal);
-  --sidebar-foreground: var(--cream);
-  --sidebar-primary: var(--gold);
-  --sidebar-primary-foreground: var(--charcoal);
-  --sidebar-accent: oklch(0.28 0.01 85);
-  --sidebar-accent-foreground: var(--cream);
-  --sidebar-border: oklch(0.35 0.01 85);
-  --sidebar-ring: var(--gold);
+  --sidebar: var(--color-3);
+  --sidebar-foreground: var(--color-5);
+  --sidebar-primary: var(--color-2);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: color-mix(in srgb, var(--color-2) 30%, var(--color-3));
+  --sidebar-accent-foreground: var(--color-5);
+  --sidebar-border: color-mix(in srgb, var(--color-2) 40%, var(--color-3));
+  --sidebar-ring: var(--color-2);
 }
 
 @layer base {
