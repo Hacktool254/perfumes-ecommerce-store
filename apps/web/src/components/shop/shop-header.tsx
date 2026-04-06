@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { SlidersHorizontal, Menu as MenuIcon } from "lucide-react";
+import { SlidersHorizontal, Menu as MenuIcon, X } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { ShopFilters } from "./shop-filters";
 
 // Mock categories for the slider based on the reference design
 const categories = [
@@ -32,6 +33,7 @@ export function ShopHeader() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
     
     const currentView = searchParams?.get("view") || "grid"; // default to grid
 
@@ -53,6 +55,7 @@ export function ShopHeader() {
     };
 
     return (
+        <>
         <div className="space-y-6 lg:space-y-8 pb-4">
             {/* Breadcrumbs */}
             <div className="flex md:hidden items-center justify-center text-sm">
@@ -86,7 +89,10 @@ export function ShopHeader() {
             {/* Control Bar (Filter & Layout Toggle) */}
             <div className="flex items-center justify-between pt-4">
                 {/* Filter Button */}
-                <button className="flex items-center gap-2 bg-[#f2f2f2] hover:bg-[#e5e5e5] transition-colors rounded-full px-5 py-2.5 text-sm font-semibold tracking-wider text-foreground">
+                <button 
+                    onClick={() => setIsFilterOpen(true)}
+                    className="flex items-center gap-2 bg-[#f2f2f2] hover:bg-[#e5e5e5] transition-colors rounded-full px-5 py-2.5 text-sm font-semibold tracking-wider text-foreground"
+                >
                     <SlidersHorizontal className="w-4 h-4 stroke-[1.5]" />
                     FILTER
                 </button>
@@ -124,5 +130,59 @@ export function ShopHeader() {
                 </div>
             </div>
         </div>
+
+        {/* Mobile Filter Drawer — Overlay */}
+        {isFilterOpen && (
+            <div 
+                className="fixed inset-0 bg-black/40 z-[60] backdrop-blur-sm transition-opacity"
+                onClick={() => setIsFilterOpen(false)}
+            />
+        )}
+
+        {/* Mobile Filter Drawer — Slide-up Sheet */}
+        <div className={`fixed inset-x-0 bottom-0 z-[70] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.15)] transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isFilterOpen ? 'translate-y-0' : 'translate-y-full'}`}
+            style={{ maxHeight: '85vh' }}
+        >
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+                <h3 className="text-xl font-serif text-[#2f2f2f]">Filter</h3>
+                <button 
+                    onClick={() => setIsFilterOpen(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                    <X className="w-5 h-5 text-[#2f2f2f]" />
+                </button>
+            </div>
+
+            {/* Sort By */}
+            <div className="px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-4">
+                    <span className="text-sm text-gray-500 whitespace-nowrap">Sort by:</span>
+                    <select className="flex-1 bg-[#f5f5f5] rounded-full px-4 py-2.5 text-sm font-medium text-[#2f2f2f] appearance-none cursor-pointer border-0 focus:ring-0 focus:outline-none">
+                        <option>Featured</option>
+                        <option>Price: Low to High</option>
+                        <option>Price: High to Low</option>
+                        <option>Newest</option>
+                        <option>Best Selling</option>
+                    </select>
+                </div>
+            </div>
+
+            {/* Scrollable Filter Content */}
+            <div className="overflow-y-auto px-6 py-4" style={{ maxHeight: 'calc(85vh - 180px)' }}>
+                <ShopFilters />
+            </div>
+
+            {/* Apply Button — Fixed at bottom */}
+            <div className="px-6 py-4 border-t border-gray-100 bg-white">
+                <button 
+                    onClick={() => setIsFilterOpen(false)}
+                    className="w-full py-3.5 bg-[#2f2f2f] hover:bg-[#1a1a1a] text-white text-sm font-bold tracking-[0.15em] uppercase rounded-full transition-all active:scale-[0.98]"
+                >
+                    APPLY
+                </button>
+            </div>
+        </div>
+        </>
     );
 }

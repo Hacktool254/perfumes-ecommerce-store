@@ -2,22 +2,25 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Heart, Eye, Loader2 } from "lucide-react";
+import { ShoppingBag, Heart, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { usePaginatedQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useSearchParams } from "next/navigation";
 import { Id } from "@workspaceRoot/convex/_generated/dataModel";
 
+const ITEMS_PER_PAGE = 12;
+
 export function ProductGrid() {
     const searchParams = useSearchParams();
     const rawCategory = searchParams?.get("category");
-    // Ensure we don't pass slugs (like "perfumes") into the categoryId ID validator
     const categoryId = rawCategory && rawCategory.length >= 30 ? rawCategory as Id<"categories"> : null;
     const gender = searchParams?.get("gender") as "men" | "women" | "unisex" | null;
     const brand = searchParams?.get("brand") || undefined;
     const currentView = searchParams?.get("view") || "grid";
+
+    const [currentPage, setCurrentPage] = useState(1);
 
     const { results, status, loadMore } = usePaginatedQuery(
         api.products.list,
@@ -26,8 +29,65 @@ export function ProductGrid() {
             gender: gender || undefined,
             brand: brand
         },
-        { initialNumItems: 12 }
+        { initialNumItems: 200 } // Load all for pagination
     );
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [rawCategory, gender, brand]);
+
+    // Keep loading until we have all items
+    useEffect(() => {
+        if (status === "CanLoadMore") {
+            loadMore(200);
+        }
+    }, [status, loadMore]);
+
+    const totalItems = results.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+
+    // Get current page items
+    const currentItems = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        return results.slice(start, end);
+    }, [results, currentPage]);
+
+    // Generate page numbers to display
+    const getPageNumbers = () => {
+        const pages: (number | "...")[] = [];
+        
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            pages.push(1);
+            
+            if (currentPage > 3) {
+                pages.push("...");
+            }
+            
+            const start = Math.max(2, currentPage - 1);
+            const end = Math.min(totalPages - 1, currentPage + 1);
+            
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            
+            if (currentPage < totalPages - 2) {
+                pages.push("...");
+            }
+            
+            pages.push(totalPages);
+        }
+        
+        return pages;
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
     if (status === "LoadingFirstPage") {
         return (
@@ -51,7 +111,7 @@ export function ProductGrid() {
         <div className="space-y-8">
             {/* Top Toolbar (Count & Sort) */}
             <div className="flex items-center justify-between text-[#2f2f2f] text-sm pt-2">
-                <span>268 products</span>
+                <span>{totalItems} products</span>
                 <div className="flex items-center gap-2">
                     <span>Sort by:</span>
                     <select className="bg-transparent font-medium focus:outline-none cursor-pointer">
@@ -65,7 +125,7 @@ export function ProductGrid() {
 
             {/* Product Grid */}
             <div className={`grid ${currentView === "list" ? "grid-cols-1 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"} gap-x-4 gap-y-12 w-full`}>
-                {results.map((product, idx) => (
+                {currentItems.map((product, idx) => (
                     <motion.div
                         key={product._id}
                         initial={{ opacity: 0, y: 20 }}
@@ -73,37 +133,27 @@ export function ProductGrid() {
                         transition={{ duration: 0.4, delay: idx * 0.04 }}
                         className={`group flex ${currentView === "list" ? "flex-row md:flex-col gap-6 md:gap-0 items-center md:items-start" : "flex-col"}`}
                     >
-                        {/* Image Container — Lattafa-style gray bg with rounded corners */}
-                        <div className={`relative ${currentView === "list" ? "w-1/3 md:w-full aspect-[3/4] md:aspect-[4/5]" : "w-full aspect-[4/5]"} bg-[#f7f7f7] mb-4 rounded-3xl`}>
-                            <Link href={`/product/${product.slug}`} className="absolute inset-0 z-10 rounded-3xl overflow-hidden">
-                                <span className="sr-only">View {product.name}</span>
-                            </Link>
-
-                            <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out rounded-3xl overflow-hidden">
+                        {/* Image Container */}
+                        <Link 
+                            href={`/product/${product.slug}`} 
+                            className={`relative block ${currentView === "list" ? "w-1/3 md:w-full aspect-[3/4] md:aspect-[4/5]" : "w-full aspect-[4/5]"} bg-[#f7f7f7] mb-4 rounded-3xl overflow-hidden`}
+                        >
+                            <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out">
                                 <Image
                                     src={product.images[0] || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800"}
                                     alt={product.name}
                                     fill
-                                    className={`object-cover transition-opacity duration-700 ease-in-out z-10 ${product.images[1] ? 'group-hover:opacity-0' : ''}`}
+                                    className={`object-cover transition-opacity duration-700 ease-in-out ${product.images[1] ? 'group-hover:opacity-0' : ''}`}
                                 />
                                 {product.images[1] && (
                                     <Image
                                         src={product.images[1]}
                                         alt={`${product.name} alternate view`}
                                         fill
-                                        className="object-cover transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100 z-0"
+                                        className="object-cover transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100"
                                     />
                                 )}
                             </div>
-
-                            {/* Added Lattafa Shopping Bag button bottom right corner */}
-                            <button
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                className="absolute bottom-3 right-3 z-30 w-11 h-11 bg-white rounded-full border border-gray-100 shadow-sm flex items-center justify-center hover:scale-105 transition-transform"
-                                aria-label="Add to cart"
-                            >
-                                <ShoppingBag className="w-5 h-5 text-gray-700 stroke-[1.5]" />
-                            </button>
 
                             {/* Badges */}
                             {product.stock !== undefined && product.stock <= 0 && (
@@ -111,35 +161,80 @@ export function ProductGrid() {
                                     Sold out
                                 </span>
                             )}
+                        </Link>
+
+                        {/* Quick Add Cart button */}
+                        <div className="relative -mt-[52px] mb-0 mr-3 self-end z-20">
+                            <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                className="w-11 h-11 bg-white rounded-full border border-gray-100 shadow-sm flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+                                aria-label="Add to cart"
+                            >
+                                <ShoppingBag className="w-5 h-5 text-gray-700 stroke-[1.5]" />
+                            </button>
                         </div>
 
-                        {/* Product Info — Lattafa-style hierarchy */}
-                        <div className={`flex flex-col flex-1 px-1 text-left`}>
+                        {/* Product Info — fully clickable */}
+                        <Link href={`/product/${product.slug}`} className="flex flex-col flex-1 px-1 text-left">
                             <p className="text-[13px] text-gray-500 mb-0.5">
                                 {product.brand || "Lattafa"}
                             </p>
-                            <h3 className="font-medium text-[15px] text-gray-900 mb-1 leading-snug">
-                                <Link href={`/product/${product.slug}`} className="hover:text-primary transition-colors">
-                                    {product.name}
-                                </Link>
+                            <h3 className="font-medium text-[15px] text-gray-900 mb-1 leading-snug hover:text-primary transition-colors">
+                                {product.name}
                             </h3>
                             <p className="font-bold text-gray-900 text-[15px] mt-1">
                                 KES {product.price.toLocaleString()}
                             </p>
-                        </div>
+                        </Link>
                     </motion.div>
                 ))}
             </div>
 
-            {/* Load More */}
-            {status === "CanLoadMore" && (
-                <div className="flex justify-center pt-8">
-                    <button
-                        onClick={() => loadMore(12)}
-                        className="px-12 py-4 border border-border rounded-full text-sm font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-300"
-                    >
-                        Load More
-                    </button>
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-1 pt-8 pb-4">
+                    {/* Previous Button */}
+                    {currentPage > 1 && (
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            className="flex items-center gap-1 px-3 py-2 text-sm text-[#2f2f2f] hover:text-black transition-colors"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                            <span className="hidden sm:inline">Previous</span>
+                        </button>
+                    )}
+
+                    {/* Page Numbers */}
+                    {getPageNumbers().map((page, idx) => (
+                        page === "..." ? (
+                            <span key={`dots-${idx}`} className="px-2 py-2 text-sm text-gray-400">
+                                ...
+                            </span>
+                        ) : (
+                            <button
+                                key={page}
+                                onClick={() => handlePageChange(page as number)}
+                                className={`min-w-[40px] h-10 flex items-center justify-center text-sm font-medium rounded-full transition-all ${
+                                    currentPage === page
+                                        ? "bg-[#2f2f2f] text-white"
+                                        : "text-[#2f2f2f] hover:bg-gray-100"
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        )
+                    ))}
+
+                    {/* Next Button */}
+                    {currentPage < totalPages && (
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            className="flex items-center gap-1 px-3 py-2 text-sm text-[#2f2f2f] hover:text-black transition-colors"
+                        >
+                            <span>Next</span>
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             )}
         </div>

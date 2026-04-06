@@ -124,9 +124,34 @@ export function FeaturedCategories() {
                 }}
             />
 
-            {/* Section label */}
-            <div className="absolute top-8 left-8 z-20 pointer-events-none">
-                <p className="text-xs text-primary/40 tracking-[0.4em] uppercase font-medium">Collections</p>
+            {/* Section label + Category info — top left */}
+            <div className="absolute top-6 md:top-8 left-6 md:left-8 z-20 pointer-events-none max-w-[55%] md:max-w-sm">
+                <p className="text-xs text-white/50 tracking-[0.4em] uppercase font-medium mb-4">Collections</p>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={active.id}
+                        initial={{ opacity: 0, y: 30, filter: "blur(12px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                        <p className="text-xs tracking-[0.3em] text-white/50 uppercase mb-2">
+                            {String(items.indexOf(active) + 1).padStart(2, '0')} / {String(baseCategories.length).padStart(2, '0')}
+                        </p>
+                        <h2
+                            className="font-fredoka text-3xl md:text-5xl lg:text-6xl text-white leading-none mb-3 uppercase"
+                            style={{ textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}
+                        >
+                            {active.title}
+                        </h2>
+                        <p
+                            className="text-white/80 text-xs md:text-sm leading-relaxed max-w-[280px]"
+                            style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}
+                        >
+                            {active.description}
+                        </p>
+                    </motion.div>
+                </AnimatePresence>
             </div>
 
             {/* The Slider Track */}
@@ -191,66 +216,34 @@ export function FeaturedCategories() {
                                     <p className="text-white text-xs font-medium leading-tight line-clamp-2">{item.title}</p>
                                 </div>
                             )}
-
-                            {isHero && (
-                                <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={item.id}
-                                        initial={{ opacity: 0, y: 60, filter: "blur(16px)" }}
-                                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                                        exit={{ opacity: 0, y: -30, filter: "blur(8px)" }}
-                                        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                                        className="absolute left-12 md:left-20 bottom-16 md:bottom-24 z-20 max-w-sm pointer-events-none"
-                                    >
-                                        <motion.p
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.15, duration: 0.6 }}
-                                            className="text-xs tracking-[0.4em] text-primary/60 uppercase mb-3"
-                                        >
-                                            {String(items.indexOf(item)).padStart(2, '0')} / {String(baseCategories.length).padStart(2, '0')}
-                                        </motion.p>
-                                        <motion.h2
-                                            initial={{ opacity: 0, y: 30 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1, duration: 0.7 }}
-                                            className="font-fredoka text-4xl md:text-6xl text-primary leading-none mb-4 uppercase"
-                                        >
-                                            {item.title}
-                                        </motion.h2>
-                                        <motion.p
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.25, duration: 0.6 }}
-                                            className="text-secondary/80 text-sm md:text-base mb-8 leading-relaxed"
-                                        >
-                                            {item.description}
-                                        </motion.p>
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.4, duration: 0.6 }}
-                                            className="pointer-events-auto"
-                                        >
-                                            <Link
-                                                href={item.link}
-                                                onClick={(e) => e.stopPropagation()}
-                                                className="btn-lattafa-primary btn-lattafa-ghost btn-pill font-fredoka shadow-lg"
-                                            >
-                                                Explore Collection
-                                                <ArrowRight className="w-4 h-4 btn-arrow" />
-                                            </Link>
-                                        </motion.div>
-                                    </motion.div>
-                                </AnimatePresence>
-                            )}
                         </div>
                     );
                 })}
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30">
+            {/* Explore Collection CTA — centered, above nav buttons */}
+            <div className="absolute bottom-20 md:bottom-20 left-1/2 -translate-x-1/2 z-30">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={active.id}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                    >
+                        <Link
+                            href={active.link}
+                            className="btn-lattafa-primary btn-lattafa-ghost btn-pill font-fredoka shadow-lg inline-flex items-center"
+                        >
+                            Explore Collection
+                            <ArrowRight className="w-4 h-4 btn-arrow" />
+                        </Link>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+
+            {/* Navigation Buttons — bottom center */}
+            <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30">
                 <button
                     onClick={goPrev}
                     disabled={isAnimating}

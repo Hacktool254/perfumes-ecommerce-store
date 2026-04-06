@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 
 const curatedProducts = [
@@ -89,6 +90,7 @@ const curatedProducts = [
 ];
 
 export function FeaturedProductsGrid() {
+    const router = useRouter();
     const sectionRef = useRef<HTMLDivElement>(null);
     const [progress, setProgress] = useState(0);
 
@@ -167,13 +169,13 @@ export function FeaturedProductsGrid() {
                     return (
                         <div
                             key={product.id}
-                            className="curated-carousel-item"
+                            className={`curated-carousel-item ${index === activeIndex ? 'cursor-pointer' : ''}`}
                             style={{
                                 "--zIndex": zIndex,
                                 "--active": activeFraction,
                                 "--opacity": Math.max(0, Math.min(1, opacity)),
                             } as React.CSSProperties}
-                            onClick={() => handleItemClick(index)}
+                            onClick={() => index === activeIndex ? router.push(product.href) : handleItemClick(index)}
                         >
                             <div className="curated-carousel-box">
                                 <div className="curated-carousel-img-wrap">
