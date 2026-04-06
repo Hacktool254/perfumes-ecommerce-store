@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function AdminLoginPage() {
-    return <AdminAuthForm mode="login" redirectPath="/admin" />;
+    return <AdminAuthForm mode="login" redirectPath="/" />;
 }

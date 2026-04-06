@@ -28,6 +28,10 @@ const navItems = [
 export function AdminSidebar() {
     const pathname = usePathname();
 
+    if (pathname?.startsWith("/login")) {
+        return null;
+    }
+
     return (
         <aside className="w-72 h-screen sticky top-0 bg-surface-container border-none flex flex-col p-6 overflow-hidden">
             {/* Brand Logo / Section */}

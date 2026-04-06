@@ -254,7 +254,11 @@ export const updateStatus = mutation({
 export const getStats = query({
     args: {},
     handler: async (ctx) => {
-        await requireAdmin(ctx);
+        const authUserId = await getAuthUserId(ctx);
+        if (!authUserId) return null;
+        const authUser = await ctx.db.get(authUserId);
+        if (authUser?.role !== "admin") return null;
+
 
         const allOrders = await ctx.db.query("orders").collect();
         const allProducts = await ctx.db.query("products").filter(q => q.eq(q.field("isActive"), true)).collect();

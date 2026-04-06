@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { Sparkles, LayoutGrid, Package, Receipt, Users, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
 
 // ─── Zod Schemas ─────────────────────────────────────────────────────────────
 
@@ -21,24 +21,8 @@ const registerSchema = z.object({
     password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-const forgotSchema = z.object({
-    email: z.email("Please enter a valid email address"),
-});
-
-const resetSchema = z.object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-});
-
 type LoginValues = z.infer<typeof loginSchema>;
 type RegisterValues = z.infer<typeof registerSchema>;
-type ForgotValues = z.infer<typeof forgotSchema>;
-type ResetValues = z.infer<typeof resetSchema>;
-
-// ─── Props ────────────────────────────────────────────────────────────────────
 
 interface AdminAuthFormProps {
     mode: "login" | "register" | "forgot" | "reset";
@@ -47,15 +31,13 @@ interface AdminAuthFormProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: AdminAuthFormProps) {
+export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAuthFormProps) {
     const { signIn } = useAuthActions();
     const router = useRouter();
-    const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(initialMode);
+    const [mode, setMode] = useState<"login" | "register">(initialMode === "register" ? "register" : "login");
     const [serverError, setServerError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // ── Forms ──
     const loginForm = useForm<LoginValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: { email: "", password: "" },
@@ -66,18 +48,6 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         defaultValues: { name: "", email: "", password: "" },
     });
 
-    const forgotForm = useForm<ForgotValues>({
-        resolver: zodResolver(forgotSchema),
-        defaultValues: { email: "" },
-    });
-
-    const resetForm = useForm<ResetValues>({
-        resolver: zodResolver(resetSchema),
-        defaultValues: { password: "", confirmPassword: "" },
-    });
-
-    // ── Handlers ──
-
     async function handleLogin(values: LoginValues) {
         setServerError(null);
         setIsLoading(true);
@@ -86,7 +56,6 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
             router.push(redirectPath);
         } catch {
             setServerError("Invalid email or password. Please try again.");
-        } finally {
             setIsLoading(false);
         }
     }
@@ -103,518 +72,190 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
             if (msg.toLowerCase().includes("already")) {
                 setServerError("An account already exists with this email. Please sign in instead.");
             } else {
-                setServerError("Could not create account. Please try again or contact support.");
+                setServerError("Could not create account. Please try again.");
             }
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    async function handleForgot(values: ForgotValues) {
-        setServerError(null);
-        setSuccessMessage(null);
-        setIsLoading(true);
-        try {
-            await signIn("password", { email: values.email, flow: "reset" });
-            setSuccessMessage("If an account exists with this email, you will receive a reset link shortly.");
-        } catch (error) {
-            console.error(error);
-            setServerError("An error occurred. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    async function handleReset(values: ResetValues) {
-        setServerError(null);
-        setIsLoading(true);
-        try {
-            await signIn("password", { password: values.password, flow: "reset-password" });
-            setSuccessMessage("Password reset successfully! You can now sign in.");
-            setMode("login");
-        } catch (error) {
-            console.error(error);
-            setServerError("Reset link expired or invalid. Please request a new one.");
-        } finally {
             setIsLoading(false);
         }
     }
 
     const isLogin = mode === "login";
-    const isRegister = mode === "register";
-    const isForgot = mode === "forgot";
-    const isReset = mode === "reset";
 
     return (
-        <>
-            {/* ── Keyframe animations injected as a style tag ── */}
-            <style>{`
-        .auth-bg {
-          min-height: 100vh;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          overflow: hidden;
-          position: relative;
-          background: radial-gradient(ellipse at 60% 40%, #DBC2A6 0%, #E5D5C5 60%, #C4AE95 100%);
-        }
-
-        .circles-wrapper {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          pointer-events: none;
-        }
-
-        .circles-container {
-          position: relative;
-          width: min(520px, 90vw);
-          height: min(520px, 90vw);
-        }
-
-        .auth-circle {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          border: 4px solid;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-
-        .auth-circle:nth-child(1) {
-          border-color: rgba(65, 74, 55, 0.4);
-          animation: pulse1 3.5s ease-in-out infinite;
-        }
-        .auth-circle:nth-child(2) {
-          border-color: rgba(153, 116, 74, 0.3);
-          animation: pulse2 3.5s ease-in-out infinite 0.6s;
-        }
-        .auth-circle:nth-child(3) {
-          border-color: rgba(219, 194, 166, 0.5);
-          animation: pulse3 3.5s ease-in-out infinite 1.2s;
-        }
-        .auth-circle:nth-child(4) {
-          border-color: rgba(65, 74, 55, 0.1);
-          animation: pulse4 3.5s ease-in-out infinite 1.8s;
-        }
-
-        @keyframes pulse1 {
-          0%   { transform: translate(-50%,-50%) scale(0.95); opacity:.8; border-radius:45% 55% 48% 52% / 42% 48% 52% 58%; }
-          25%  { transform: translate(-50%,-50%) scale(1.02); opacity:.9; border-radius:58% 42% 55% 45% / 48% 62% 38% 52%; }
-          50%  { transform: translate(-50%,-50%) scale(1.06); opacity:1;  border-radius:52% 48% 62% 38% / 53% 45% 55% 47%; }
-          75%  { transform: translate(-50%,-50%) scale(0.98); opacity:.9; border-radius:38% 62% 45% 55% / 58% 52% 48% 42%; }
-          100% { transform: translate(-50%,-50%) scale(0.95); opacity:.8; border-radius:45% 55% 48% 52% / 42% 48% 52% 58%; }
-        }
-        @keyframes pulse2 {
-          0%   { transform: translate(-50%,-50%) scale(0.92) rotate(12deg);  opacity:.75; border-radius:55% 45% 58% 42% / 52% 48% 52% 48%; }
-          25%  { transform: translate(-50%,-50%) scale(1.00) rotate(12deg);  opacity:.85; border-radius:42% 58% 45% 55% / 48% 60% 40% 52%; }
-          50%  { transform: translate(-50%,-50%) scale(1.08) rotate(12deg);  opacity:1;   border-radius:48% 52% 40% 60% / 55% 45% 55% 45%; }
-          75%  { transform: translate(-50%,-50%) scale(1.00) rotate(12deg);  opacity:.85; border-radius:60% 40% 52% 48% / 42% 58% 42% 58%; }
-          100% { transform: translate(-50%,-50%) scale(0.92) rotate(12deg);  opacity:.75; border-radius:55% 45% 58% 42% / 52% 48% 52% 48%; }
-        }
-        @keyframes pulse3 {
-          0%   { transform: translate(-50%,-50%) scale(0.98) rotate(-12deg); opacity:.7;  border-radius:40% 60% 52% 48% / 45% 55% 45% 55%; }
-          25%  { transform: translate(-50%,-50%) scale(1.05) rotate(-12deg); opacity:.8;  border-radius:52% 48% 45% 55% / 58% 42% 58% 42%; }
-          50%  { transform: translate(-50%,-50%) scale(1.02) rotate(-12deg); opacity:.95; border-radius:60% 40% 58% 42% / 52% 48% 52% 48%; }
-          75%  { transform: translate(-50%,-50%) scale(0.95) rotate(-12deg); opacity:.8;  border-radius:45% 55% 42% 58% / 40% 60% 40% 60%; }
-          100% { transform: translate(-50%,-50%) scale(0.98) rotate(-12deg); opacity:.7;  border-radius:40% 60% 52% 48% / 45% 55% 45% 55%; }
-        }
-        @keyframes pulse4 {
-          0%   { transform: translate(-50%,-50%) scale(1.00) rotate(6deg);   opacity:.65; border-radius:48% 52% 55% 45% / 50% 50% 50% 50%; }
-          25%  { transform: translate(-50%,-50%) scale(1.08) rotate(6deg);   opacity:.75; border-radius:62% 38% 48% 52% / 45% 55% 45% 55%; }
-          50%  { transform: translate(-50%,-50%) scale(1.12) rotate(6deg);   opacity:.9;  border-radius:50% 50% 38% 62% / 58% 42% 58% 42%; }
-          75%  { transform: translate(-50%,-50%) scale(1.05) rotate(6deg);   opacity:.75; border-radius:38% 62% 52% 48% / 52% 48% 52% 48%; }
-          100% { transform: translate(-50%,-50%) scale(1.00) rotate(6deg);   opacity:.65; border-radius:48% 52% 55% 45% / 50% 50% 50% 50%; }
-        }
-
-        .auth-card {
-          position: relative;
-          z-index: 20;
-          background: rgba(255, 255, 255, 0.18);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.35);
-          border-radius: 24px;
-          padding: 2.5rem 2.25rem;
-          width: min(360px, 90vw);
-          box-shadow:
-            0 8px 32px rgba(65, 74, 55, 0.08),
-            0 2px 8px rgba(0,0,0,0.06),
-            inset 0 1px 0 rgba(255,255,255,0.6);
-        }
-
-        .auth-input {
-          width: 100%;
-          padding: 0.7rem 1.1rem;
-          border: 1.5px solid rgba(65, 74, 55, 0.2);
-          border-radius: 999px;
-          font-size: 0.875rem;
-          background: rgba(255,255,255,0.75);
-          outline: none;
-          transition: border-color 0.25s, box-shadow 0.25s;
-          color: oklch(0.18 0.01 85);
-        }
-
-        .auth-input:focus {
-          border-color: #414A37;
-          box-shadow: 0 0 0 4px rgba(65, 74, 55, 0.1);
-        }
-
-        .auth-btn {
-          width: 100%;
-          padding: 0.75rem 1rem;
-          background: linear-gradient(135deg, #414A37 0%, #99744A 100%);
-          color: white;
-          border: none;
-          border-radius: 999px;
-          font-weight: 600;
-          font-size: 0.9375rem;
-          cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s;
-          box-shadow: 0 4px 12px rgba(65, 74, 55, 0.2);
-        }
-
-        .auth-btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(65, 74, 55, 0.3);
-        }
-
-        .auth-btn:active {
-          transform: translateY(1px);
-          box-shadow: 0 2px 8px rgba(139, 21, 56, 0.25);
-        }
-
-        .auth-btn:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-          transform: none;
-        }
-
-        .auth-error {
-          color: #d32f2f;
-          background-color: #ffebee;
-          border: 1px solid #ffcdd2;
-          padding: 0.75rem;
-          border-radius: 12px;
-          font-size: 0.8125rem;
-          margin-top: 0.5rem;
-          text-align: center;
-        }
-
-        .auth-success {
-          color: #2e7d32;
-          background-color: #e8f5e9;
-          border: 1px solid #c8e6c9;
-          padding: 0.75rem;
-          border-radius: 12px;
-          font-size: 0.8125rem;
-          margin-top: 0.5rem;
-          text-align: center;
-        }
-
-        .field-error {
-          color: #d32f2f;
-          font-size: 0.75rem;
-          margin-top: 0.25rem;
-          padding-left: 0.75rem;
-        }
-      `}</style>
-
-            <div className="auth-bg w-full">
-                {/* Animated circles */}
-                <div className="circles-wrapper">
-                    <div className="circles-container">
-                        <div className="auth-circle" />
-                        <div className="auth-circle" />
-                        <div className="auth-circle" />
-                        <div className="auth-circle" />
-                    </div>
-                </div>
-
-                {/* Glassmorphism card */}
-                <div className="auth-card">
-                    {/* Brand header */}
-                    <div className="text-center mb-7">
-                        <span
-                            style={{
-                                fontFamily: "var(--font-monsta-fectro, serif)",
-                                fontSize: "1.35rem",
-                                color: "#414A37",
-                                letterSpacing: "0.04em",
-                                fontWeight: 600,
-                            }}
-                        >
-                            Ummie&apos;s Essence
-                        </span>
-                        <h1
-                            style={{
-                                fontSize: "1.5rem",
-                                fontWeight: 700,
-                                color: "oklch(0.18 0.01 85)",
-                                marginTop: "0.5rem",
-                                fontFamily: "var(--font-monsta-fectro, serif)",
-                                letterSpacing: "-0.01em",
-                            }}
-                        >
-                            {isLogin ? "Welcome back" : isRegister ? "Create account" : isForgot ? "Reset password" : "Set new password"}
-                        </h1>
-                        <p style={{ fontSize: "0.8125rem", color: "oklch(0.45 0.02 85)", marginTop: "0.25rem" }}>
-                            {isLogin
-                                ? "Sign in to your admin account to continue"
-                                : isRegister
-                                    ? "Set up your admin access"
-                                    : isForgot
-                                        ? "Enter your email to receive a reset link"
-                                        : "Please enter your new password"}
-                        </p>
-                    </div>
-
-                    {/* Forms */}
-                    {isLogin && (
-                        <form onSubmit={loginForm.handleSubmit(handleLogin)} noValidate>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                <div>
-                                    <input
-                                        id="login-email"
-                                        type="email"
-                                        autoComplete="email"
-                                        placeholder="Email address"
-                                        className="auth-input"
-                                        {...loginForm.register("email")}
-                                    />
-                                    {loginForm.formState.errors.email && (
-                                        <p className="field-error">{loginForm.formState.errors.email.message}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <input
-                                        id="login-password"
-                                        type="password"
-                                        autoComplete="current-password"
-                                        placeholder="••••••••"
-                                        className="auth-input"
-                                        {...loginForm.register("password")}
-                                    />
-                                    {loginForm.formState.errors.password && (
-                                        <p className="field-error">{loginForm.formState.errors.password.message}</p>
-                                    )}
-                                </div>
-
-                                {serverError && <div className="auth-error">{serverError}</div>}
-
-                                <button
-                                    id="login-submit"
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="auth-btn"
-                                    style={{ marginTop: "0.25rem" }}
-                                >
-                                    {isLoading ? "Signing in…" : "Sign In"}
-                                </button>
-
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        marginTop: "0.5rem",
-                                        fontSize: "0.8125rem",
-                                    }}
-                                >
-                                    <span style={{ color: "oklch(0.45 0.02 85)" }}>
-                                        No account?{" "}
-                                        <button
-                                            type="button"
-                                            onClick={() => setMode("register")}
-                                            style={{ color: "#414A37", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
-                                        >
-                                            Sign Up
-                                        </button>
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setMode("forgot")}
-                                        style={{ color: "#414A37", fontWeight: 500, border: "none", background: "none", cursor: "pointer", padding: 0 }}
-                                    >
-                                        Forgot password?
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    )}
-
-                    {isRegister && (
-                        <form onSubmit={registerForm.handleSubmit(handleRegister)} noValidate>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                <div>
-                                    <input
-                                        id="register-name"
-                                        type="text"
-                                        autoComplete="name"
-                                        placeholder="Full name"
-                                        className="auth-input"
-                                        {...registerForm.register("name")}
-                                    />
-                                    {registerForm.formState.errors.name && (
-                                        <p className="field-error">{registerForm.formState.errors.name.message}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <input
-                                        id="register-email"
-                                        type="email"
-                                        autoComplete="email"
-                                        placeholder="Email address"
-                                        className="auth-input"
-                                        {...registerForm.register("email")}
-                                    />
-                                    {registerForm.formState.errors.email && (
-                                        <p className="field-error">{registerForm.formState.errors.email.message}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <input
-                                        id="register-password"
-                                        type="password"
-                                        autoComplete="new-password"
-                                        placeholder="Password (min 8 chars)"
-                                        className="auth-input"
-                                        {...registerForm.register("password")}
-                                    />
-                                    {registerForm.formState.errors.password && (
-                                        <p className="field-error">{registerForm.formState.errors.password.message}</p>
-                                    )}
-                                </div>
-
-                                {serverError && <div className="auth-error">{serverError}</div>}
-
-                                <button
-                                    id="register-submit"
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="auth-btn"
-                                    style={{ marginTop: "0.25rem" }}
-                                >
-                                    {isLoading ? "Creating account…" : "Create Account"}
-                                </button>
-
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        marginTop: "0.5rem",
-                                        fontSize: "0.8125rem",
-                                    }}
-                                >
-                                    <span style={{ color: "oklch(0.45 0.02 85)" }}>
-                                        Already have an account?{" "}
-                                        <button
-                                            type="button"
-                                            onClick={() => setMode("login")}
-                                            style={{ color: "#8b1538", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
-                                        >
-                                            Sign In
-                                        </button>
-                                    </span>
-                                </div>
-                            </div>
-                        </form>
-                    )}
-
-                    {isForgot && (
-                        <form onSubmit={forgotForm.handleSubmit(handleForgot)} noValidate>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                <div>
-                                    <input
-                                        id="forgot-email"
-                                        type="email"
-                                        autoComplete="email"
-                                        placeholder="Email address"
-                                        className="auth-input"
-                                        {...forgotForm.register("email")}
-                                    />
-                                    {forgotForm.formState.errors.email && (
-                                        <p className="field-error">{forgotForm.formState.errors.email.message}</p>
-                                    )}
-                                </div>
-
-                                {successMessage && <div className="auth-success">{successMessage}</div>}
-                                {serverError && <div className="auth-error">{serverError}</div>}
-
-                                <button
-                                    id="forgot-submit"
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="auth-btn"
-                                    style={{ marginTop: "0.25rem" }}
-                                >
-                                    {isLoading ? "Sending link…" : "Send Reset Link"}
-                                </button>
-
-                                <div style={{ display: "flex", justifyContent: "center", marginTop: "0.5rem", fontSize: "0.8125rem" }}>
-                                    <button
-                                        type="button"
-                                        onClick={() => setMode("login")}
-                                        style={{ color: "#8b1538", fontWeight: 600, border: "none", background: "none", cursor: "pointer", padding: 0 }}
-                                    >
-                                        Back to Sign In
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    )}
-
-                    {isReset && (
-                        <form onSubmit={resetForm.handleSubmit(handleReset)} noValidate>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                <div>
-                                    <input
-                                        id="reset-password"
-                                        type="password"
-                                        placeholder="New password"
-                                        className="auth-input"
-                                        {...resetForm.register("password")}
-                                    />
-                                    {resetForm.formState.errors.password && (
-                                        <p className="field-error">{resetForm.formState.errors.password.message}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <input
-                                        id="reset-confirm"
-                                        type="password"
-                                        placeholder="Confirm new password"
-                                        className="auth-input"
-                                        {...resetForm.register("confirmPassword")}
-                                    />
-                                    {resetForm.formState.errors.confirmPassword && (
-                                        <p className="field-error">{resetForm.formState.errors.confirmPassword.message}</p>
-                                    )}
-                                </div>
-
-                                {serverError && <div className="auth-error">{serverError}</div>}
-
-                                <button
-                                    id="reset-submit"
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="auth-btn"
-                                    style={{ marginTop: "0.25rem" }}
-                                >
-                                    {isLoading ? "Updating password…" : "Update Password"}
-                                </button>
-                            </div>
-                        </form>
-                    )}
-                </div>
+        <div className="fixed inset-0 z-50 bg-[#0A0D0B] flex flex-col items-center justify-center font-sans">
+            {/* Background Ambient Glows to match Ummie's brand colors faintly in a dark UI */}
+            <div className="fixed inset-0 pointer-events-none flex justify-center items-center overflow-hidden">
+                <div className="w-[800px] h-[800px] bg-[#414A37]/10 rounded-full blur-[120px] absolute -top-[20%]" />
+                <div className="w-[600px] h-[600px] bg-[#99744A]/5 rounded-full blur-[100px] absolute -bottom-[10%]" />
             </div>
-        </>
+
+            <div className="z-10 w-full max-w-[600px] px-6">
+                
+                {/* Header Logo & Title */}
+                <div className="flex flex-col items-center text-center mb-10">
+                    <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-[#414A37] to-[#2B3124] shadow-[0_0_40px_rgba(65,74,55,0.3)] border border-[#414A37]/50 flex items-center justify-center mb-6">
+                        <Sparkles className="w-10 h-10 text-[#DBC2A6]" />
+                    </div>
+                    
+                    <h1 className="text-3xl font-black text-white tracking-tighter flex items-center gap-2">
+                        UMMIES <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBC2A6] to-[#99744A] italic font-serif font-medium">ADMIN</span>
+                        <div className="w-2 h-2 rounded-full bg-[#DBC2A6] ml-1 self-end mb-2" />
+                    </h1>
+                    <p className="text-[10px] font-bold text-[#DBC2A6]/60 uppercase tracking-[0.4em] mt-2">
+                        Command Center
+                    </p>
+                </div>
+
+                {/* Main Auth Container */}
+                <div className="bg-[#111412]/80 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 md:p-12 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                    <p className="text-sm text-gray-400 text-center mb-8 leading-relaxed max-w-md mx-auto">
+                        Welcome to the internal management system. Please log in with your administrative credentials to manage inventory, monitor orders, and configure platform settings.
+                    </p>
+
+                    {isLogin ? (
+                        <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Administrator Email"
+                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all"
+                                    {...loginForm.register("email")}
+                                />
+                                {loginForm.formState.errors.email && (
+                                    <p className="text-red-400 text-xs mt-2 pl-4">{loginForm.formState.errors.email.message}</p>
+                                )}
+                            </div>
+                            <div>
+                                <input
+                                    type="password"
+                                    placeholder="Secure Password"
+                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all"
+                                    {...loginForm.register("password")}
+                                />
+                                {loginForm.formState.errors.password && (
+                                    <p className="text-red-400 text-xs mt-2 pl-4">{loginForm.formState.errors.password.message}</p>
+                                )}
+                            </div>
+
+                            {serverError && (
+                                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-4 rounded-xl text-center">
+                                    {serverError}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-[#DBC2A6] hover:bg-[#E5D5C5] text-[#111412] font-bold text-sm py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group mt-6"
+                            >
+                                {isLoading ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <>
+                                        ACCESS DASHBOARD
+                                        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                                    </>
+                                )}
+                            </button>
+
+                            <div className="pt-4 text-center">
+                                <button type="button" onClick={() => setMode("register")} className="text-xs text-gray-500 hover:text-[#DBC2A6] transition-colors">
+                                    Need to initialize an admin account? Register
+                                </button>
+                            </div>
+                        </form>
+                    ) : (
+                        <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Full Name"
+                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all"
+                                    {...registerForm.register("name")}
+                                />
+                                {registerForm.formState.errors.name && (
+                                    <p className="text-red-400 text-xs mt-2 pl-4">{registerForm.formState.errors.name.message}</p>
+                                )}
+                            </div>
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Administrator Email"
+                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all"
+                                    {...registerForm.register("email")}
+                                />
+                                {registerForm.formState.errors.email && (
+                                    <p className="text-red-400 text-xs mt-2 pl-4">{registerForm.formState.errors.email.message}</p>
+                                )}
+                            </div>
+                            <div>
+                                <input
+                                    type="password"
+                                    placeholder="Secure Password"
+                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all"
+                                    {...registerForm.register("password")}
+                                />
+                                {registerForm.formState.errors.password && (
+                                    <p className="text-red-400 text-xs mt-2 pl-4">{registerForm.formState.errors.password.message}</p>
+                                )}
+                            </div>
+
+                            {serverError && (
+                                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-4 rounded-xl text-center">
+                                    {serverError}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-[#DBC2A6] hover:bg-[#E5D5C5] text-[#111412] font-bold text-sm py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group mt-6"
+                            >
+                                {isLoading ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <>
+                                        INITIALIZE ACCOUNT
+                                        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                                    </>
+                                )}
+                            </button>
+
+                            <div className="pt-4 text-center">
+                                <button type="button" onClick={() => setMode("login")} className="text-xs text-gray-500 hover:text-[#DBC2A6] transition-colors">
+                                    Already initialized? Return to login
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+
+                {/* Info Pills */}
+                <div className="grid grid-cols-4 gap-4 mt-8">
+                    <div className="bg-[#111412]/50 backdrop-blur-sm border border-white/5 rounded-2xl py-4 flex flex-col items-center justify-center gap-2 hover:bg-[#1A1E1C] transition-colors">
+                        <LayoutGrid className="w-5 h-5 text-[#414A37]" />
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Insights</span>
+                    </div>
+                    <div className="bg-[#111412]/50 backdrop-blur-sm border border-white/5 rounded-2xl py-4 flex flex-col items-center justify-center gap-2 hover:bg-[#1A1E1C] transition-colors">
+                        <Package className="w-5 h-5 text-[#414A37]" />
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Inventory</span>
+                    </div>
+                    <div className="bg-[#111412]/50 backdrop-blur-sm border border-white/5 rounded-2xl py-4 flex flex-col items-center justify-center gap-2 hover:bg-[#1A1E1C] transition-colors">
+                        <Receipt className="w-5 h-5 text-[#414A37]" />
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Orders</span>
+                    </div>
+                    <div className="bg-[#111412]/50 backdrop-blur-sm border border-white/5 rounded-2xl py-4 flex flex-col items-center justify-center gap-2 hover:bg-[#1A1E1C] transition-colors">
+                        <Users className="w-5 h-5 text-[#414A37]" />
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Customers</span>
+                    </div>
+                </div>
+
+                {/* Footer Component */}
+                <div className="mt-16 text-center flex items-center justify-center gap-2 opacity-40">
+                    <ShieldCheck className="w-4 h-4 text-gray-300" />
+                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">Secure Administrative Access Only</span>
+                </div>
+
+            </div>
+        </div>
     );
 }

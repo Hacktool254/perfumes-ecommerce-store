@@ -120,3 +120,21 @@ export const seedAdmin = internalMutation({
         return { action: "created", userId };
     },
 });
+
+/**
+ * Temporarily clear all admin roles to reset accounts.
+ */
+export const clearAllAdmins = internalMutation({
+    args: {},
+    handler: async (ctx) => {
+        const users = await ctx.db.query("users").collect();
+        let count = 0;
+        for (const user of users) {
+            if (user.role === "admin") {
+                await ctx.db.patch(user._id, { role: "customer" });
+                count++;
+            }
+        }
+        return `Cleared ${count} admin accounts.`;
+    }
+});
