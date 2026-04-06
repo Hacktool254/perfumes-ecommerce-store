@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Camera } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const profileSchema = z.object({
     fullName: z.string().min(1, "Full name is required"),
@@ -17,6 +18,7 @@ type ProfileValues = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
     const user = useQuery(api.users.viewer);
+    const router = useRouter();
 
     const { register, handleSubmit, reset } = useForm<ProfileValues>({
         resolver: zodResolver(profileSchema),
@@ -31,8 +33,14 @@ export default function ProfilePage() {
         }
     }, [user, reset]);
 
-    if (user === undefined) return <div>Loading...</div>;
-    if (!user) return <div>Please sign in.</div>;
+    useEffect(() => {
+        if (user === null) {
+            router.push("/login?redirect=/account");
+        }
+    }, [user, router]);
+
+    if (user === undefined) return <div className="p-8 text-center text-muted-foreground">Loading...</div>;
+    if (user === null) return <div className="p-8 text-center text-muted-foreground animate-pulse">Redirecting to login...</div>;
 
     const onSubmitInfo = async (data: ProfileValues) => {
         // TODO: Implement update mutation

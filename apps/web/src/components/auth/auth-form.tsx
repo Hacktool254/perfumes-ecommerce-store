@@ -240,11 +240,19 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
           border: 1px solid color-mix(in srgb, var(--border) 50%, white);
           border-radius: 24px;
           padding: 2.5rem 2.25rem;
-          width: min(360px, 90vw);
+          width: min(380px, 92vw);
           box-shadow:
             0 8px 32px color-mix(in srgb, var(--primary) 8%, transparent),
             0 2px 8px rgba(0,0,0,0.06),
             inset 0 1px 0 rgba(255,255,255,0.6);
+          transition: padding 0.3s ease;
+        }
+
+        @media (max-width: 480px) {
+          .auth-card {
+            padding: 2rem 1.5rem;
+            width: 95vw;
+          }
         }
 
         .auth-input {
