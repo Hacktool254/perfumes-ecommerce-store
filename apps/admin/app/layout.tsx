@@ -27,8 +27,8 @@ export default function RootLayout({
 }>) {
     return (
         <ConvexAuthNextjsServerProvider>
-            <html lang="en">
-                <body className={`${manrope.className} bg-background min-h-screen text-foreground`}>
+            <html lang="en" className="dark">
+                <body className={`${manrope.className} bg-[#0A0D0B] min-h-screen text-foreground`}>
                     <ConvexClientProvider>
                         <AuthGuard>
                             <div className="flex w-full min-h-screen">
