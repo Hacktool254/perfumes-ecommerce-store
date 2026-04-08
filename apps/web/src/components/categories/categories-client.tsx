@@ -4,7 +4,6 @@ import { useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 
 const genderCollections = [
     {
@@ -29,15 +28,16 @@ export function CategoriesClient() {
 
     if (categories === undefined) {
         return (
-            <div className="min-h-screen pt-40 px-4">
+            <div className="min-h-screen pt-40 px-4 flex flex-col items-center">
                 <div className="container mx-auto max-w-7xl">
-                    <div className="h-8 w-64 bg-secondary/50 animate-pulse rounded-md mb-8" />
+                    <div className="h-8 w-64 bg-secondary/50 animate-pulse rounded-md mb-8 mx-auto md:mx-0" />
                     <div className="flex gap-4 overflow-hidden mb-12">
                         {[1, 2, 3, 4, 5].map((i) => (
                             <div key={i} className="min-w-[200px] aspect-[4/5] bg-secondary/30 animate-pulse rounded-xl" />
                         ))}
                     </div>
                 </div>
+                <div className="text-muted-foreground animate-pulse text-sm mt-8 italic tracking-wide">Connecting to fragrance library...</div>
             </div>
         );
     }
@@ -109,11 +109,10 @@ export function CategoriesClient() {
                                     className="group block"
                                 >
                                     <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-secondary/40 mb-3">
-                                        <Image
+                                        <img
                                             src={col.image}
                                             alt={col.name}
-                                            fill
-                                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                                            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                                         />
                                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500" />
                                     </div>
@@ -144,11 +143,10 @@ export function CategoriesClient() {
                                     href={`/shop?gender=${col.slug}`}
                                     className="group relative block aspect-[4/5] overflow-hidden rounded-xl"
                                 >
-                                    <Image
+                                    <img
                                         src={col.image}
                                         alt={col.name}
-                                        fill
-                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/50 transition-colors duration-500" />
                                     <div className="absolute inset-0 flex flex-col items-center justify-end text-white p-8 pb-10">
@@ -183,11 +181,10 @@ export function CategoriesClient() {
                                             className="group block"
                                         >
                                             <div className="relative aspect-square rounded-xl overflow-hidden bg-secondary/40 mb-3">
-                                                <Image
+                                                <img
                                                     src={getCategoryImage(category.slug, category.name, category.imageUrl)}
                                                     alt={category.name}
-                                                    fill
-                                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent group-hover:from-black/40 transition-colors duration-500" />
                                                 <div className="absolute inset-0 flex items-end p-5">

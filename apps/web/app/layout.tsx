@@ -18,6 +18,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ummies-essence.vercel.app"),
   title: {
     default: "Ummie's Essence | Luxury Perfumes & Cosmetics Kenya",
     template: "%s | Ummie's Essence"

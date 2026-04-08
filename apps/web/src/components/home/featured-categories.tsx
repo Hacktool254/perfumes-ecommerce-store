@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useRouter } from "next/navigation";
@@ -200,9 +201,12 @@ export function FeaturedCategories() {
                                 } : {}),
                             }}
                         >
-                            <img
+                            <Image
                                 src={item.image}
                                 alt={item.title}
+                                fill
+                                sizes={isHero ? "100vw" : "170px"}
+                                priority={isHero}
                                 className="absolute inset-0 w-full h-full object-cover"
                                 style={{ transition: "transform 0.7s ease" }}
                             />

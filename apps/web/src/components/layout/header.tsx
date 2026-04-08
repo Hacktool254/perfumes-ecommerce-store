@@ -5,63 +5,28 @@ import Link from "next/link";
 import Image from "next/image";
 import { User, X, Menu, ChevronDown, ArrowUpRight, Search, ShoppingBag } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useCart } from "@/hooks/use-cart";
+import { CartDrawer } from "@/components/cart/cart-drawer";
 
-const megaMenuProducts = [
+// ─── Dropdown: SHOP ────────────────────────────────────────────────────────
+// Shows categories + brands + trending products
+
+const trendProducts = [
     {
-        id: "p1",
-        name: "Sakeena",
-        brand: "Lattafa",
-        image: "/products/Lattafa-Sakeena.jpg",
-        href: "/product/lattafa-sakeena"
-    },
-    {
-        id: "p2",
-        name: "Asad",
-        brand: "Lattafa",
-        image: "/products/Lattafa-Assad.jpg",
-        href: "/product/lattafa-assad"
-    },
-    {
-        id: "p3",
         name: "Khamrah",
-        brand: "Lattafa",
+        brand: "LATTAFA",
         image: "/products/Lattafa-Khamrah.jpg",
-        href: "/product/lattafa-khamrah"
+        href: "/product/lattafa-khamrah",
+        price: "KES 6,500"
     },
     {
-        id: "p4",
-        name: "Yara",
-        brand: "Lattafa",
-        image: "/products/Lattafa-Yara.jpg",
-        href: "/product/lattafa-yara"
+        name: "Nebras",
+        brand: "LATTAFA",
+        image: "/products/Lattafa-Nebras.jpg",
+        href: "/product/lattafa-nebras",
+        price: "KES 4,800"
     }
 ];
-
-function ProductDropdown() {
-    return (
-        <div className="absolute left-0 top-full w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-[60] pointer-events-none group-hover:pointer-events-auto">
-            <div className="w-full bg-white shadow-xl shadow-black/10 border-t border-gray-100">
-                <div className="w-full px-4 md:px-8 xl:px-12 py-10 relative">
-                    <div className="flex justify-between gap-6 w-full">
-                        {megaMenuProducts.map((p) => (
-                            <Link key={p.id} href={p.href} className="group/item flex flex-col flex-1 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1">
-                                <div className="relative aspect-[4/3] bg-[#f7f7f7] w-full overflow-hidden">
-                                    <Image src={p.image} alt={p.name} fill className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-[1.03]" />
-                                </div>
-                                <div className="flex items-center justify-between p-5 bg-white">
-                                    <p className="font-serif text-[#1c2e36] text-[15px]">{p.name}</p>
-                                    <div className="w-8 h-8 rounded-full bg-[#f4f4f4] flex items-center justify-center transition-colors group-hover/item:bg-[#1c2e36] group-hover/item:text-white">
-                                        <ArrowUpRight className="w-4 h-4" />
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 function ShopDropdown() {
     return (
@@ -76,15 +41,15 @@ function ShopDropdown() {
                         <div className="flex flex-col gap-6">
                             <Link href="/shop?sort=trending" className="font-serif text-lg text-[#1c2e36] hover:text-[#5C4D42] transition-colors">Best Sellers</Link>
                             <Link href="/shop?sort=new" className="font-serif text-lg text-[#1c2e36] hover:text-[#5C4D42] transition-colors">New Arrivals</Link>
-                            <Link href="/shop?category=bundles" className="font-serif text-lg text-[#1c2e36] hover:text-[#5C4D42] transition-colors">Bundles</Link>
+                            <Link href="/shop" className="font-serif text-lg text-[#1c2e36] hover:text-[#5C4D42] transition-colors">All Products</Link>
                         </div>
 
                         {/* Col 2: By Category */}
                         <div className="flex flex-col gap-4">
                             <h3 className="font-serif text-[#1c2e36] text-[15px] mb-1">By Category</h3>
                             <Link href="/shop" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">All Fragrances</Link>
-                            <Link href="/shop?gender=women" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Women's Fragrances</Link>
-                            <Link href="/shop?gender=men" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Men's Fragrances</Link>
+                            <Link href="/shop?gender=women" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Women&apos;s Fragrances</Link>
+                            <Link href="/shop?gender=men" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Men&apos;s Fragrances</Link>
                             <Link href="/shop?gender=unisex" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Unisex Fragrances</Link>
                         </div>
 
@@ -103,6 +68,8 @@ function ShopDropdown() {
                             <Link href="/shop?brand=Lattafa" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Lattafa</Link>
                             <Link href="/shop?brand=Swiss+Arabian" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Swiss Arabian</Link>
                             <Link href="/shop?brand=Rave" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Rave</Link>
+                            <Link href="/shop?brand=Armaf" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Armaf</Link>
+                            <Link href="/shop?brand=Afnan" className="text-[13px] font-medium text-[#2f2f2f] hover:text-[#5C4D42] transition-colors">Afnan</Link>
                         </div>
 
                     </div>
@@ -111,29 +78,18 @@ function ShopDropdown() {
                     <div className="w-[450px] shrink-0 border-l border-gray-100 pl-12 flex flex-col">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-serif text-[#1c2e36] text-[15px]">Trend This Week</h3>
-                            <div className="flex items-center gap-2 text-xs text-gray-500 tracking-widest font-medium">
-                                <span className="cursor-pointer hover:text-black">&lt;</span>
-                                <span>1 / 5</span>
-                                <span className="cursor-pointer hover:text-black">&gt;</span>
-                            </div>
                         </div>
                         <div className="flex gap-4">
-                            <Link href="/product/lattafa-sakeena" className="flex-1 group/item">
-                                <div className="relative aspect-[4/5] bg-[#f7f7f7] rounded-xl overflow-hidden mb-4">
-                                    <Image src={megaMenuProducts[0].image} alt="Sakeena" fill className="object-contain group-hover/item:scale-105 transition-transform duration-500 p-2" />
-                                </div>
-                                <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-1">LATTAFA</p>
-                                <p className="font-medium text-[#1c2e36] mb-1">Sakeena</p>
-                                <p className="font-bold text-[#1c2e36]">KES 6,500</p>
-                            </Link>
-                            <Link href="/product/lattafa-asad" className="flex-1 group/item">
-                                <div className="relative aspect-[4/5] bg-[#f7f7f7] rounded-xl overflow-hidden mb-4">
-                                    <Image src={megaMenuProducts[1].image} alt="Asad" fill className="object-contain group-hover/item:scale-105 transition-transform duration-500 p-2" />
-                                </div>
-                                <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-1">LATTAFA</p>
-                                <p className="font-medium text-[#1c2e36] mb-1">Asad</p>
-                                <p className="font-bold text-[#1c2e36]">From KES 8,000</p>
-                            </Link>
+                            {trendProducts.map((p) => (
+                                <Link key={p.name} href={p.href} className="flex-1 group/item">
+                                    <div className="relative aspect-[4/5] bg-[#f7f7f7] rounded-xl overflow-hidden mb-4">
+                                        <Image src={p.image} alt={p.name} fill sizes="200px" className="object-contain group-hover/item:scale-105 transition-transform duration-500 p-2" />
+                                    </div>
+                                    <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-1">{p.brand}</p>
+                                    <p className="font-medium text-[#1c2e36] mb-1">{p.name}</p>
+                                    <p className="font-bold text-[#1c2e36]">{p.price}</p>
+                                </Link>
+                            ))}
                         </div>
                     </div>
 
@@ -143,19 +99,220 @@ function ShopDropdown() {
     );
 }
 
+// ─── Dropdown: NEW ARRIVALS ─────────────────────────────────────────────────
+// Shows different products than Best Sellers and Collections
+
+const newArrivalProducts = [
+    {
+        id: "h1",
+        name: "Angham",
+        brand: "Lattafa",
+        image: "/products/Lattafa-Angham.jpg",
+        href: "/product/lattafa-angham"
+    },
+    {
+        id: "h2",
+        name: "Rimmah",
+        brand: "Lattafa",
+        image: "/products/Lattafa-Rimmah.jpg",
+        href: "/product/lattafa-rimmah"
+    },
+    {
+        id: "h3",
+        name: "Scarlet",
+        brand: "Lattafa",
+        image: "/products/Lattafa-Scarlet.jpg",
+        href: "/product/lattafa-scarlet"
+    },
+    {
+        id: "h4",
+        name: "Atheri",
+        brand: "Lattafa",
+        image: "/products/Lattafa-Atheri.jpg",
+        href: "/product/lattafa-atheri"
+    }
+];
+
+function NewArrivalsDropdown() {
+    return (
+        <div className="absolute left-0 top-full w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-[60] pointer-events-none group-hover:pointer-events-auto">
+            <div className="w-full bg-white shadow-xl shadow-black/10 border-t border-gray-100">
+                <div className="w-full px-4 md:px-8 xl:px-12 py-10 relative">
+                    <div className="flex justify-between gap-6 w-full">
+                        {newArrivalProducts.map((p) => (
+                            <Link key={p.id} href={p.href} className="group/item flex flex-col flex-1 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1">
+                                <div className="relative aspect-[4/3] bg-[#f7f7f7] w-full overflow-hidden">
+                                    <Image src={p.image} alt={p.name} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-[1.03]" />
+                                </div>
+                                <div className="flex items-center justify-between p-5 bg-white">
+                                    <p className="font-serif text-[#1c2e36] text-[15px]">{p.name}</p>
+                                    <div className="w-8 h-8 rounded-full bg-[#f4f4f4] flex items-center justify-center transition-colors group-hover/item:bg-[#1c2e36] group-hover/item:text-white">
+                                        <ArrowUpRight className="w-4 h-4" />
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ─── Dropdown: BEST SELLERS ─────────────────────────────────────────────────
+// Different products from New Arrivals
+
+const bestSellerProducts = [
+    {
+        id: "b1",
+        name: "Asad",
+        brand: "Lattafa",
+        image: "/products/Lattafa-Assad.jpg",
+        href: "/product/lattafa-asad"
+    },
+    {
+        id: "b2",
+        name: "Yara",
+        brand: "Lattafa",
+        image: "/products/Lattafa-Yara.jpg",
+        href: "/product/lattafa-yara"
+    },
+    {
+        id: "b3",
+        name: "Mayar",
+        brand: "Lattafa",
+        image: "/products/Lattafa-Mayar.jpg",
+        href: "/product/lattafa-mayar"
+    },
+    {
+        id: "b4",
+        name: "Sublime",
+        brand: "Lattafa",
+        image: "/products/Lattafa-Sublime.jpg",
+        href: "/product/lattafa-sublime"
+    }
+];
+
+function BestSellersDropdown() {
+    return (
+        <div className="absolute left-0 top-full w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-[60] pointer-events-none group-hover:pointer-events-auto">
+            <div className="w-full bg-white shadow-xl shadow-black/10 border-t border-gray-100">
+                <div className="w-full px-4 md:px-8 xl:px-12 py-10 relative">
+                    <div className="flex justify-between gap-6 w-full">
+                        {bestSellerProducts.map((p) => (
+                            <Link key={p.id} href={p.href} className="group/item flex flex-col flex-1 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1">
+                                <div className="relative aspect-[4/3] bg-[#f7f7f7] w-full overflow-hidden">
+                                    <Image src={p.image} alt={p.name} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-[1.03]" />
+                                </div>
+                                <div className="flex items-center justify-between p-5 bg-white">
+                                    <p className="font-serif text-[#1c2e36] text-[15px]">{p.name}</p>
+                                    <div className="w-8 h-8 rounded-full bg-[#f4f4f4] flex items-center justify-center transition-colors group-hover/item:bg-[#1c2e36] group-hover/item:text-white">
+                                        <ArrowUpRight className="w-4 h-4" />
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ─── Dropdown: COLLECTIONS ──────────────────────────────────────────────────
+// Shows CATEGORIES (Men's, Women's, Unisex, Perfumes, Body Wash, Body Oil) with images
+
+const collectionCategories = [
+    {
+        id: "c1",
+        name: "Men's Fragrances",
+        image: "/categories/mens-fragrance.jpg",
+        href: "/shop?gender=men"
+    },
+    {
+        id: "c2",
+        name: "Women's Fragrances",
+        image: "/categories/womens-fragrance.jpg",
+        href: "/shop?gender=women"
+    },
+    {
+        id: "c3",
+        name: "Unisex Fragrances",
+        image: "/categories/unisex-fragrance.jpg",
+        href: "/shop?gender=unisex"
+    },
+    {
+        id: "c4",
+        name: "Perfumes",
+        image: "/categories/perfumes.jpg",
+        href: "/categories"
+    },
+    {
+        id: "c5",
+        name: "Body Wash",
+        image: "/categories/bodywash.jpg",
+        href: "/categories"
+    },
+    {
+        id: "c6",
+        name: "Body Oil",
+        image: "/categories/body-oil.jpg",
+        href: "/categories"
+    }
+];
+
+function CollectionsDropdown() {
+    return (
+        <div className="absolute left-0 top-full w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-[60] pointer-events-none group-hover:pointer-events-auto">
+            <div className="w-full bg-white shadow-xl shadow-black/10 border-t border-gray-100">
+                <div className="w-full px-4 md:px-8 xl:px-12 py-10 relative">
+                    <div className="grid grid-cols-6 gap-5 w-full">
+                        {collectionCategories.map((c) => (
+                            <Link key={c.id} href={c.href} className="group/item flex flex-col relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1">
+                                <div className="relative aspect-[3/4] w-full overflow-hidden">
+                                    <Image src={c.image} alt={c.name} fill sizes="(max-width: 768px) 50vw, 16vw" className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-[1.05]" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent group-hover/item:from-black/40 transition-colors duration-500" />
+                                </div>
+                                <div className="absolute inset-0 flex items-end p-4">
+                                    <p className="font-serif text-white text-[14px] leading-tight">{c.name}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ─── Nav Items (BUNDLES removed) ────────────────────────────────────────────
+
 const navItems = [
-    { label: "SHOP", href: "/shop", hasDropdown: true },
-    { label: "NEW ARRIVALS", href: "/shop?sort=new", hasDropdown: true },
-    { label: "BEST SELLERS", href: "/shop?sort=trending", hasDropdown: true },
-    { label: "COLLECTIONS", href: "/categories", hasDropdown: true },
-    { label: "BUNDLES", href: "/shop?category=bundles" },
+    { label: "SHOP", href: "/shop", dropdown: "shop" },
+    { label: "NEW ARRIVALS", href: "/shop?sort=new", dropdown: "new" },
+    { label: "BEST SELLERS", href: "/shop?sort=trending", dropdown: "best" },
+    { label: "COLLECTIONS", href: "/categories", dropdown: "collections" },
     { label: "TRACK MY ORDER", href: "/track" },
 ];
+
+function getDropdown(type?: string) {
+    switch (type) {
+        case "shop": return <ShopDropdown />;
+        case "new": return <NewArrivalsDropdown />;
+        case "best": return <BestSellersDropdown />;
+        case "collections": return <CollectionsDropdown />;
+        default: return null;
+    }
+}
 
 export function Header() {
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isCartOpen, setIsCartOpen] = useState(false);
+    const { items } = useCart();
+
+    const totalItemCount = items ? items.reduce((sum, item) => sum + item.quantity, 0) : 0;
 
     return (
         <>
@@ -165,9 +322,11 @@ export function Header() {
                     {/* Left: Logo */}
                     <div className="flex flex-1 items-center">
                         <Link href="/" className="z-10 hover:opacity-90 transition-opacity">
-                            <img
+                            <Image
                                 src="/logo_transparent.png"
                                 alt="Ummie's Essence Logo"
+                                width={160}
+                                height={80}
                                 className="h-20 md:h-24 w-auto object-contain scale-110 md:scale-125 transform origin-left"
                             />
                         </Link>
@@ -182,9 +341,9 @@ export function Header() {
                                     className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-[#2f2f2f] hover:text-[#5C4D42] transition-colors whitespace-nowrap px-1 uppercase h-full"
                                 >
                                     {item.label}
-                                    {item.hasDropdown && <ChevronDown className="w-3.5 h-3.5 text-current opacity-70 group-hover:rotate-180 transition-transform duration-300" />}
+                                    {item.dropdown && <ChevronDown className="w-3.5 h-3.5 text-current opacity-70 group-hover:rotate-180 transition-transform duration-300" />}
                                 </Link>
-                                {item.hasDropdown && (item.label === "SHOP" ? <ShopDropdown /> : <ProductDropdown />)}
+                                {item.dropdown && getDropdown(item.dropdown)}
                             </div>
                         ))}
                     </nav>
@@ -200,11 +359,16 @@ export function Header() {
                         <Link href="/account" className="text-[#2f2f2f] hover:text-[#5C4D42] transition-all hover:scale-105 hidden lg:block">
                             <User className="w-6 h-6 stroke-[1.5]" />
                         </Link>
-                        <button className="text-[#2f2f2f] hover:text-[#5C4D42] transition-all hover:scale-105 relative">
+                        <button 
+                            onClick={() => setIsCartOpen(true)}
+                            className="text-[#2f2f2f] hover:text-[#5C4D42] transition-all hover:scale-105 relative"
+                        >
                             <ShoppingBag className="w-6 h-6 stroke-[1.5]" />
-                            <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#AA8C77] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                                0
-                            </div>
+                            {totalItemCount > 0 && (
+                                <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#AA8C77] text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-[bounce_0.3s_ease]">
+                                    {totalItemCount}
+                                </div>
+                            )}
                         </button>
                         <button 
                             onClick={() => setIsSidebarOpen(true)}
@@ -216,6 +380,9 @@ export function Header() {
 
                 </div>
             </header>
+
+            {/* Cart Drawer */}
+            <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
             {/* Sidebar Overlay */}
             {isSidebarOpen && (
@@ -230,11 +397,13 @@ export function Header() {
                 
                 {/* Header — Logo + Close */}
                 <div className="p-5 flex justify-between items-center">
-                    <Link href="/" onClick={() => setIsSidebarOpen(false)}>
-                        <img
+                    <Link href="/" onClick={() => setIsSidebarOpen(false)} className="relative w-32 h-14">
+                        <Image
                             src="/logo_transparent.png"
                             alt="Ummie's Essence"
-                            className="h-14 w-auto object-contain"
+                            fill
+                            sizes="128px"
+                            className="object-contain"
                         />
                     </Link>
                     <button 
@@ -256,7 +425,7 @@ export function Header() {
                                 onClick={() => setIsSidebarOpen(false)}
                             >
                                 <span>{item.label.charAt(0) + item.label.slice(1).toLowerCase()}</span>
-                                {item.hasDropdown && (
+                                {item.dropdown && (
                                     <ChevronDown className="w-4 h-4 -rotate-90 opacity-40" />
                                 )}
                             </Link>
@@ -341,43 +510,41 @@ export function Header() {
                     <div>
                         <h3 className="font-serif text-[#1a2c3a] text-[15px] mb-6">Most searched products</h3>
                         <div className="space-y-4">
-                            {/* Product Item 1: Atheri */}
-                            <Link href="/product/lattafa-atheri" onClick={() => setIsSearchOpen(false)} className="flex items-center gap-5 group">
+                            {/* Product Item 1: Teriaq */}
+                            <Link href="/product/lattafa-teriaq" onClick={() => setIsSearchOpen(false)} className="flex items-center gap-5 group">
                                 <div className="w-20 h-20 bg-[#f7f7f7] rounded-xl flex items-center justify-center p-2 shrink-0">
-                                    <img src="/products/Lattafa-Atheri.jpg" alt="Atheri" className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
+                                    <img src="/products/Lattafa-Teriaq.jpg" alt="Teriaq" className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">Atheri</h4>
+                                    <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">Teriaq</h4>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[15px] font-bold text-[#d14b39]">KES 6,500</span>
-                                        <span className="text-sm text-[#8c8c8c] line-through decoration-1">KES 7,500</span>
+                                        <span className="text-[15px] font-bold text-[#1a2c3a]">KES 6,000</span>
                                     </div>
                                 </div>
                             </Link>
 
-                            {/* Product Item 2: Fakhar Femme */}
-                            <Link href="/product/lattafa-fakhar-femme" onClick={() => setIsSearchOpen(false)} className="flex items-center gap-5 group">
+                            {/* Product Item 2: Sakeena */}
+                            <Link href="/product/lattafa-sakeena" onClick={() => setIsSearchOpen(false)} className="flex items-center gap-5 group">
                                 <div className="w-20 h-20 bg-[#f7f7f7] rounded-xl flex items-center justify-center p-2 shrink-0">
-                                    <img src="/products/Lattafa-Fakhar-Femme.jpg" alt="Fakhar Femme" className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
+                                    <img src="/products/Lattafa-Sakeena.jpg" alt="Sakeena" className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">Fakhar Femme</h4>
+                                    <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">Sakeena</h4>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[15px] font-bold text-[#d14b39]">KES 5,500</span>
-                                        <span className="text-sm text-[#8c8c8c] line-through decoration-1">KES 6,800</span>
+                                        <span className="text-[15px] font-bold text-[#1a2c3a]">KES 6,500</span>
                                     </div>
                                 </div>
                             </Link>
 
-                            {/* Product Item 3: Haya */}
-                            <Link href="/product/lattafa-haya" onClick={() => setIsSearchOpen(false)} className="flex items-center gap-5 group">
+                            {/* Product Item 3: The Kingdom */}
+                            <Link href="/product/lattafa-the-kingdom" onClick={() => setIsSearchOpen(false)} className="flex items-center gap-5 group">
                                 <div className="w-20 h-20 bg-[#f7f7f7] rounded-xl flex items-center justify-center p-2 shrink-0">
-                                    <img src="/products/Lattafa-Haya.jpg" alt="Haya" className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
+                                    <img src="/products/Lattafa-The-Kingdom.jpg" alt="The Kingdom" className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">Haya</h4>
+                                    <h4 className="text-[15px] font-medium text-[#1a2c3a] group-hover:text-[#5C4D42] transition-colors">The Kingdom</h4>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[15px] font-bold text-[#1a2c3a]">KES 4,500</span>
+                                        <span className="text-[15px] font-bold text-[#1a2c3a]">KES 5,500</span>
                                     </div>
                                 </div>
                             </Link>

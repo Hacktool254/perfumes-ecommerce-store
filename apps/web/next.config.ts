@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
         hostname: "cdn.shopify.com",
       },
     ],
+    unoptimized: true,
   },
 };
 

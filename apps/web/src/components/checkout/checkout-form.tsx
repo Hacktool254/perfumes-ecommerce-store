@@ -4,25 +4,33 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { CreditCard, Smartphone, CheckCircle2, Loader2, ArrowRight, X } from "lucide-react";
+import { CreditCard, Smartphone, CheckCircle2, Loader2, ArrowRight, X, Info, Lock, ChevronDown, Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-// Form Validation Schema using Zod
-const checkoutSchema = z.object({
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().min(2, "Last name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    address: z.string().min(5, "Address is required"),
-    city: z.string().min(2, "City is required"),
-    mpesaNumber: z.string().regex(/^(?:254|\+254|0)?(7\d{8}|1\d{8})$/, "Invalid M-Pesa number (e.g. 0712345678)"),
-});
-
-type CheckoutFormValues = z.infer<typeof checkoutSchema>;
-
 import { useMutation } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useCart } from "@/hooks/use-cart";
+import Image from "next/image";
+import Link from "next/link";
+
+// Form Validation Schema using Zod
+const checkoutSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    marketing: z.boolean(),
+    firstName: z.string().min(2, "First name must be at least 2 characters"),
+    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+    address: z.string().min(5, "Address is required"),
+    apartment: z.string().optional(),
+    city: z.string().min(2, "City is required"),
+    postalCode: z.string().min(4, "Postal code is required"),
+    phone: z.string().regex(/^(?:254|\+254|0)?(7\d{8}|1\d{8})$/, "Invalid phone number"),
+    cardNumber: z.string().optional(),
+    expiry: z.string().optional(),
+    cvc: z.string().optional(),
+    nameOnCard: z.string().optional()
+});
+
+type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
 interface CheckoutFormProps {
     items: any[];
@@ -33,21 +41,23 @@ interface CheckoutFormProps {
 export function CheckoutForm({ items, subtotal, total }: CheckoutFormProps) {
     const router = useRouter();
     const { clearCart } = useCart();
-    const [paymentStatus, setPaymentStatus] = useState<"idle" | "awaiting_pin" | "success" | "failed">("idle");
+    const [paymentStatus, setPaymentStatus] = useState<"idle" | "processing" | "success" | "failed">("idle");
+    const [selectedPayment, setSelectedPayment] = useState<"card" | "mpesa">("card");
     const [errorMessage, setErrorMessage] = useState("");
 
     const placeOrder = useMutation(api.orders.placeOrder);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { register, handleSubmit, formState: { errors } } = useForm<CheckoutFormValues>({
-        resolver: zodResolver(checkoutSchema),
+        resolver: zodResolver(checkoutSchema) as any,
         defaultValues: {
-            mpesaNumber: ""
+            marketing: false
         }
     });
 
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
-            setPaymentStatus("awaiting_pin");
+            setPaymentStatus("processing");
 
             // Prepare guest items for the mutation
             const guestItemsInput = items.map(item => ({
@@ -59,15 +69,14 @@ export function CheckoutForm({ items, subtotal, total }: CheckoutFormProps) {
             const orderId = await placeOrder({
                 customerEmail: data.email,
                 customerName: `${data.firstName} ${data.lastName}`,
-                customerPhone: data.mpesaNumber, // Using M-Pesa number as phone for simplicity
-                shippingAddress: `${data.address}, ${data.city}`,
+                customerPhone: data.phone,
+                shippingAddress: `${data.address}, ${data.apartment ? data.apartment + ", " : ""}${data.city}, ${data.postalCode}`,
                 guestItems: guestItemsInput,
             });
 
             // Simulate the payment waiting period
             await new Promise(resolve => setTimeout(resolve, 3000));
 
-            // In a real implementation, you'd wait for a payment record success
             setPaymentStatus("success");
 
             // Clear the local/guest cart
@@ -86,185 +95,251 @@ export function CheckoutForm({ items, subtotal, total }: CheckoutFormProps) {
     };
 
     return (
-        <div className="bg-background">
+        <div className="space-y-12">
+            
+            {/* Express Checkout section */}
+            <section>
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="h-px bg-[#ebe0da] flex-1" />
+                    <span className="text-[11px] font-bold tracking-[0.2em] text-gray-400 uppercase">Express Checkout</span>
+                    <div className="h-px bg-[#ebe0da] flex-1" />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                    <button className="flex items-center justify-center h-14 bg-[#ffc439] hover:bg-[#ffb900] rounded-lg transition-colors group">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-6" alt="PayPal" />
+                    </button>
+                    <button className="flex items-center justify-center h-14 bg-[#1c2e36] hover:bg-black rounded-lg transition-colors group">
+                        <div className="flex items-center gap-2">
+                            <Smartphone className="w-5 h-5 text-white" />
+                            <span className="text-white font-bold text-sm tracking-widest">M-PESA</span>
+                        </div>
+                    </button>
+                </div>
+            </section>
 
-            {/* Payment Status Overlay / Modal */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+                
+                {/* Contact section */}
+                <section>
+                    <div className="flex justify-between items-center mb-5">
+                        <h2 className="font-serif text-xl md:text-2xl text-[#1c2e36]">Contact</h2>
+                        <Link href="/login" className="text-sm text-[#1c2e36] font-medium underline underline-offset-4 hover:text-[#AA8C77] transition-colors">Log in</Link>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="relative">
+                            <input
+                                {...register("email")}
+                                type="email"
+                                placeholder="Email"
+                                className={`w-full px-4 py-4 rounded-lg bg-white border outline-none transition-all placeholder:text-gray-400 text-sm ${errors.email ? "border-red-500 ring-1 ring-red-500" : "border-[#ebe0da] focus:border-[#1c2e36]"}`}
+                            />
+                            {errors.email && <p className="text-[10px] text-red-500 mt-1 pl-1">{errors.email.message}</p>}
+                        </div>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <div className="relative flex items-center justify-center">
+                                <input {...register("marketing")} type="checkbox" className="peer w-4 h-4 rounded border-[#ebe0da] text-[#1c2e36] focus:ring-0 appearance-none bg-white border transition-colors checked:bg-black checked:border-black" />
+                                <svg className="absolute w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span className="text-sm text-gray-500 font-medium group-hover:text-black transition-colors">Email me with news and offers</span>
+                        </label>
+                    </div>
+                </section>
+
+                {/* Delivery section */}
+                <section>
+                    <h2 className="font-serif text-xl md:text-2xl text-[#1c2e36] mb-5">Delivery</h2>
+                    <div className="space-y-4">
+                        {/* Country */}
+                        <div className="relative">
+                            <select className="w-full px-4 py-4 rounded-lg bg-white border border-[#ebe0da] outline-none transition-all text-sm appearance-none">
+                                <option>Kenya</option>
+                            </select>
+                            <label className="absolute left-4 -top-2.5 px-2 bg-white text-[10px] font-bold text-gray-400 uppercase tracking-widest">Country/Region</label>
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        </div>
+
+                        {/* Name Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <input {...register("firstName")} placeholder="First name" className={`w-full px-4 py-4 rounded-lg bg-white border outline-none transition-all placeholder:text-gray-400 text-sm ${errors.firstName ? "border-red-500" : "border-[#ebe0da] focus:border-[#1c2e36]"}`} />
+                                {errors.firstName && <p className="text-[10px] text-red-500 mt-1 pl-1">{errors.firstName.message}</p>}
+                            </div>
+                            <div>
+                                <input {...register("lastName")} placeholder="Last name" className={`w-full px-4 py-4 rounded-lg bg-white border outline-none transition-all placeholder:text-gray-400 text-sm ${errors.lastName ? "border-red-500" : "border-[#ebe0da] focus:border-[#1c2e36]"}`} />
+                                {errors.lastName && <p className="text-[10px] text-red-500 mt-1 pl-1">{errors.lastName.message}</p>}
+                            </div>
+                        </div>
+
+                        {/* Address */}
+                        <div className="relative">
+                            <input {...register("address")} placeholder="Address" className={`w-full px-4 py-4 rounded-lg bg-white border outline-none transition-all placeholder:text-gray-400 text-sm ${errors.address ? "border-red-500" : "border-[#ebe0da] focus:border-[#1c2e36]"}`} />
+                            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+                            {errors.address && <p className="text-[10px] text-red-500 mt-1 pl-1">{errors.address.message}</p>}
+                        </div>
+
+                        {/* Apartment */}
+                        <input {...register("apartment")} placeholder="Apartment, suite, etc. (optional)" className="w-full px-4 py-4 rounded-lg bg-white border border-[#ebe0da] focus:border-[#1c2e36] outline-none transition-all placeholder:text-gray-400 text-sm" />
+
+                        {/* City / Postal */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <input {...register("city")} placeholder="City" className={`w-full px-4 py-4 rounded-lg bg-white border outline-none transition-all placeholder:text-gray-400 text-sm ${errors.city ? "border-red-500" : "border-[#ebe0da] focus:border-[#1c2e36]"}`} />
+                                {errors.city && <p className="text-[10px] text-red-500 mt-1 pl-1">{errors.city.message}</p>}
+                            </div>
+                            <div>
+                                <input {...register("postalCode")} placeholder="Postal code" className={`w-full px-4 py-4 rounded-lg bg-white border outline-none transition-all placeholder:text-gray-400 text-sm ${errors.postalCode ? "border-red-500" : "border-[#ebe0da] focus:border-[#1c2e36]"}`} />
+                                {errors.postalCode && <p className="text-[10px] text-red-500 mt-1 pl-1">{errors.postalCode.message}</p>}
+                            </div>
+                        </div>
+
+                        {/* Phone */}
+                        <div className="relative">
+                            <input {...register("phone")} placeholder="Phone" className={`w-full px-4 py-4 rounded-lg bg-white border outline-none transition-all placeholder:text-gray-400 text-sm ${errors.phone ? "border-red-500" : "border-[#ebe0da] focus:border-[#1c2e36]"}`} />
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 group">
+                                <Info className="w-4 h-4 text-gray-300 cursor-help" />
+                            </div>
+                            {errors.phone && <p className="text-[10px] text-red-500 mt-1 pl-1">{errors.phone.message}</p>}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Shipping method */}
+                <section>
+                    <h2 className="font-serif text-xl md:text-2xl text-[#1c2e36] mb-5">Shipping method</h2>
+                    <div className="px-5 py-6 bg-[#fcf8f6] rounded-xl border border-[#ebe0da] flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-600">Standard</span>
+                        <span className="text-sm font-bold text-[#1c2e36]">Free</span>
+                    </div>
+                </section>
+
+                {/* Payment section */}
+                <section>
+                    <div className="flex flex-col gap-1 mb-5">
+                        <h2 className="font-serif text-xl md:text-2xl text-[#1c2e36]">Payment</h2>
+                        <p className="text-xs text-gray-400 font-medium uppercase tracking-widest">All transactions are secure and encrypted.</p>
+                    </div>
+
+                    <div className="rounded-xl border border-[#ebe0da] overflow-hidden bg-white shadow-sm">
+                        {/* Tab Headers */}
+                        <div className="grid grid-cols-2">
+                            <button 
+                                type="button" 
+                                onClick={() => setSelectedPayment("card")}
+                                className={`py-5 text-center text-sm font-bold tracking-widest border-b-2 transition-all ${selectedPayment === 'card' ? 'border-[#1c2e36] bg-gray-50' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                            >
+                                CREDIT CARD
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={() => setSelectedPayment("mpesa")}
+                                className={`py-5 text-center text-sm font-bold tracking-widest border-b-2 transition-all ${selectedPayment === 'mpesa' ? 'border-[#1c2e36] bg-gray-50' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                            >
+                                M-PESA
+                            </button>
+                        </div>
+
+                        <div className="p-6">
+                            <AnimatePresence mode="wait">
+                                {selectedPayment === "card" ? (
+                                    <motion.div
+                                        key="card"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="relative">
+                                            <input {...register("cardNumber")} placeholder="Card number" className={`w-full px-4 py-4 rounded-lg bg-white border border-[#ebe0da] focus:border-[#1c2e36] outline-none transition-all placeholder:text-gray-400 text-sm`} />
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                                <Lock className="w-4 h-4 text-gray-300" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <input {...register("expiry")} placeholder="Expiration date (MM/YY)" className="w-full px-4 py-4 rounded-lg bg-white border border-[#ebe0da] focus:border-[#1c2e36] outline-none transition-all placeholder:text-gray-400 text-sm" />
+                                            <div className="relative">
+                                                <input {...register("cvc")} placeholder="Security code" className="w-full px-4 py-4 rounded-lg bg-white border border-[#ebe0da] focus:border-[#1c2e36] outline-none transition-all placeholder:text-gray-400 text-sm" />
+                                                <Info className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+                                            </div>
+                                        </div>
+                                        <input {...register("nameOnCard")} placeholder="Name on card" className="w-full px-4 py-4 rounded-lg bg-white border border-[#ebe0da] focus:border-[#1c2e36] outline-none transition-all placeholder:text-gray-400 text-sm" />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="mpesa"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="space-y-6 text-center"
+                                    >
+                                        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <Smartphone className="w-8 h-8 text-green-600" />
+                                        </div>
+                                        <div className="max-w-xs mx-auto">
+                                            <h3 className="font-serif text-lg text-[#1c2e36] mb-2">M-Pesa Express</h3>
+                                            <p className="text-sm text-gray-500 leading-relaxed">
+                                                You will receive a prompt on <span className="font-bold text-black">{register('phone').name}</span> to enter your M-Pesa PIN once you click "Pay now".
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+                </section>
+
+                <button
+                    type="submit"
+                    disabled={paymentStatus === "processing"}
+                    className="w-full bg-[#1c2e36] text-white py-6 rounded-full font-bold text-lg flex items-center justify-center gap-3 hover:bg-black transition-all active:scale-[0.98] shadow-lg shadow-black/10 disabled:opacity-50 disabled:cursor-not-allowed group"
+                >
+                    {paymentStatus === "processing" ? (
+                        <>
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            <span>Processing...</span>
+                        </>
+                    ) : (
+                        <>
+                            <span>Pay now</span>
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </>
+                    )}
+                </button>
+
+                <p className="text-[11px] text-center text-gray-400 font-medium uppercase tracking-[0.2em]">
+                    Ummie's Essence Secure Checkout
+                </p>
+
+            </form>
+
             <AnimatePresence>
-                {paymentStatus !== "idle" && (
+                {paymentStatus === "success" && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+                        className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center p-4"
                     >
                         <motion.div
-                            initial={{ scale: 0.95, y: 20 }}
+                            initial={{ scale: 0.9, y: 20 }}
                             animate={{ scale: 1, y: 0 }}
-                            className="bg-secondary/30 border border-border rounded-xl p-8 max-w-sm w-full text-center shadow-2xl"
+                            className="bg-white rounded-3xl p-10 max-w-sm w-full text-center shadow-2xl"
                         >
-                            {paymentStatus === "awaiting_pin" && (
-                                <>
-                                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <Smartphone className="w-8 h-8 text-accent animate-pulse" />
-                                    </div>
-                                    <h3 className="font-serif text-2xl mb-2">Check your phone</h3>
-                                    <p className="text-muted-foreground text-sm mb-6">
-                                        An M-Pesa prompt has been sent to your phone. Please enter your PIN to complete the transaction of KES 27,500.
-                                    </p>
-                                    <div className="flex items-center justify-center gap-2 text-accent/80 text-sm font-medium">
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Waiting for payment...
-                                    </div>
-                                </>
-                            )}
-
-                            {paymentStatus === "success" && (
-                                <>
-                                    <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <CheckCircle2 className="w-8 h-8 text-green-500" />
-                                    </div>
-                                    <h3 className="font-serif text-2xl mb-2 text-green-600 dark:text-green-400">Payment Successful</h3>
-                                    <p className="text-muted-foreground text-sm">
-                                        We're preparing your order. Redirecting...
-                                    </p>
-                                </>
-                            )}
-
-                            {paymentStatus === "failed" && (
-                                <>
-                                    <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <X className="w-8 h-8 text-red-500" />
-                                    </div>
-                                    <h3 className="font-serif text-2xl mb-2 text-red-600 dark:text-red-400">Payment Failed</h3>
-                                    <p className="text-muted-foreground text-sm mb-6">
-                                        {errorMessage}
-                                    </p>
-                                    <button
-                                        onClick={() => setPaymentStatus("idle")}
-                                        className="w-full bg-foreground text-background py-3 rounded-full font-medium"
-                                    >
-                                        Try Again
-                                    </button>
-                                </>
-                            )}
+                            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <CheckCircle2 className="w-10 h-10 text-green-600" />
+                            </div>
+                            <h3 className="font-serif text-3xl text-[#1c2e36] mb-3">Order Placed!</h3>
+                            <p className="text-gray-500 mb-8 leading-relaxed">
+                                Thank you for your purchase. We've sent a confirmation email to your inbox.
+                            </p>
+                            <div className="flex items-center justify-center gap-2 text-[#AA8C77] text-sm font-bold uppercase tracking-widest">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Redirecting...
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-
-                {/* Shipping Information */}
-                <section>
-                    <h2 className="font-serif text-2xl mb-6 flex items-center gap-3">
-                        <span className="w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center text-sm font-sans">1</span>
-                        Shipping Details
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">First Name</label>
-                            <input
-                                {...register("firstName")}
-                                className={`w-full bg-secondary/30 border rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent transition-colors ${errors.firstName ? "border-red-500" : "border-border"}`}
-                                placeholder="Jane"
-                            />
-                            {errors.firstName && <p className="text-xs text-red-500">{errors.firstName.message}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">Last Name</label>
-                            <input
-                                {...register("lastName")}
-                                className={`w-full bg-secondary/30 border rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent transition-colors ${errors.lastName ? "border-red-500" : "border-border"}`}
-                                placeholder="Doe"
-                            />
-                            {errors.lastName && <p className="text-xs text-red-500">{errors.lastName.message}</p>}
-                        </div>
-                    </div>
-
-                    <div className="space-y-2 mt-4">
-                        <label className="text-sm font-medium text-foreground">Email Address</label>
-                        <input
-                            {...register("email")}
-                            type="email"
-                            className={`w-full bg-secondary/30 border rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent transition-colors ${errors.email ? "border-red-500" : "border-border"}`}
-                            placeholder="jane@example.com"
-                        />
-                        {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
-                    </div>
-
-                    <div className="space-y-2 mt-4">
-                        <label className="text-sm font-medium text-foreground">Delivery Address</label>
-                        <input
-                            {...register("address")}
-                            className={`w-full bg-secondary/30 border rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent transition-colors ${errors.address ? "border-red-500" : "border-border"}`}
-                            placeholder="Street name, Building name, Apt no."
-                        />
-                        {errors.address && <p className="text-xs text-red-500">{errors.address.message}</p>}
-                    </div>
-
-                    <div className="space-y-2 mt-4">
-                        <label className="text-sm font-medium text-foreground">City / Town</label>
-                        <input
-                            {...register("city")}
-                            className={`w-full bg-secondary/30 border rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent transition-colors ${errors.city ? "border-red-500" : "border-border"}`}
-                            placeholder="Nairobi"
-                        />
-                        {errors.city && <p className="text-xs text-red-500">{errors.city.message}</p>}
-                    </div>
-                </section>
-
-                {/* Payment Information */}
-                <section>
-                    <h2 className="font-serif text-2xl mb-6 flex items-center gap-3">
-                        <span className="w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center text-sm font-sans">2</span>
-                        Payment Method
-                    </h2>
-
-                    <div className="bg-secondary/20 border-2 border-accent/50 rounded-lg p-6 relative overflow-hidden">
-                        {/* M-Pesa Accent Background */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-bl-full -mr-8 -mt-8" />
-
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center text-green-600 dark:text-green-400">
-                                <Smartphone className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h3 className="font-medium text-foreground">M-Pesa Express</h3>
-                                <p className="text-sm text-muted-foreground">Prompt will be sent to your phone</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2 relative z-10 w-full md:max-w-md">
-                            <label className="text-sm font-medium text-foreground">M-Pesa Phone Number</label>
-                            <input
-                                {...register("mpesaNumber")}
-                                className={`w-full bg-background border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-colors ${errors.mpesaNumber ? "border-red-500" : "border-green-500/30"}`}
-                                placeholder="07XX XXX XXX or 2547XXXXXXXX"
-                            />
-                            {errors.mpesaNumber && <p className="text-xs text-red-500">{errors.mpesaNumber.message}</p>}
-                        </div>
-                    </div>
-
-                    <div className="mt-4 p-4 rounded-md border border-border bg-secondary/10 flex items-start gap-4">
-                        <CreditCard className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                            By proceeding, you authorize Ummie's Essence to initiate an M-Pesa payment request to your provided phone number. All transactions are secure and encrypted.
-                        </p>
-                    </div>
-                </section>
-
-                {/* Submit */}
-                <button
-                    type="submit"
-                    disabled={paymentStatus === "awaiting_pin"}
-                    className="w-full bg-foreground text-background py-5 rounded-full font-medium text-lg flex items-center justify-center gap-3 hover:bg-foreground/90 transition-all hover:shadow-xl"
-                >
-                    <span>Pay KES {total.toLocaleString()}</span>
-                    <ArrowRight className="w-5 h-5" />
-                </button>
-
-            </form>
 
         </div>
     );

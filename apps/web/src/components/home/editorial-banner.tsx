@@ -41,6 +41,7 @@ export function EditorialBanner() {
                                     src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=2787&auto=format&fit=crop"
                                     alt="Perfume bottle closeup"
                                     fill
+                                    sizes="(max-width: 768px) 96px, 128px"
                                     className="object-cover"
                                 />
                             </span>

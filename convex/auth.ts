@@ -16,6 +16,11 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
     ],
     callbacks: {
         async afterUserCreatedOrUpdated(ctx: GenericMutationCtx<DataModel>, args) {
+            if (!args.userId) {
+                console.error("afterUserCreatedOrUpdated called without userId", args);
+                return;
+            }
+            
             // The auth library creates/updates the user in its `users` table.
             // We patch in our app-specific defaults if they're missing.
             const user = await ctx.db.get(args.userId);

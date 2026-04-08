@@ -57,6 +57,10 @@ export default defineSchema({
                 v.literal("unisex")
             )
         ),
+        longevity: v.optional(v.string()),
+        sillage: v.optional(v.string()),
+        size: v.optional(v.string()),
+        notes: v.optional(v.string()),
         isActive: v.optional(v.boolean()), // soft delete flag
         createdAt: v.number(),
         updatedAt: v.number(),
@@ -65,6 +69,8 @@ export default defineSchema({
         .index("by_category", ["categoryId"])
         .index("by_brand", ["brand"])
         .index("by_gender", ["gender"])
+        .index("by_createdAt", ["createdAt"])
+        .index("by_category_createdAt", ["categoryId", "createdAt"])
         .searchIndex("search_by_name", {
             searchField: "name",
             filterFields: ["isActive", "categoryId", "gender", "brand"],
@@ -168,4 +174,14 @@ export default defineSchema({
         usedCount: v.number(),
         isActive: v.optional(v.boolean()),
     }).index("by_code", ["code"]),
+
+    // Sessions table for custom auth
+    sessions: defineTable({
+        token: v.string(),
+        userId: v.id("users"),
+        expiresAt: v.number(),
+        createdAt: v.number(),
+    })
+        .index("by_token", ["token"])
+        .index("by_user", ["userId"]),
 });

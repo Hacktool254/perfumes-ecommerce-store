@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-    LayoutDashboard, 
-    BarChart3, 
-    Users, 
-    Receipt, 
-    Megaphone, 
-    Files, 
-    Settings, 
+import { useAuth } from "@/lib/auth-context";
+import {
+    LayoutDashboard,
+    Package,
+    ShoppingBag,
+    BarChart3,
+    Users,
+    Receipt,
+    Megaphone,
+    Files,
+    Settings,
     LogOut,
     Sparkles
 } from "lucide-react";
@@ -17,9 +20,11 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
     { name: "Overview", href: "/", icon: LayoutDashboard },
+    { name: "Products", href: "/products", icon: Package },
+    { name: "Orders", href: "/orders", icon: ShoppingBag },
+    { name: "Transactions", href: "/transactions", icon: Receipt },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
     { name: "Customers", href: "/customers", icon: Users },
-    { name: "Transactions", href: "/transactions", icon: Receipt },
     { name: "Marketing", href: "/marketing", icon: Megaphone },
     { name: "Documents", href: "/documents", icon: Files },
     { name: "Settings", href: "/settings", icon: Settings },
@@ -27,6 +32,7 @@ const navItems = [
 
 export function AdminSidebar() {
     const pathname = usePathname();
+    const { logout } = useAuth();
 
     if (pathname?.startsWith("/login")) {
         return null;
@@ -75,7 +81,10 @@ export function AdminSidebar() {
 
             {/* Secondary/System Action */}
             <div className="pt-6 border-t border-white/5 mx-2">
-                <button className="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-gray-500 hover:text-rose-400 hover:bg-rose-500/5 transition-all duration-300 group">
+                <button
+                    onClick={logout}
+                    className="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-gray-500 hover:text-rose-400 hover:bg-rose-500/5 transition-all duration-300 group"
+                >
                     <LogOut className="w-4.5 h-4.5 transition-transform group-hover:-translate-x-1" />
                     <span className="text-xs font-bold tracking-tight">System Logout</span>
                 </button>

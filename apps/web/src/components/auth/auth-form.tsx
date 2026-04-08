@@ -82,7 +82,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
         setServerError(null);
         setIsLoading(true);
         try {
-            await signIn("password", { email: values.email, password: values.password, flow: "signIn" });
+            await signIn("password", { flow: "signIn", email: values.email, password: values.password });
             router.push(redirectPath);
         } catch {
             setServerError("Invalid email or password. Please try again.");
@@ -95,7 +95,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
         setServerError(null);
         setIsLoading(true);
         try {
-            await signIn("password", { email: values.email, password: values.password, name: values.name, flow: "signUp" });
+            await signIn("password", { flow: "signUp", email: values.email, password: values.password, name: values.name });
             router.push(redirectPath);
         } catch (error: any) {
             console.error("Registration error:", error);
@@ -115,7 +115,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
         setSuccessMessage(null);
         setIsLoading(true);
         try {
-            await signIn("password", { email: values.email, flow: "reset" });
+            await signIn("password", { flow: "reset", email: values.email });
             setSuccessMessage("If an account exists with this email, you will receive a reset link shortly.");
         } catch (error) {
             console.error(error);
@@ -129,7 +129,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
         setServerError(null);
         setIsLoading(true);
         try {
-            await signIn("password", { password: values.password, flow: "reset-password" });
+            await signIn("password", { flow: "reset-password", password: values.password });
             setSuccessMessage("Password reset successfully! You can now sign in.");
             setMode("login");
         } catch (error) {

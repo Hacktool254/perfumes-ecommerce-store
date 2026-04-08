@@ -147,16 +147,21 @@ export function ShopFilters() {
                 
                 {/* Categories */}
                 <FilterAccordion title="Categories" defaultOpen={true}>
-                    {categories ? categories.map((cat) => (
+                    {categories === undefined ? (
+                        <div className="flex items-center gap-2 py-2">
+                             <div className="w-3 h-3 bg-primary/20 animate-pulse rounded-full" />
+                             <div className="text-xs text-muted-foreground animate-pulse">Syncing collections...</div>
+                        </div>
+                    ) : categories.length === 0 ? (
+                        <div className="text-xs text-muted-foreground italic py-2">No categories found.</div>
+                    ) : categories.map((cat) => (
                         <FilterCheckbox
                             key={cat._id}
                             label={cat.name}
                             active={activeCategories.includes(cat._id)}
                             onClick={() => handleMultiSelect("category", cat._id)}
                         />
-                    )) : (
-                        <div className="text-sm text-gray-500">Loading...</div>
-                    )}
+                    ))}
                 </FilterAccordion>
 
                 {/* Brand */}

@@ -1,19 +1,21 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Heart, Eye, Loader2, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { ShoppingBag, Heart, Eye, Loader2, ChevronLeft, ChevronRight, ArrowRight, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
 import { usePaginatedQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useSearchParams } from "next/navigation";
 import { Id } from "@workspaceRoot/convex/_generated/dataModel";
+import { useCart } from "@/hooks/use-cart";
 
 const ITEMS_PER_PAGE = 12;
 
 export function ProductGrid() {
     const searchParams = useSearchParams();
+    const { addItem } = useCart();
+    const [addedId, setAddedId] = useState<string | null>(null);
     const activeCategoriesRaw = searchParams?.get("category");
     const activeBrandsRaw = searchParams?.get("brand");
     const gender = searchParams?.get("gender") as "men" | "women" | "unisex" | null;
@@ -106,9 +108,13 @@ export function ProductGrid() {
 
     if (status === "LoadingFirstPage") {
         return (
-            <div className="flex flex-col items-center justify-center py-32 w-full">
-                <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-                <p className="text-muted-foreground font-serif italic text-lg">Unveiling our collections...</p>
+            <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in duration-700">
+                <div className="relative mb-6">
+                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                    <div className="absolute inset-0 bg-primary/5 blur-xl rounded-full" />
+                </div>
+                <p className="text-muted-foreground font-serif italic text-lg tracking-wide">Syncing our olfactory library...</p>
+                <p className="text-xs text-muted-foreground/60 mt-2 uppercase tracking-widest">establishing secure connection</p>
             </div>
         );
     }
@@ -154,18 +160,19 @@ export function ProductGrid() {
                             className={`relative block ${currentView === "list" ? "w-1/3 md:w-full aspect-[3/4] md:aspect-[4/5]" : "w-full aspect-[4/5]"} bg-[#f7f7f7] mb-4 rounded-3xl overflow-hidden`}
                         >
                             <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out">
-                                <Image
-                                    src={product.images[0] || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800"}
-                                    alt={product.name}
-                                    fill
-                                    className={`object-cover transition-opacity duration-700 ease-in-out ${product.images[1] ? 'group-hover:opacity-0' : ''}`}
-                                />
+                                    <img
+                                        src={product.images?.[0] || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800"}
+                                        alt={product.name}
+                                        className={`w-full h-full object-cover transition-opacity duration-700 ease-in-out ${product.images?.[1] ? 'group-hover:opacity-0' : ''}`}
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800";
+                                        }}
+                                    />
                                 {product.images[1] && (
-                                    <Image
+                                    <img
                                         src={product.images[1]}
                                         alt={`${product.name} alternate view`}
-                                        fill
-                                        className="object-cover transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100"
+                                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100"
                                     />
                                 )}
                             </div>
@@ -179,12 +186,29 @@ export function ProductGrid() {
                             {/* Quick Add Cart Button — Always visible */}
                             <div className="absolute inset-x-3 bottom-3 z-30">
                                 <button
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                    className="btn-lattafa-primary btn-add-to-cart btn-pill w-full py-2.5 shadow-xl flex items-center justify-center gap-2 text-[10px] sm:text-[11px] group/btn"
+                                    onClick={(e) => { 
+                                        e.preventDefault(); 
+                                        e.stopPropagation();
+                                        addItem(product._id, 1, product);
+                                        setAddedId(product._id);
+                                        setTimeout(() => setAddedId(null), 1500);
+                                    }}
+                                    className={`btn-lattafa-primary btn-add-to-cart btn-pill w-full py-2.5 shadow-xl flex items-center justify-center gap-2 text-[10px] sm:text-[11px] group/btn transition-all ${
+                                        addedId === product._id ? 'bg-green-600 hover:bg-green-600' : ''
+                                    }`}
                                     aria-label="Add to cart"
                                 >
-                                    <span className="relative z-10 font-bold tracking-widest text-white">ADD TO CART</span>
-                                    <ArrowRight className="w-3.5 h-3.5 btn-arrow relative z-10 text-white" />
+                                    {addedId === product._id ? (
+                                        <>
+                                            <Check className="w-3.5 h-3.5 relative z-10 text-white" />
+                                            <span className="relative z-10 font-bold tracking-widest text-white">ADDED!</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="relative z-10 font-bold tracking-widest text-white">ADD TO CART</span>
+                                            <ArrowRight className="w-3.5 h-3.5 btn-arrow relative z-10 text-white" />
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </Link>

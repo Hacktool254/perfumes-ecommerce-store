@@ -5,19 +5,19 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useAuth } from "@/lib/auth-context";
 import { Sparkles, LayoutGrid, Package, Receipt, Users, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
 
 // ─── Zod Schemas ─────────────────────────────────────────────────────────────
 
 const loginSchema = z.object({
-    email: z.email("Please enter a valid email address"),
+    email: z.string().email("Please enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 const registerSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.email("Please enter a valid email address"),
+    email: z.string().email("Please enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -32,7 +32,7 @@ interface AdminAuthFormProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAuthFormProps) {
-    const { signIn } = useAuthActions();
+    const { login, register, error: authError, clearError } = useAuth();
     const router = useRouter();
     const [mode, setMode] = useState<"login" | "register">(initialMode === "register" ? "register" : "login");
     const [serverError, setServerError] = useState<string | null>(null);
@@ -48,31 +48,45 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
         defaultValues: { name: "", email: "", password: "" },
     });
 
+    // Sync auth context error with local state
+    useState(() => {
+        if (authError) setServerError(authError);
+    });
+
     async function handleLogin(values: LoginValues) {
         setServerError(null);
+        clearError();
         setIsLoading(true);
         try {
-            await signIn("password", { email: values.email, password: values.password, flow: "signIn" });
+            await login(values.email, values.password);
             router.push(redirectPath);
-        } catch {
-            setServerError("Invalid email or password. Please try again.");
+        } catch (err: any) {
+            console.error("Login error:", err);
+            const msg = err?.message || "";
+            
+            if (msg.includes("InvalidAccountId")) {
+                setServerError("Security Update Required: This account hasn't been onboarded to the new system. Please click 'Register' below once to initialize your administrative profile.");
+            } else {
+                setServerError(msg || "Invalid email or password. Please try again.");
+            }
             setIsLoading(false);
         }
     }
 
     async function handleRegister(values: RegisterValues) {
         setServerError(null);
+        clearError();
         setIsLoading(true);
         try {
-            await signIn("password", { email: values.email, password: values.password, name: values.name, flow: "signUp" });
+            await register(values.name, values.email, values.password);
             router.push(redirectPath);
-        } catch (error: any) {
-            console.error("Registration error:", error);
-            const msg = error?.message || "";
+        } catch (err: any) {
+            console.error("Registration error:", err);
+            const msg = err?.message || "";
             if (msg.toLowerCase().includes("already")) {
                 setServerError("An account already exists with this email. Please sign in instead.");
             } else {
-                setServerError("Could not create account. Please try again.");
+                setServerError(msg || "Could not create account. Please try again.");
             }
             setIsLoading(false);
         }

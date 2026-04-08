@@ -1,12 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Loader2 } from "lucide-react";
+import { ShoppingBag, Loader2, Check } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { Id } from "@workspaceRoot/convex/_generated/dataModel";
+import { useCart } from "@/hooks/use-cart";
 
 interface RelatedProductsProps {
     currentProductId: Id<"products">;
@@ -14,6 +15,9 @@ interface RelatedProductsProps {
 }
 
 export function RelatedProducts({ currentProductId, categoryId }: RelatedProductsProps) {
+    const { addItem } = useCart();
+    const [addedId, setAddedId] = useState<string | null>(null);
+
     const productsResponse = useQuery(api.products.list, {
         categoryIds: categoryId ? [categoryId] : undefined,
         paginationOpts: { numItems: 5, cursor: null }
@@ -60,18 +64,33 @@ export function RelatedProducts({ currentProductId, categoryId }: RelatedProduct
                                 <Link href={`/product/${product.slug}`} className="absolute inset-0 z-10">
                                     <span className="sr-only">View {product.name}</span>
                                 </Link>
-                                <Image
+                                <img
                                     src={product.images[0] || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800"}
                                     alt={product.name}
-                                    fill
-                                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                                 />
 
                                 {/* Quick Add Overlay */}
                                 <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                                    <button className="w-full bg-foreground text-background rounded-full py-3 px-4 flex items-center justify-center gap-2 font-medium hover:bg-gold-muted hover:text-white transition-colors">
-                                        <ShoppingBag className="w-4 h-4" />
-                                        <span>Quick Add</span>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            addItem(product._id, 1, product);
+                                            setAddedId(product._id);
+                                            setTimeout(() => setAddedId(null), 1500);
+                                        }}
+                                        className={`w-full rounded-full py-3 px-4 flex items-center justify-center gap-2 font-medium transition-colors ${
+                                            addedId === product._id 
+                                                ? 'bg-green-600 text-white' 
+                                                : 'bg-foreground text-background hover:bg-gold-muted hover:text-white'
+                                        }`}
+                                    >
+                                        {addedId === product._id ? (
+                                            <><Check className="w-4 h-4" /><span>Added!</span></>
+                                        ) : (
+                                            <><ShoppingBag className="w-4 h-4" /><span>Quick Add</span></>
+                                        )}
                                     </button>
                                 </div>
                             </div>

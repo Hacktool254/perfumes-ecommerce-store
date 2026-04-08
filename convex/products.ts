@@ -42,8 +42,13 @@ export const list = query({
             throw err;
         }
 
-        // Apply soft delete filter
-        q = q.filter((q) => q.neq(q.field("isActive"), false));
+        // Apply soft delete filter - include both isActive: true AND isActive: undefined
+        q = q.filter((q) =>
+            q.or(
+                q.eq(q.field("isActive"), true),
+                q.eq(q.field("isActive"), undefined)
+            )
+        );
 
         // Let's use simple .or() chaining if possible, or just not filter if not strictly needed
         // Since Convex filter closure DSL does not easily loop over variable conditions safely
@@ -109,16 +114,46 @@ export const listRecent = query({
     args: {
         limit: v.optional(v.number()),
         sortBy: v.optional(v.string()), // "newest" | "oldest"
+        categorySlug: v.optional(v.string()), // filter by category slug e.g. "perfume"
     },
     handler: async (ctx, args) => {
         const limit = args.limit ?? 4;
-        const products = await ctx.db
+
+        // If a category filter is provided, look up the category and filter
+        if (args.categorySlug) {
+            const category = await ctx.db
+                .query("categories")
+                .withIndex("by_slug", (q) => q.eq("slug", args.categorySlug!))
+                .first();
+
+            if (category) {
+                // Use compound index to filter by category and order by createdAt
+                return await ctx.db
+                    .query("products")
+                    .withIndex("by_category_createdAt", (q) => q.eq("categoryId", category._id))
+                    .filter((q) =>
+                        q.or(
+                            q.eq(q.field("isActive"), true),
+                            q.eq(q.field("isActive"), undefined)
+                        )
+                    )
+                    .order("desc")
+                    .take(limit);
+            }
+        }
+
+        // Global list ordered by createdAt
+        return await ctx.db
             .query("products")
-            .filter((q) => q.neq(q.field("isActive"), false))
+            .withIndex("by_createdAt")
+            .filter((q) =>
+                q.or(
+                    q.eq(q.field("isActive"), true),
+                    q.eq(q.field("isActive"), undefined)
+                )
+            )
             .order("desc")
             .take(limit);
-
-        return products;
     },
 });
 
@@ -131,7 +166,7 @@ export const getBySlug = query({
         return await ctx.db
             .query("products")
             .withIndex("by_slug", (q) => q.eq("slug", args.slug))
-            .unique();
+            .first(); // Changed from .unique() to avoid throwing on duplicates
     },
 });
 

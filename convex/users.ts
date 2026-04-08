@@ -61,6 +61,16 @@ export async function requireUser(ctx: any) {
 }
 
 /**
+ * Helper to get a user by their email address.
+ */
+export async function getUserByEmail(ctx: any, email: string) {
+    return await ctx.db
+        .query("users")
+        .withIndex("email", (q) => q.eq("email", email.toLowerCase().trim()))
+        .first();
+}
+
+/**
  * Mutation to promote a user to admin by email.
  * This should only be called from the Convex dashboard or an internal script.
  */

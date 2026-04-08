@@ -1,18 +1,18 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { api } from "@workspaceRoot/convex/_generated/api";
+import { useAuth } from "@/lib/auth-context";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
-    const user = useQuery(api.users.viewer);
+    const { user, isLoading } = useAuth();
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
-        // If query hasn't loaded yet, do nothing
-        if (user === undefined) return;
+        // Wait for auth to initialize
+        if (isLoading) return;
 
         // If not logged in or not an admin, and we are not on the login page...
         if ((!user || user.role !== "admin") && !pathname?.startsWith("/login")) {
@@ -21,10 +21,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             // If logged in as admin and on login page, redirect to dashboard
             router.replace("/");
         }
-    }, [user, pathname, router]);
+
+        setIsReady(true);
+    }, [user, isLoading, pathname, router]);
 
     // Show nothing while loading the user state to prevent flash of unauthorized content
-    if (user === undefined) {
+    if (isLoading || !isReady) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-surface">
                 <div className="flex flex-col items-center gap-4">

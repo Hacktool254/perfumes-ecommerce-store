@@ -19,10 +19,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-    { name: "Sales", href: "/", icon: LayoutGrid },
-    { name: "Analytics", href: "/analytics", icon: TrendingUp },
+    { name: "Overview", href: "/overview", icon: LayoutGrid },
+    { name: "Products", href: "/products", icon: ShoppingBag },
     { name: "Customers", href: "/customers", icon: Users },
-    { name: "Transactions", href: "/transactions", icon: Receipt },
+    { name: "Orders", href: "/orders", icon: Receipt },
     { name: "Marketing", href: "/marketing", icon: Megaphone },
     { name: "Documents", href: "/documents", icon: Files },
     { name: "Settings", href: "/settings", icon: Settings },

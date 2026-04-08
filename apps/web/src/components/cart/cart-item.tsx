@@ -16,6 +16,7 @@ interface CartItem {
 
 interface CartItemProps {
     id: string;
+    slug?: string;
     name: string;
     brand: string;
     price: number;
@@ -28,6 +29,7 @@ interface CartItemProps {
 
 export function CartItemRow({
     id,
+    slug,
     name,
     brand,
     price,
@@ -46,7 +48,8 @@ export function CartItemRow({
                     src={image}
                     alt={name}
                     fill
-                    className="object-cover"
+                    sizes="80px"
+                    className="object-contain"
                 />
             </div>
 
@@ -57,7 +60,7 @@ export function CartItemRow({
                 <div className="flex flex-col mb-4 sm:mb-0">
                     <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">{brand}</p>
                     <h3 className="font-serif text-lg text-foreground mb-1">
-                        <Link href={`/product/${id}`} className="hover:text-accent transition-colors">
+                        <Link href={`/product/${slug || id}`} className="hover:text-accent transition-colors">
                             {name}
                         </Link>
                     </h3>

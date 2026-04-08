@@ -82,7 +82,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         setServerError(null);
         setIsLoading(true);
         try {
-            await signIn("password", { email: values.email, password: values.password, flow: "signIn" });
+            await signIn("password", { flow: "signIn", email: values.email, password: values.password });
             router.push(redirectPath);
         } catch {
             setServerError("Invalid email or password. Please try again.");
@@ -95,7 +95,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/admin" }: Ad
         setServerError(null);
         setIsLoading(true);
         try {
-            await signIn("password", { email: values.email, password: values.password, name: values.name, flow: "signUp" });
+            await signIn("password", { flow: "signUp", email: values.email, password: values.password, name: values.name });
             router.push(redirectPath);
         } catch (error: any) {
             console.error("Registration error:", error);

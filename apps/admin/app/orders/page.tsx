@@ -10,10 +10,14 @@ import {
     CheckCircle2,
     Truck,
     Clock,
-    MoreVertical,
+    MoreHorizontal,
     XCircle,
     Download,
-    ShoppingBag
+    ShoppingBag,
+    CreditCard,
+    PackageCheck,
+    ChevronRight,
+    ArrowUpRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,9 +37,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Doc, Id } from "@workspaceRoot/convex/_generated/dataModel";
+import { Id } from "@workspaceRoot/convex/_generated/dataModel";
+import { AdminStatCard } from "@/components/admin/admin-stat-card";
 
 type OrderStatus = "pending" | "paid" | "shipped" | "delivered" | "cancelled";
+
+const STATUS_STEPS: OrderStatus[] = ["pending", "paid", "shipped", "delivered"];
 
 export default function AdminOrdersPage() {
     const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
@@ -44,29 +51,8 @@ export default function AdminOrdersPage() {
     const orders = useQuery(api.orders.adminList, {
         status: statusFilter === "all" ? undefined : statusFilter
     });
-
+    const stats = useQuery(api.orders.getStats);
     const updateStatus = useMutation(api.orders.updateStatus);
-
-    const getStatusStyles = (status: string) => {
-        switch (status) {
-            case "pending": return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
-            case "paid": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-            case "shipped": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
-            case "delivered": return "bg-green-500/10 text-green-500 border-green-500/20";
-            case "cancelled": return "bg-red-500/10 text-red-500 border-red-500/20";
-            default: return "bg-neutral-500/10 text-neutral-500 border-neutral-500/20";
-        }
-    };
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case "pending": return <Clock className="w-3 h-3" />;
-            case "shipped": return <Truck className="w-3 h-3" />;
-            case "delivered": return <CheckCircle2 className="w-3 h-3" />;
-            case "cancelled": return <XCircle className="w-3 h-3" />;
-            default: return null;
-        }
-    };
 
     const handleUpdateStatus = async (orderId: Id<"orders">, newStatus: OrderStatus) => {
         try {
@@ -78,159 +64,235 @@ export default function AdminOrdersPage() {
 
     const filteredOrders = orders?.filter(order =>
         order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order._id.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        order._id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const exportToCSV = () => {
-        if (!filteredOrders) return;
+    const getStatusInfo = (status: OrderStatus) => {
+        switch (status) {
+            case "pending": return { label: "Awaiting Soul", color: "text-amber-500", bg: "bg-amber-500/10", icon: <Clock size={12} /> };
+            case "paid": return { label: "Authenticated", color: "text-emerald-500", bg: "bg-emerald-500/10", icon: <CreditCard size={12} /> };
+            case "shipped": return { label: "In Transit", color: "text-blue-500", bg: "bg-blue-500/10", icon: <Truck size={12} /> };
+            case "delivered": return { label: "Arrived", color: "text-primary", bg: "bg-primary/10", icon: <PackageCheck size={12} /> };
+            case "cancelled": return { label: "Voided", color: "text-rose-500", bg: "bg-rose-500/10", icon: <XCircle size={12} /> };
+            default: return { label: status, color: "text-muted-foreground", bg: "bg-muted/10", icon: null };
+        }
+    };
 
-        const headers = ["Order ID", "Customer", "Email", "Date", "Items", "Total", "Status"];
-        const rows = filteredOrders.map(order => [
-            order._id,
-            order.customerName,
-            order.customerEmail,
-            format(order.createdAt, "yyyy-MM-dd HH:mm"),
-            "Items Hidden", // In a real app, we'd fetch item counts or join
-            order.totalAmount,
-            order.status
-        ]);
-
-        const csvContent = "data:text/csv;charset=utf-8,"
-            + headers.join(",") + "\n"
-            + rows.map(e => e.join(",")).join("\n");
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `orders_${format(new Date(), "yyyy-MM-dd")}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const StatusTimeline = ({ currentStatus }: { currentStatus: OrderStatus }) => {
+        if (currentStatus === "cancelled") return <span className="text-[10px] font-bold text-rose-500 uppercase tracking-widest italic">Protocol Terminated</span>;
+        
+        const currentIndex = STATUS_STEPS.indexOf(currentStatus);
+        
+        return (
+            <div className="flex items-center gap-1">
+                {STATUS_STEPS.map((step, idx) => {
+                    const isCompleted = idx <= currentIndex;
+                    const isCurrent = idx === currentIndex;
+                    return (
+                        <div key={step} className="flex items-center gap-1">
+                            <div className={cn(
+                                "w-1.5 h-1.5 rounded-full transition-all duration-700",
+                                isCompleted ? "bg-primary shadow-[0_0_8px_var(--primary)]" : "bg-surface-container",
+                                isCurrent && "animate-pulse"
+                            )} title={step} />
+                            {idx < STATUS_STEPS.length - 1 && (
+                                <div className={cn(
+                                    "w-3 h-[1px]",
+                                    idx < currentIndex ? "bg-primary/40" : "bg-surface-container"
+                                )} />
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        );
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
-            <div className="flex justify-between items-start">
-                <div>
-                    <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Order Management</h1>
-                    <p className="text-muted-foreground">Track and fulfill customer orders across all collections.</p>
+        <div className="space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-2 duration-1000">
+            {/* Editorial Header */}
+            <div className="flex items-end justify-between border-b border-border/40 pb-10">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-[1px] bg-primary/40 rounded-full" />
+                        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-muted-foreground/60">Logistics & Fulfilment</p>
+                    </div>
+                    <h1 className="text-5xl font-extrabold text-foreground tracking-tighter leading-none">
+                        ORDER <span className="text-primary italic font-serif font-medium">STREAM</span>
+                    </h1>
                 </div>
-                <Button onClick={exportToCSV} variant="outline" className="gap-2">
-                    <Download className="w-4 h-4" />
-                    Export CSV
+                <Button variant="ghost" className="h-14 px-8 rounded-2xl bg-surface-container-lowest border border-border/50 text-xs font-extrabold uppercase tracking-widest hover:bg-surface-container transition-all shadow-sm gap-3">
+                    <Download size={18} className="text-primary" />
+                    Archive Manifest
                 </Button>
             </div>
 
-            {/* Filters */}
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            {/* Performance Snapshot */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <AdminStatCard
+                    title="Gross Revenue"
+                    value={`KES ${(stats?.totalRevenue || 0).toLocaleString()}`}
+                    trend={{ value: "Stable Flow", positive: true }}
+                    icon={<CreditCard size={20} />}
+                    className="bg-surface-container-lowest"
+                />
+                <AdminStatCard
+                    title="Active Spirits"
+                    value={(stats?.totalSales || 0).toString()}
+                    icon={<ShoppingBag size={20} />}
+                    className="bg-surface-container-lowest"
+                />
+                <AdminStatCard
+                    title="Conversion"
+                    value={`${stats?.conversionRate || 0}%`}
+                    icon={<ArrowUpRight size={20} />}
+                    className="bg-surface-container-lowest"
+                />
+            </div>
+
+            {/* Control Panel */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
+                <div className="relative group">
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <Input
-                        placeholder="Search by order ID or customer..."
-                        className="pl-10 bg-card border-border h-11"
+                        placeholder="Recall order by ID or patron name..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-14 h-16 bg-surface-container-lowest border-none rounded-[24px] text-sm font-medium shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                     />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-4">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="border-border bg-card text-foreground gap-2 min-w-[140px]">
-                                <Filter className="w-4 h-4" />
-                                Status: {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                            <Button variant="ghost" className="h-16 px-8 rounded-[24px] bg-surface-container-lowest border border-border/50 text-xs font-bold uppercase tracking-widest gap-4 shadow-sm">
+                                <Filter size={18} className="text-primary" />
+                                {statusFilter === "all" ? "All Protocols" : `Protocol: ${statusFilter}`}
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-card border-border">
-                            <DropdownMenuItem onClick={() => setStatusFilter("all")}>All Statuses</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setStatusFilter("pending")}>Pending</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setStatusFilter("paid")}>Paid</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setStatusFilter("shipped")}>Shipped</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setStatusFilter("delivered")}>Delivered</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setStatusFilter("cancelled")}>Cancelled</DropdownMenuItem>
+                        <DropdownMenuContent align="end" className="w-56 p-2 rounded-[24px] bg-surface-container-lowest border border-border/50 shadow-2xl">
+                            <DropdownMenuItem onClick={() => setStatusFilter("all")} className="p-4 rounded-xl cursor-pointer hover:bg-surface-container font-medium">All Protocols</DropdownMenuItem>
+                            {["pending", "paid", "shipped", "delivered", "cancelled"].map((s) => (
+                                <DropdownMenuItem key={s} onClick={() => setStatusFilter(s as any)} className="p-4 rounded-xl cursor-pointer hover:bg-surface-container font-medium capitalize">{s}</DropdownMenuItem>
+                            ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button variant="outline" className="border-border bg-card text-foreground">
-                        Last 30 Days
-                    </Button>
                 </div>
             </div>
 
-            {/* Orders Table */}
-            <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden min-h-[400px]">
-                {!orders ? (
-                    <div className="flex items-center justify-center h-[400px]">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
-                    </div>
-                ) : (
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow className="hover:bg-transparent border-border">
-                                <TableHead className="text-foreground">Order ID</TableHead>
-                                <TableHead className="text-foreground">Customer</TableHead>
-                                <TableHead className="text-foreground">Date</TableHead>
-                                <TableHead className="text-foreground">Total</TableHead>
-                                <TableHead className="text-foreground">Status</TableHead>
-                                <TableHead className="text-right text-foreground">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredOrders?.map((order) => (
-                                <TableRow key={order._id} className="border-border hover:bg-muted/30 transition-colors group">
-                                    <TableCell className="font-mono text-[10px] text-primary">
-                                        {order._id.slice(-8).toUpperCase()}
-                                    </TableCell>
-                                    <TableCell className="font-medium text-foreground">
-                                        <div>
-                                            <p>{order.customerName}</p>
-                                            <p className="text-[10px] text-muted-foreground font-normal">{order.customerEmail}</p>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground text-sm">
-                                        {format(order.createdAt, "MMM d, yyyy")}
-                                    </TableCell>
-                                    <TableCell className="font-medium text-foreground">
-                                        KES {order.totalAmount.toLocaleString()}
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className={cn(
-                                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border",
-                                            getStatusStyles(order.status)
-                                        )}>
-                                            {getStatusIcon(order.status)}
-                                            {order.status}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <Button size="icon" variant="ghost" className="w-8 h-8 hover:bg-muted hover:text-foreground">
-                                                <Eye className="w-4 h-4" />
-                                            </Button>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button size="icon" variant="ghost" className="w-8 h-8 hover:bg-muted">
-                                                        <MoreVertical className="w-4 h-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="bg-card border-border text-card-foreground">
-                                                    <DropdownMenuItem onClick={() => handleUpdateStatus(order._id, "paid")} className="cursor-pointer">Mark as Paid</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleUpdateStatus(order._id, "shipped")} className="cursor-pointer">Mark as Shipped</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleUpdateStatus(order._id, "delivered")} className="cursor-pointer">Mark as Delivered</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleUpdateStatus(order._id, "cancelled")} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">Cancel Order</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-                                    </TableCell>
+            {/* Master Order Table */}
+            <div className="bg-surface-container-lowest border border-border/50 rounded-[48px] shadow-xl shadow-surface-container/20 overflow-hidden">
+                <Table>
+                    <TableHeader className="bg-surface-container/30">
+                        <TableRow className="hover:bg-transparent border-border/50 h-20">
+                            <TableHead className="w-[180px] pl-10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Trace ID</TableHead>
+                            <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Patron</TableHead>
+                            <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Chronicle</TableHead>
+                            <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Tribute</TableHead>
+                            <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Fulfillment Path</TableHead>
+                            <TableHead className="text-right pr-10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Protocol</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {!orders ? (
+                            [1, 2, 3, 4, 5].map((i) => (
+                                <TableRow key={i} className="border-border/50 h-24 animate-pulse">
+                                    <TableCell className="pl-10"><div className="w-24 h-4 bg-surface-container rounded-full" /></TableCell>
+                                    <TableCell><div className="h-4 w-40 bg-surface-container rounded" /></TableCell>
+                                    <TableCell><div className="h-4 w-24 bg-surface-container rounded" /></TableCell>
+                                    <TableCell><div className="h-4 w-20 bg-surface-container rounded" /></TableCell>
+                                    <TableCell><div className="h-4 w-32 bg-surface-container rounded" /></TableCell>
+                                    <TableCell className="pr-10 text-right"><div className="h-10 w-10 bg-surface-container rounded-full ml-auto" /></TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                )}
-                {filteredOrders?.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
-                        <ShoppingBag size={48} className="mb-4 opacity-20" />
-                        <p>No orders found matching your criteria</p>
-                    </div>
-                )}
+                            ))
+                        ) : filteredOrders?.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center py-40 text-muted-foreground/40 font-serif italic text-xl">
+                                    No records found in the current protocol.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            filteredOrders?.map((order) => {
+                                const info = getStatusInfo(order.status as OrderStatus);
+                                return (
+                                    <TableRow key={order._id} className="border-border/50 h-28 hover:bg-surface-container/20 transition-all duration-500 group">
+                                        <TableCell className="pl-10">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-1.5 h-8 bg-primary/20 rounded-full" />
+                                                <div>
+                                                    <p className="font-mono text-[10px] font-black tracking-widest text-primary/60">
+                                                        #{order._id.slice(-8).toUpperCase()}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Ref ID: {order._id.slice(0, 4)}...</p>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <p className="font-extrabold text-foreground tracking-tight group-hover:text-primary transition-colors">{order.customerName}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1 opacity-60 tracking-wider">{order.customerEmail}</p>
+                                        </TableCell>
+                                        <TableCell>
+                                            <p className="text-sm font-bold text-foreground">{format(order.createdAt, "MMMM d")}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-40">{format(order.createdAt, "HH:mm")}</p>
+                                        </TableCell>
+                                        <TableCell>
+                                            <p className="font-black text-lg text-foreground tracking-tighter">KES {order.totalAmount.toLocaleString()}</p>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="space-y-3">
+                                                <StatusTimeline currentStatus={order.status as OrderStatus} />
+                                                <div className={cn(
+                                                    "inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.15em] border transition-all duration-500",
+                                                    info.color, info.bg, "border-current/20"
+                                                )}>
+                                                    {info.icon}
+                                                    {info.label}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right pr-10">
+                                            <div className="flex justify-end gap-3">
+                                                <Button size="icon" variant="ghost" className="w-12 h-12 rounded-2xl bg-surface-container/50 hover:bg-surface-container text-muted-foreground">
+                                                    <Eye size={18} />
+                                                </Button>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button size="icon" variant="ghost" className="w-12 h-12 rounded-2xl bg-surface-container/50 hover:bg-surface-container text-muted-foreground">
+                                                            <MoreHorizontal size={18} />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end" className="w-64 p-2 rounded-[24px] bg-surface-container-lowest border border-border/50 shadow-2xl">
+                                                        <div className="p-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 border-b border-border/40 mb-2">Transition Protocol</div>
+                                                        <DropdownMenuItem onClick={() => handleUpdateStatus(order._id, "paid")} className="flex items-center justify-between p-4 rounded-xl cursor-pointer hover:bg-surface-container">
+                                                            <span className="text-sm font-bold">Mark as Paid</span>
+                                                            <ChevronRight size={14} className="opacity-40" />
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleUpdateStatus(order._id, "shipped")} className="flex items-center justify-between p-4 rounded-xl cursor-pointer hover:bg-surface-container">
+                                                            <span className="text-sm font-bold">Initiate Shipment</span>
+                                                            <ChevronRight size={14} className="opacity-40" />
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleUpdateStatus(order._id, "delivered")} className="flex items-center justify-between p-4 rounded-xl cursor-pointer hover:bg-surface-container">
+                                                            <span className="text-sm font-bold">Confirm Arrival</span>
+                                                            <ChevronRight size={14} className="opacity-40" />
+                                                        </DropdownMenuItem>
+                                                        <div className="h-[1px] bg-border/40 my-2" />
+                                                        <DropdownMenuItem 
+                                                            onClick={() => handleUpdateStatus(order._id, "cancelled")}
+                                                            className="flex items-center justify-between p-4 rounded-xl text-rose-500 focus:text-rose-500 focus:bg-rose-500/5 cursor-pointer"
+                                                        >
+                                                            <span className="text-sm font-bold">Terminate Order</span>
+                                                            <XCircle size={14} />
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
+                        )}
+                    </TableBody>
+                </Table>
             </div>
         </div>
     );

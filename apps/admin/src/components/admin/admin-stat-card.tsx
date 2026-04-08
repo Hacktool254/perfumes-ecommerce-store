@@ -13,11 +13,15 @@ interface AdminStatCardProps {
     };
     chart?: ReactNode;
     icon?: ReactNode;
+    className?: string;
 }
 
-export function AdminStatCard({ title, value, trend, chart, icon }: AdminStatCardProps) {
+export function AdminStatCard({ title, value, trend, chart, icon, className }: AdminStatCardProps & { className?: string }) {
     return (
-        <div className="bg-[#111412] border border-white/5 rounded-[32px] p-8 flex flex-col justify-between group hover:border-[#414A37]/50 transition-all duration-500 h-[220px] relative overflow-hidden shadow-2xl">
+        <div className={cn(
+            "bg-[#111412] border border-white/5 rounded-[32px] p-8 flex flex-col justify-between group hover:border-[#414A37]/50 transition-all duration-500 h-[220px] relative overflow-hidden shadow-2xl",
+            className
+        )}>
             {/* Subtle Gradient Glow */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#414A37]/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:bg-[#414A37]/10 transition-all duration-500" />
             

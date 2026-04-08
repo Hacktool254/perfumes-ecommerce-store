@@ -1,95 +1,43 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ArrowRight } from "lucide-react";
+import { Search, ArrowRight, Check } from "lucide-react";
+import { useCart } from "@/hooks/use-cart";
 
-// Mock data for the two tabs
-const newArrivals: Array<{id: string, name: string, brand: string, price: number, originalPrice?: number, image: string, hoverImage: string, href: string}> = [
-    {
-        id: "na1",
-        name: "Angham Second Song",
-        brand: "Lattafa",
-        price: 6500,
-        originalPrice: 7500,
-        image: "/products/Lattafa-Angham.jpg",
-        hoverImage: "/products/Lattafa-Angham-1.jpg",
-        href: "/product/lattafa-angham"
-    },
-    {
-        id: "na2",
-        name: "Mishlah",
-        brand: "Lattafa",
-        price: 6500,
-        image: "/products/Lattafa-Sakeena.jpg",
-        hoverImage: "/products/Lattafa-Sakeena-1.jpg",
-        href: "/product/lattafa-sakeena"
-    },
-    {
-        id: "na3",
-        name: "Asad Collection 4x25ml",
-        brand: "Lattafa",
-        price: 8000,
-        image: "/products/Lattafa-Assad.jpg",
-        hoverImage: "/products/Lattafa-Assad-1.jpg",
-        href: "/product/lattafa-asad"
-    },
-    {
-        id: "na4",
-        name: "Teriaq",
-        brand: "Lattafa",
-        price: 6000,
-        image: "/products/Lattafa-Teriaq.jpg",
-        hoverImage: "/products/Lattafa-Teriaq-1.jpg",
-        href: "/product/lattafa-teriaq"
-    }
+const newArrivalProducts = [
+    { id: "h1", name: "Angham", brand: "Lattafa", image: "/products/Lattafa-Angham.jpg", imageHover: "/products/Lattafa-Angham-1.jpg", slug: "lattafa-angham", price: 4500 },
+    { id: "h2", name: "Rimmah", brand: "Lattafa", image: "/products/Lattafa-Rimmah.jpg", imageHover: "/products/Lattafa-Rimmah-1.jpg", slug: "lattafa-rimmah", price: 4200 },
+    { id: "h3", name: "Scarlet", brand: "Lattafa", image: "/products/Lattafa-Scarlet.jpg", imageHover: "/products/Lattafa-Scarlet-1.jpg", slug: "lattafa-scarlet", price: 3800 },
+    { id: "h4", name: "Atheri", brand: "Lattafa", image: "/products/Lattafa-Atheri.jpg", imageHover: "/products/Lattafa-Atheri-1.jpg", slug: "lattafa-atheri", price: 4000 },
 ];
 
-const bestSellers: Array<{id: string, name: string, brand: string, price: number, originalPrice?: number, image: string, hoverImage: string, href: string}> = [
-    {
-        id: "bs1",
-        name: "Nebras",
-        brand: "Lattafa",
-        price: 4800,
-        image: "/products/Lattafa-Nebras.jpg",
-        hoverImage: "/products/Lattafa-Nebras-1.jpg",
-        href: "/product/lattafa-nebras"
-    },
-    {
-        id: "bs2",
-        name: "Yara",
-        brand: "Lattafa",
-        price: 4700,
-        image: "/products/Lattafa-Yara.jpg",
-        hoverImage: "/products/Lattafa-Yara-1.jpg",
-        href: "/product/lattafa-yara-pink"
-    },
-    {
-        id: "bs3",
-        name: "Khamrah",
-        brand: "Lattafa",
-        price: 6500,
-        image: "/products/Lattafa-Khamrah.jpg",
-        hoverImage: "/products/Lattafa-Khamrah-1.jpg",
-        href: "/product/lattafa-khamrah"
-    },
-    {
-        id: "bs4",
-        name: "Mayar",
-        brand: "Lattafa",
-        price: 5000,
-        image: "/products/Lattafa-Mayar.jpg",
-        hoverImage: "/products/Lattafa-Mayar-1.jpg",
-        href: "/product/lattafa-mayar"
-    }
+const bestSellerProducts = [
+    { id: "b1", name: "Asad", brand: "Lattafa", image: "/products/Lattafa-Assad.jpg", imageHover: "/products/Lattafa-Assad-1.jpg", slug: "lattafa-asad", price: 5500 },
+    { id: "b2", name: "Yara", brand: "Lattafa", image: "/products/Lattafa-Yara.jpg", imageHover: "/products/Lattafa-Yara-1.jpg", slug: "lattafa-yara", price: 4800 },
+    { id: "b3", name: "Mayar", brand: "Lattafa", image: "/products/Lattafa-Mayar.jpg", imageHover: "/products/Lattafa-Mayar-1.jpg", slug: "lattafa-mayar", price: 3800 },
+    { id: "b4", name: "Sublime", brand: "Lattafa", image: "/products/Lattafa-Sublime.jpg", imageHover: "/products/Lattafa-Sublime-1.jpg", slug: "lattafa-sublime", price: 5200 },
 ];
 
 export function PopularProducts() {
-    const [activeTab, setActiveTab] = useState<"new" | "best">("new");
+    const [activeTab, setActiveTab] = useState<"new" | "best">("best");
+    const { addItem } = useCart();
+    const [addedId, setAddedId] = useState<string | null>(null);
 
-    const currentProducts = activeTab === "new" ? newArrivals : bestSellers;
+    const currentProducts = activeTab === "best" ? bestSellerProducts : newArrivalProducts;
+
+    const handleAddToCart = async (e: React.MouseEvent, product: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+            await addItem(product.id, 1, { _id: product.id, name: product.name, price: product.price, images: [product.image], slug: product.slug });
+            setAddedId(product.id);
+            setTimeout(() => setAddedId(null), 1500);
+        } catch (error) {
+            console.error("Failed to add to cart:", error);
+        }
+    };
 
     return (
         <section className="py-12 md:py-20 bg-white">
@@ -99,20 +47,20 @@ export function PopularProducts() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-4 border-b border-gray-100">
                     <div className="flex items-center gap-6 md:gap-10">
                         <button 
-                            onClick={() => setActiveTab("new")}
-                            className={`text-[22px] md:text-[24px] tracking-wide transition-colors ${
-                                activeTab === "new" ? "text-black font-semibold" : "text-gray-400 font-normal hover:text-black"
-                            }`}
-                        >
-                            New Arrivals
-                        </button>
-                        <button 
                             onClick={() => setActiveTab("best")}
                             className={`text-[22px] md:text-[24px] tracking-wide transition-colors ${
                                 activeTab === "best" ? "text-black font-semibold" : "text-gray-400 font-normal hover:text-black"
                             }`}
                         >
                             Best Sellers
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab("new")}
+                            className={`text-[22px] md:text-[24px] tracking-wide transition-colors ${
+                                activeTab === "new" ? "text-black font-semibold" : "text-gray-400 font-normal hover:text-black"
+                            }`}
+                        >
+                            New Arrivals
                         </button>
                     </div>
                     <Link 
@@ -133,38 +81,49 @@ export function PopularProducts() {
                         transition={{ duration: 0.3 }}
                         className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
                     >
-                        {currentProducts.map((product) => (
-                            <Link href={product.href} key={product.id} className="group block cursor-pointer flex flex-col">
+                        {currentProducts.map((product, idx) => (
+                            <Link href={`/product/${product.slug}`} key={product.id} className="group block cursor-pointer flex flex-col">
                                 {/* Image Container */}
                                 <div className="relative aspect-[4/5] bg-[#f7f7f7] rounded-[16px] overflow-hidden mb-4 p-4 flex items-center justify-center isolate">
                                     {/* Primary Image */}
-                                    <Image
+                                    <img
                                         src={product.image}
                                         alt={product.name}
-                                        fill
-                                        className="object-contain transition-opacity duration-500 ease-in-out group-hover:opacity-0"
+                                        className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${product.imageHover ? 'group-hover:opacity-0' : ''}`}
                                     />
                                     {/* Secondary Hover Image */}
-                                    <Image
-                                        src={product.hoverImage}
-                                        alt={`${product.name} alternative view`}
-                                        fill
-                                        className="object-contain absolute inset-0 opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100"
-                                    />
+                                    {product.imageHover && (
+                                        <img
+                                            src={product.imageHover}
+                                            alt={`${product.name} alternate view`}
+                                            className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100"
+                                        />
+                                    )}
 
                                     {/* Quick View Icon */}
                                     <div className="absolute top-4 right-4 z-20 bg-black text-white rounded-full p-2.5 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 w-10 h-10 flex items-center justify-center hover:scale-110">
                                         <Search className="w-4 h-4" />
                                     </div>
 
-                                    {/* Add to Cart Button placed permanently on product bottom */}
-                                    <div className="absolute inset-x-4 bottom-4 z-20">
+                                    {/* Add to Cart Button - visible on hover */}
+                                    <div className="absolute inset-x-4 bottom-4 z-20 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
                                         <button 
-                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
-                                            className="btn-lattafa-primary btn-add-to-cart btn-pill w-full py-3 shadow-xl flex items-center justify-center gap-2 group/btn"
+                                            onClick={(e) => handleAddToCart(e, product)} 
+                                            className={`btn-lattafa-primary btn-add-to-cart btn-pill w-full py-3 shadow-xl flex items-center justify-center gap-2 group/btn transition-all ${
+                                                addedId === product.id ? 'bg-green-600 hover:bg-green-600' : ''
+                                            }`}
                                         >
-                                            <span className="relative z-10">ADD TO CART</span>
-                                            <ArrowRight className="w-4 h-4 btn-arrow relative z-10" />
+                                            {addedId === product.id ? (
+                                                <>
+                                                    <Check className="w-4 h-4 relative z-10 text-white" />
+                                                    <span className="relative z-10 text-white font-bold">ADDED!</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="relative z-10">ADD TO CART</span>
+                                                    <ArrowRight className="w-4 h-4 btn-arrow relative z-10" />
+                                                </>
+                                            )}
                                         </button>
                                     </div>
                                 </div>
@@ -176,14 +135,9 @@ export function PopularProducts() {
                                         {product.name}
                                     </h3>
                                     <div className="flex items-center gap-2 mt-auto">
-                                        <span className={`text-[14px] font-bold ${product.originalPrice ? "text-[#d12020]" : "text-black"}`}>
+                                        <span className="text-[14px] font-bold text-black">
                                             KES {product.price.toLocaleString()}
                                         </span>
-                                        {product.originalPrice && (
-                                            <span className="text-[14px] text-gray-400 line-through">
-                                                KES {product.originalPrice.toLocaleString()}
-                                            </span>
-                                        )}
                                     </div>
                                 </div>
                             </Link>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Manrope } from 'next/font/google';
-import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
+import { AuthProvider } from "@/lib/auth-context";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { AuthGuard } from "@/components/layout/auth-guard";
@@ -26,15 +26,15 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <ConvexAuthNextjsServerProvider>
-            <html lang="en" className="dark">
-                <body className={`${manrope.className} bg-[#0A0D0B] min-h-screen text-foreground`}>
-                    <ConvexClientProvider>
+        <html lang="en" className="dark">
+            <body className={`${manrope.className} bg-[#0A0D0B] min-h-screen text-foreground`}>
+                <ConvexClientProvider>
+                    <AuthProvider>
                         <AuthGuard>
                             <div className="flex w-full min-h-screen">
                                 {/* Sidebar - Visible for all admin routes */}
                                 <AdminSidebar />
-                                
+
                                 {/* Main Content Area */}
                                 <main className="flex-1 min-h-screen overflow-y-auto px-10 py-8 bg-surface">
                                     <div className="max-w-[1400px] mx-auto">
@@ -43,9 +43,9 @@ export default function RootLayout({
                                 </main>
                             </div>
                         </AuthGuard>
-                    </ConvexClientProvider>
-                </body>
-            </html>
-        </ConvexAuthNextjsServerProvider>
+                    </AuthProvider>
+                </ConvexClientProvider>
+            </body>
+        </html>
     );
 }

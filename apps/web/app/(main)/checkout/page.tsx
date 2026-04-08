@@ -1,9 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft, Lock } from "lucide-react";
+import Link from "next/image";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
+import { CheckoutSummary } from "@/components/checkout/checkout-summary";
 import { useCart } from "@/hooks/use-cart";
+import { Loader2, ShoppingBag, ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import LinkNext from "next/link";
 
 export default function CheckoutPage() {
     const { items, isLoading } = useCart();
@@ -13,99 +16,98 @@ export default function CheckoutPage() {
         return sum + (price * item.quantity);
     }, 0);
 
-    const shipping = subtotal > 10000 ? 0 : 500;
-    const total = subtotal + shipping;
+    const total = subtotal; // Complimentary shipping for now
 
     if (isLoading) {
-        return <div className="pt-40 text-center min-h-screen">Loading checkout...</div>;
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white">
+                <Loader2 className="w-8 h-8 animate-spin text-[#1c2e36]" />
+                <p className="font-serif text-lg text-gray-500 uppercase tracking-widest">Preparing Checkout...</p>
+            </div>
+        );
     }
 
     if (items.length === 0) {
         return (
-            <div className="pt-40 text-center min-h-screen">
-                <h2 className="text-2xl mb-4">Your cart is empty</h2>
-                <Link href="/shop" className="text-accent underline">Return to Shop</Link>
+            <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white text-center">
+                <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-8">
+                    <ShoppingBag className="w-10 h-10 text-gray-200" />
+                </div>
+                <h1 className="font-serif text-4xl text-[#1c2e36] mb-4">Your cart is empty</h1>
+                <p className="text-gray-500 mb-10 max-w-sm">Looks like you haven't added any fragrances to your collection yet.</p>
+                <LinkNext href="/shop" className="bg-[#1c2e36] text-white px-10 py-4 rounded-full font-bold hover:bg-black transition-all">
+                    RETURN TO SHOP
+                </LinkNext>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-background pt-24 pb-32">
-            <div className="container mx-auto px-4 max-w-5xl">
-
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 border-b border-border pb-6">
-                    <div>
-                        <Link href="/cart" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
-                            <ArrowLeft className="w-4 h-4" />
-                            Back to Cart
-                        </Link>
-                        <h1 className="font-serif text-3xl md:text-4xl text-foreground">Checkout</h1>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-500/10 px-4 py-2 rounded-full w-max">
-                        <Lock className="w-4 h-4" />
-                        256-bit Secure Connection
-                    </div>
+        <div className="min-h-screen bg-white">
+            {/* Minimal Header */}
+            <header className="border-b border-gray-100 py-6 px-4 md:px-8 xl:px-12">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                    <LinkNext href="/" className="relative w-32 h-10 md:w-40 md:h-12">
+                        <Image
+                            src="/logo_transparent.png"
+                            alt="Ummie's Essence"
+                            fill
+                            sizes="160px"
+                            className="object-contain"
+                            priority
+                        />
+                    </LinkNext>
+                    <LinkNext href="/cart" className="p-2 text-gray-400 hover:text-[#1c2e36] transition-colors relative group">
+                        <ShoppingBag className="w-6 h-6 stroke-[1.5]" />
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#AA8C77] text-white text-[9px] font-bold rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                            {items.length}
+                        </span>
+                    </LinkNext>
                 </div>
+            </header>
 
-                <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+            <main className="max-w-7xl mx-auto px-4 md:px-8 xl:px-12 py-10 lg:py-16">
+                <div className="flex flex-col lg:flex-row gap-16 xl:gap-24">
+                    
+                    {/* Left: Form Column */}
+                    <div className="flex-1 lg:max-w-[700px]">
+                        {/* Mobile Toggle Summary (Optional but good for UX) */}
+                        <div className="lg:hidden mb-10 border border-[#ebe0da] rounded-xl overflow-hidden">
+                           <div className="p-4 bg-[#fcf8f6] flex justify-between items-center">
+                                <LinkNext href="/cart" className="flex items-center gap-2 text-xs font-bold text-[#1c2e36] decoration-1 underline underline-offset-2">
+                                    <ArrowLeft className="w-3 h-3" />
+                                    EDIT CART
+                                </LinkNext>
+                                <div className="text-right">
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Due Today</p>
+                                    <p className="text-xl font-serif font-bold text-[#1c2e36]">KES {total.toLocaleString()}</p>
+                                </div>
+                           </div>
+                        </div>
 
-                    {/* Left: Checkout Form */}
-                    <div className="flex-1">
                         <CheckoutForm items={items} subtotal={subtotal} total={total} />
                     </div>
 
-                    {/* Right: Order Summary */}
-                    <div className="w-full lg:w-[380px]">
-                        <div className="bg-secondary/20 rounded-lg p-6 lg:p-8 border border-border sticky top-32">
-                            <h2 className="font-serif text-xl text-foreground mb-6">Order Summary</h2>
-
-                            <div className="space-y-4 mb-6 max-h-[40vh] overflow-auto pr-2 custom-scrollbar">
-                                {items.map((item) => (
-                                    <div key={item.productId} className="flex justify-between items-start gap-4">
-                                        <div className="flex gap-4">
-                                            <div className="w-16 h-20 bg-secondary/50 rounded-sm overflow-hidden flex-shrink-0 relative">
-                                                {item.product?.images?.[0] && (
-                                                    <img src={item.product.images[0]} alt={item.product.name} className="object-cover w-full h-full" />
-                                                )}
-                                                <div className="absolute -top-2 -right-2 w-5 h-5 bg-foreground text-background text-[10px] font-bold rounded-full flex items-center justify-center">{item.quantity}</div>
-                                            </div>
-                                            <div className="overflow-hidden">
-                                                <p className="text-sm font-medium line-clamp-1">{item.product?.name || "Product"}</p>
-                                                <p className="text-xs text-muted-foreground">{item.product?.brand || ""}</p>
-                                            </div>
-                                        </div>
-                                        <p className="text-sm font-medium whitespace-nowrap">KES {((item.product?.price || 0) * item.quantity).toLocaleString()}</p>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="space-y-3 text-sm text-foreground mb-6 border-t border-border pt-6">
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Subtotal</span>
-                                    <span className="font-medium">KES {subtotal.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Shipping</span>
-                                    <span className="font-medium">
-                                        {shipping === 0 ? "Complimentary" : `KES ${shipping.toLocaleString()}`}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="border-t border-border pt-4">
-                                <div className="flex justify-between items-end">
-                                    <span className="text-base font-medium text-foreground">Total</span>
-                                    <span className="text-2xl font-serif text-foreground">KES {total.toLocaleString()}</span>
-                                </div>
-                            </div>
-
-                        </div>
+                    {/* Right: Summary Column (Desktop Sticky) */}
+                    <div className="hidden lg:block w-full lg:w-[440px] xl:w-[480px]">
+                        <CheckoutSummary />
                     </div>
 
                 </div>
+            </main>
 
-            </div>
+            {/* Simple Footer */}
+            <footer className="border-t border-gray-100 py-10 px-4 md:px-8 text-center bg-gray-50/50">
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] mb-4">
+                    Ummie's Essence Premium Perfumery
+                </p>
+                <div className="flex justify-center gap-8 text-[11px] text-gray-500 font-medium lowercase tracking-wider">
+                    <a href="#" className="hover:text-black transition-all">refund policy</a>
+                    <a href="#" className="hover:text-black transition-all">shipping policy</a>
+                    <a href="#" className="hover:text-black transition-all">privacy policy</a>
+                    <a href="#" className="hover:text-black transition-all">terms of service</a>
+                </div>
+            </footer>
         </div>
     );
 }

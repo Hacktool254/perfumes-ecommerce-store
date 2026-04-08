@@ -360,6 +360,82 @@ const bodyCareBD: Record<string, { intro: string; keyIngredients: string; benefi
         keyIngredients: "Mineral Oil, Vitamin E, Moisturizing Complex",
         benefits: "Everyday moisture, smooth application, affordable care"
     },
+    // ═══════════════════════════════════════════════════════
+    // HOBBY SHOWER GELS
+    // ═══════════════════════════════════════════════════════
+    "orchid": {
+        intro: "Hobby Fresh Care Orchid Shower Gel captivates with an exotic floral aroma that transforms your daily shower into a garden retreat. Infused with orchid extract, this gentle formula cleanses and softens skin while leaving behind a delicate, lingering fragrance.",
+        keyIngredients: "Orchid Extract, Glycerin, Moisturizing Complex",
+        benefits: "Exotic floral scent, gentle cleansing, silky soft skin"
+    },
+    "pomegranate": {
+        intro: "Hobby Fresh Care Pomegranate Shower Gel bursts with antioxidant-rich pomegranate to revitalize and protect your skin. This vibrant formula delivers a juicy, fruity lather that leaves skin feeling refreshed and nourished.",
+        keyIngredients: "Pomegranate Extract, Vitamin E, Natural Antioxidants",
+        benefits: "Antioxidant protection, fruity freshness, skin revitalization"
+    },
+    "refreshing fruits": {
+        intro: "Hobby Fresh Care Refreshing Fruits Shower Gel is a vibrant cocktail of mixed fruits that energizes your shower routine. This zesty formula combines citrus and tropical fruit extracts for a wake-up-call that leaves skin feeling alive and refreshed.",
+        keyIngredients: "Mixed Fruit Extracts, Citrus Complex, Glycerin",
+        benefits: "Energizing scent, vitamin-rich cleansing, refreshed skin"
+    },
+    "sea minerals": {
+        intro: "Hobby Fresh Care Sea Minerals Shower Gel draws on the purifying power of deep ocean minerals to detoxify and refresh your skin. This marine-inspired formula delivers a clean, crisp lather that washes away impurities while replenishing essential minerals.",
+        keyIngredients: "Sea Minerals, Marine Collagen, Glycerin",
+        benefits: "Mineral replenishment, deep purification, ocean freshness"
+    },
+    "marshmallow coconut": {
+        intro: "Hobby Marshmallow Coconut Shower Gel wraps you in a cloud of sweet, tropical indulgence. This irresistible formula combines fluffy marshmallow softness with creamy coconut richness for a shower experience that's pure comfort.",
+        keyIngredients: "Coconut Extract, Marshmallow Root, Moisturizing Complex",
+        benefits: "Sweet tropical scent, ultra-soft skin, comfort cleansing"
+    },
+    "marshmallow strawberry": {
+        intro: "Hobby Marshmallow Strawberry Shower Gel is a delightful blend of ripe strawberry sweetness and pillowy marshmallow softness. This playful formula creates a luscious, berry-scented lather that leaves skin feeling pampered and sweet.",
+        keyIngredients: "Strawberry Extract, Marshmallow Root, Glycerin",
+        benefits: "Berry-sweet scent, playful lather, nourished skin"
+    },
+    "marshmallow vanilla": {
+        intro: "Hobby Marshmallow Vanilla Shower Gel envelops you in the warm, comforting embrace of rich vanilla and fluffy marshmallow. This gourmand-inspired formula turns every shower into an indulgent dessert experience with skin-softening benefits.",
+        keyIngredients: "Vanilla Extract, Marshmallow Root, Moisturizing Blend",
+        benefits: "Warm vanilla scent, ultra-soft feel, comforting lather"
+    },
+    "arctic": {
+        intro: "Hobby Men 2-in-1 Arctic Shower Gel offers an invigorating blast of icy freshness designed specifically for men. This dual-action formula cleanses both body and hair in one powerful step, leaving you energized and ready to conquer the day.",
+        keyIngredients: "Menthol, Cooling Complex, 2-in-1 Formula",
+        benefits: "Ice-cold freshness, body + hair cleansing, energizing effect"
+    },
+    "sage": {
+        intro: "Hobby Naturals Refresh Sage & Tea Tree Shower Gel harnesses the purifying power of sage and antibacterial tea tree oil. This nature-inspired formula cleanses deeply while refreshing your senses with herbaceous, grounding aromatherapy.",
+        keyIngredients: "Sage Extract, Tea Tree Oil, Natural Plant Complex",
+        benefits: "Antibacterial care, herbal aromatherapy, deep cleansing"
+    },
+    "thyme": {
+        intro: "Hobby Naturals Relax Thyme & Lavender Shower Gel turns your shower into a calming spa ritual. The soothing combination of wild thyme and French lavender melts away stress while gently cleansing and nourishing your skin.",
+        keyIngredients: "Thyme Extract, Lavender Essential Oil, Natural Botanicals",
+        benefits: "Stress relief, calming aromatherapy, gentle cleansing"
+    },
+    // ═══════════════════════════════════════════════════════
+    // ST. IVES BODY WASHES
+    // ═══════════════════════════════════════════════════════
+    "citrus": {
+        intro: "St. Ives Citrus & Cherry Blossom Body Wash combines the brightening power of citrus with the delicate beauty of cherry blossom. This energizing formula exfoliates and refreshes skin, revealing a naturally radiant glow with every wash.",
+        keyIngredients: "Citrus Extract, Cherry Blossom, Natural Exfoliants",
+        benefits: "Brightening effect, gentle exfoliation, radiant glow"
+    },
+    "peach": {
+        intro: "St. Ives Fresh Peach & Jasmine Body Wash brings the lush sweetness of ripe peaches together with the romantic elegance of jasmine. This luxurious formula gently cleanses while leaving behind a fresh, fruity-floral scent that lasts.",
+        keyIngredients: "Peach Extract, Jasmine Oil, Natural Moisturizers",
+        benefits: "Fresh fruity-floral scent, gentle cleansing, lasting softness"
+    },
+    "oatmeal": {
+        intro: "St. Ives Oatmeal & Shea Butter Body Wash combines the soothing power of natural oatmeal with ultra-rich shea butter for skin that's calm, soft, and beautifully nourished. Perfect for dry or sensitive skin types.",
+        keyIngredients: "100% Natural Oatmeal, Shea Butter, Soothing Complex",
+        benefits: "Soothing care, intense moisture, perfect for sensitive skin"
+    },
+    "oatmilk": {
+        intro: "St. Ives Vanilla & Oatmilk Body Wash is a creamy, indulgent formula that combines warm vanilla with nourishing oat milk. This gentle cleanser leaves skin feeling incredibly smooth, soft, and delicately fragranced.",
+        keyIngredients: "Vanilla Extract, Oat Milk, Moisturizing Complex",
+        benefits: "Creamy indulgence, ultra-smooth skin, warm vanilla scent"
+    },
 };
 
 function getFragranceProfile(name: string): FragranceProfile | null {

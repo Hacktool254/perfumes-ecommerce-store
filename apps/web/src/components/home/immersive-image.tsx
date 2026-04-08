@@ -27,6 +27,7 @@ export function ImmersiveImageBlock() {
                     src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=2000&auto=format&fit=crop"
                     alt="Immersive model shot"
                     fill
+                    sizes="100vw"
                     className="object-cover"
                 />
                 <div className="absolute inset-0 bg-black/30" />

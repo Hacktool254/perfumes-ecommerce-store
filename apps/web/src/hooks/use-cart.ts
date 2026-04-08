@@ -44,7 +44,8 @@ export function useCart() {
         }
     }, [guestItems, isMounted, cartItems]);
 
-    const items: CartItem[] = (isMounted && cartItems) || guestItems;
+    // Return undefined during SSR to prevent hydration mismatch
+    const items: CartItem[] | undefined = !isMounted ? undefined : ((cartItems) || guestItems);
 
     const addItem = useCallback(async (productId: Id<"products">, quantity: number = 1, product?: any) => {
         if (cartItems) {

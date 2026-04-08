@@ -28,6 +28,7 @@ export function ProductImageGallery({ images, productName }: ImageGalleryProps) 
                             src={img}
                             alt={`${productName} thumbnail ${idx + 1}`}
                             fill
+                            sizes="96px"
                             className="object-cover"
                         />
                     </button>
@@ -49,6 +50,7 @@ export function ProductImageGallery({ images, productName }: ImageGalleryProps) 
                             src={images[currentIndex]}
                             alt={`${productName} view ${currentIndex + 1}`}
                             fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover"
                             priority
                         />

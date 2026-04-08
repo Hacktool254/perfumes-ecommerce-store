@@ -36,10 +36,32 @@ export async function generateMetadata(
 
 export default async function ProductDetailPage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;
-    const product = await client.query(api.products.getBySlug, { slug: params.slug });
+    let product;
+    try {
+        product = await client.query(api.products.getBySlug, { slug: params.slug });
+    } catch (error) {
+        console.error("❌ Product fetch failed for slug:", params.slug, error);
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center pt-24 pb-32 px-4 text-center">
+                <h2 className="text-3xl font-serif mb-4">Something went wrong</h2>
+                <p className="text-muted-foreground mb-8">We encountered an error while retrieving this product. Please try again later.</p>
+                <button 
+                   onClick={() => window.location.reload()} 
+                   className="btn-lattafa-primary btn-pill px-8 py-3 text-white"
+                >
+                   RETRY
+                </button>
+            </div>
+        );
+    }
 
     if (!product) {
-        return <div className="min-h-screen flex items-center justify-center pt-24 pb-32"><p>Product not found.</p></div>;
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center pt-24 pb-32 px-4 text-center">
+                <h2 className="text-3xl font-serif mb-4">Product Not Found</h2>
+                <p className="text-muted-foreground">The product with slug "{params.slug}" could not be found in our collection.</p>
+            </div>
+        );
     }
 
     const jsonLd = {

@@ -67,11 +67,10 @@ export function CategoryCard({ category }: CategoryCardProps) {
                 className="absolute inset-0 w-full h-full"
                 style={{ translateZ: -30 }}
             >
-                <Image
+                <img
                     src={category.imageUrl || fallbackImage}
                     alt={category.name}
-                    fill
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-500" />
             </motion.div>
