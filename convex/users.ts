@@ -66,7 +66,7 @@ export async function requireUser(ctx: any) {
 export async function getUserByEmail(ctx: any, email: string) {
     return await ctx.db
         .query("users")
-        .withIndex("email", (q) => q.eq("email", email.toLowerCase().trim()))
+        .withIndex("email", (q: any) => q.eq("email", email.toLowerCase().trim()))
         .first();
 }
 
@@ -79,7 +79,7 @@ export const promoteToAdmin = internalMutation({
     handler: async (ctx, { email }) => {
         const user = await ctx.db
             .query("users")
-            .withIndex("email", (q) => q.eq("email", email))
+            .withIndex("email", (q: any) => q.eq("email", email))
             .unique();
 
         if (!user) {
@@ -107,7 +107,7 @@ export const seedAdmin = internalMutation({
         // Check if user already exists
         const existing = await ctx.db
             .query("users")
-            .withIndex("email", (q) => q.eq("email", email))
+            .withIndex("email", (q: any) => q.eq("email", email))
             .unique();
 
         if (existing) {
