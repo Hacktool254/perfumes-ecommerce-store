@@ -7,7 +7,7 @@ import { ChevronDown, Tag } from "lucide-react";
 export function CheckoutSummary() {
     const { items, isLoading } = useCart();
 
-    const subtotal = (items || []).reduce((sum, item) => {
+    const subtotal = items.reduce((sum, item) => {
         const price = item.product?.price || 0;
         return sum + price * item.quantity;
     }, 0);
@@ -34,7 +34,7 @@ export function CheckoutSummary() {
 
                 {/* Items List */}
                 <div className="space-y-4 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                    {(items || []).map((item) => (
+                    {items.map((item) => (
                         <div key={item.productId} className="flex gap-4 group">
                             <div className="relative w-16 h-20 bg-white rounded-lg border border-[#ebe0da] overflow-hidden shrink-0">
                                 {item.product?.images?.[0] ? (

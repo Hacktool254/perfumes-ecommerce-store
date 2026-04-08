@@ -44,8 +44,8 @@ export function useCart() {
         }
     }, [guestItems, isMounted, cartItems]);
 
-    // Return undefined during SSR to prevent hydration mismatch
-    const items: CartItem[] | undefined = !isMounted ? undefined : ((cartItems) || guestItems);
+    // Return empty array during SSR to prevent hydration mismatch
+    const items: CartItem[] = !isMounted ? [] : ((cartItems as CartItem[]) || guestItems);
 
     const addItem = useCallback(async (productId: Id<"products">, quantity: number = 1, product?: any) => {
         if (cartItems) {
@@ -97,6 +97,6 @@ export function useCart() {
         updateQuantity,
         removeItem,
         clearCart,
-        isLoading: !isMounted || (cartItems === undefined && isMounted)
+        isLoading: !isMounted || cartItems === undefined
     };
 }

@@ -13,5 +13,45 @@
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 23.5s
+✓ Compiled successfully in 7.1s
   Running TypeScript ...
+  Collecting page data using 19 workers ...
+  Generating static pages using 19 workers (0/23) ...
+  Generating static pages using 19 workers (5/23) 
+  Generating static pages using 19 workers (11/23) 
+  Generating static pages using 19 workers (17/23) 
+✓ Generating static pages using 19 workers (23/23) in 1175.2ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /about
+├ ƒ /account
+├ ƒ /account/addresses
+├ ƒ /account/dashboard
+├ ƒ /account/orders
+├ ƒ /account/wishlist
+├ ○ /apple-icon.png
+├ ƒ /cart
+├ ƒ /categories
+├ ƒ /checkout
+├ ƒ /contact
+├ ○ /icon.png
+├ ƒ /login
+├ ƒ /order-confirmation/[id]
+├ ƒ /product/[slug]
+├ ƒ /register
+├ ƒ /reset-password
+├ ○ /robots.txt
+├ ƒ /seed
+├ ƒ /shop
+├ ○ /sitemap.xml
+└ ƒ /track
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
