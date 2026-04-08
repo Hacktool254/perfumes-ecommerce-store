@@ -2,47 +2,12 @@ import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { auth } from "./auth";
-import { registerHttp, loginHttp, logoutHttp } from "./httpAuth";
 
 const http = httpRouter();
 
 // ─── Auth routes ─────────────────────────────────────────────────────────────
 // @convex-dev/auth registers its own routes for sign-in, sign-out, etc.
 auth.addHttpRoutes(http);
-
-// Custom auth routes
-http.route({
-    path: "/registerHttp",
-    method: "POST",
-    handler: registerHttp,
-});
-http.route({
-    path: "/registerHttp",
-    method: "OPTIONS",
-    handler: registerHttp,
-});
-
-http.route({
-    path: "/loginHttp",
-    method: "POST",
-    handler: loginHttp,
-});
-http.route({
-    path: "/loginHttp",
-    method: "OPTIONS",
-    handler: loginHttp,
-});
-
-http.route({
-    path: "/logoutHttp",
-    method: "POST",
-    handler: logoutHttp,
-});
-http.route({
-    path: "/logoutHttp",
-    method: "OPTIONS",
-    handler: logoutHttp,
-});
 
 // ─── M-Pesa Callback ────────────────────────────────────────────────────────
 http.route({

@@ -7,14 +7,14 @@ import { useState } from "react";
 import seedData from "@workspaceRoot/convex/seed_products.json";
 
 export function SeedButton() {
-  const seed = useMutation(api.seed.seed);
+  const seed = useMutation(api.seed.seedFromJSON);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{inserted: number, skipped: number} | null>(null);
 
   const handleSeed = async () => {
     setLoading(true);
     try {
-      const res = await seed({ products: seedData.products });
+      const res = await seed();
       setResult({ inserted: res.insertedCount, skipped: res.skippedCount });
     } catch (err) {
       console.error("Seed failed:", err);
