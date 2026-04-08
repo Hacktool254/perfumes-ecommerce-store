@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingBag, Heart, Eye, Loader2, ChevronLeft, ChevronRight, ArrowRight, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
@@ -160,18 +161,29 @@ export function ProductGrid() {
                             className={`relative block ${currentView === "list" ? "w-1/3 md:w-full aspect-[3/4] md:aspect-[4/5]" : "w-full aspect-[4/5]"} bg-[#f7f7f7] mb-4 rounded-3xl overflow-hidden`}
                         >
                             <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out">
-                                    <img
-                                        src={product.images?.[0] || "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800"}
+                                {product.images?.[0] ? (
+                                    <Image
+                                        src={product.images[0]}
                                         alt={product.name}
-                                        className={`w-full h-full object-cover transition-opacity duration-700 ease-in-out ${product.images?.[1] ? 'group-hover:opacity-0' : ''}`}
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800";
-                                        }}
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                                        className={`object-cover transition-opacity duration-700 ease-in-out ${product.images?.[1] ? 'group-hover:opacity-0' : ''}`}
                                     />
-                                {product.images[1] && (
-                                    <img
+                                ) : (
+                                    <Image
+                                        src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800"
+                                        alt={product.name}
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                                        className="object-cover"
+                                    />
+                                )}
+                                {product.images?.[1] && (
+                                    <Image
                                         src={product.images[1]}
                                         alt={`${product.name} alternate view`}
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                                         className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100"
                                     />
                                 )}

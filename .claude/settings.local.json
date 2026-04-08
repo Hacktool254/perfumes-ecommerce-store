@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe ps:*)",
+      "Bash(claude:*)",
+      "Skill(update-config)",
+      "Bash(node:*)",
+      "Bash(bash:*)",
+      "Bash(n8n status:*)",
+      "Bash(tasklist)",
+      "Bash(findstr convex:*)",
+      "Bash(curl -s \"https://dev-polished-badger-601.convex.cloud/api/query\" -X POST -H \"Content-Type: application/json\" -d '{\"path\": \"products/list\", \"args\": {\"paginationOpts\": {\"numItems\": 10, \"cursor\": null}}}')",
+      "Bash(ls -la apps/admin/.env*)",
+      "Bash(curl -s \"https://tacit-caterpillar-440.convex.site/registerHttp\" -X OPTIONS -H \"Content-Type: application/json\" -D -)",
+      "Bash(npx convex:*)"
+    ]
+  }
+}

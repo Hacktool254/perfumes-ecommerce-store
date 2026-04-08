@@ -12,6 +12,22 @@ interface ImageGalleryProps {
 export function ProductImageGallery({ images, productName }: ImageGalleryProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
+    if (!images || images.length === 0) {
+        return (
+            <div className="relative aspect-[4/5] md:aspect-auto md:h-[70vh] flex-1 bg-secondary/20 rounded-sm overflow-hidden flex items-center justify-center">
+                <Image
+                    src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800"
+                    alt="Placeholder"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                />
+            </div>
+        );
+    }
+
+    const validIndex = currentIndex >= images.length ? 0 : currentIndex;
+
     return (
         <div className="flex flex-col-reverse md:flex-row gap-4 w-full h-full">
 
@@ -47,8 +63,8 @@ export function ProductImageGallery({ images, productName }: ImageGalleryProps) 
                         className="absolute inset-0 w-full h-full"
                     >
                         <Image
-                            src={images[currentIndex]}
-                            alt={`${productName} view ${currentIndex + 1}`}
+                            src={images[validIndex]}
+                            alt={`${productName} view ${validIndex + 1}`}
                             fill
                             sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover"
