@@ -2,7 +2,7 @@
 
 import { useMutation } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
-import { Button } from "@ummies/ui/button";
+import { Button } from "@ummies/ui/components/button";
 import { useState } from "react";
 import seedData from "@workspaceRoot/convex/seed_products.json";
 
