@@ -3,10 +3,9 @@
 import { useMutation } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useState } from "react";
-import seedData from "@workspaceRoot/convex/seed_products.json";
 
 export default function SeedPage() {
-    const seedMutation = useMutation(api.seed.seed);
+    const seedMutation = useMutation(api.seed.seedFromJSON);
     const [status, setStatus] = useState<string>("Ready to seed");
     const [loading, setLoading] = useState(false);
 
@@ -14,16 +13,7 @@ export default function SeedPage() {
         setLoading(true);
         setStatus("Seeding...");
         try {
-            // Map JSON products to the mutation arguments
-            const products = seedData.products.map(p => ({
-                category: p.category,
-                brand: p.brand,
-                name: p.name,
-                gender: (p as any).gender,
-                size: (p as any).size,
-            }));
-
-            const result = await seedMutation({ products });
+            const result = await seedMutation();
             setStatus(`Success! Inserted: ${result.insertedCount}, Skipped: ${result.skippedCount}`);
         } catch (error: any) {
             setStatus(`Error: ${error.message}`);
@@ -35,7 +25,6 @@ export default function SeedPage() {
     return (
         <div className="p-20 flex flex-col items-center justify-center min-h-screen gap-4">
             <h1 className="text-2xl font-bold italic">Seeding Tool</h1>
-            <p className="text-muted-foreground">This will ingest {seedData.products.length} products.</p>
             <button
                 onClick={handleSeed}
                 disabled={loading}
