@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/image";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { CheckoutSummary } from "@/components/checkout/checkout-summary";
 import { useCart } from "@/hooks/use-cart";
@@ -10,8 +9,9 @@ import LinkNext from "next/link";
 
 export default function CheckoutPage() {
     const { items, isLoading } = useCart();
+    const safeItems = items || [];
 
-    const subtotal = items.reduce((sum: number, item: any) => {
+    const subtotal = safeItems.reduce((sum: number, item: any) => {
         const price = item.product?.price || 0;
         return sum + (price * item.quantity);
     }, 0);
@@ -27,7 +27,7 @@ export default function CheckoutPage() {
         );
     }
 
-    if (items.length === 0) {
+    if (safeItems.length === 0) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white text-center">
                 <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-8">
@@ -60,7 +60,7 @@ export default function CheckoutPage() {
                     <LinkNext href="/cart" className="p-2 text-gray-400 hover:text-[#1c2e36] transition-colors relative group">
                         <ShoppingBag className="w-6 h-6 stroke-[1.5]" />
                         <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#AA8C77] text-white text-[9px] font-bold rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            {items.length}
+                            {safeItems.length}
                         </span>
                     </LinkNext>
                 </div>
@@ -85,7 +85,7 @@ export default function CheckoutPage() {
                            </div>
                         </div>
 
-                        <CheckoutForm items={items} subtotal={subtotal} total={total} />
+                        <CheckoutForm items={safeItems} subtotal={subtotal} total={total} />
                     </div>
 
                     {/* Right: Summary Column (Desktop Sticky) */}
