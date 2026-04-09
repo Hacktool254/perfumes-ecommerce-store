@@ -14,6 +14,7 @@ export type CartItem = {
 
 export function useCart() {
     const [isMounted, setIsMounted] = useState(false);
+    const [optimisticItems, setOptimisticItems] = useState<CartItem[] | null>(null);
 
     // Skip convex query during Server-side Rendering (when !isMounted)
     const cartItems = useQuery(api.cart.get, isMounted ? {} : "skip");
@@ -44,26 +45,66 @@ export function useCart() {
         }
     }, [guestItems, isMounted, cartItems]);
 
+    // Reset optimistic items when server data changes
+    useEffect(() => {
+        if (cartItems) {
+            setOptimisticItems(null);
+        }
+    }, [cartItems]);
+
     // Return empty array during SSR to prevent hydration mismatch
-    const items: CartItem[] = !isMounted ? [] : ((cartItems as CartItem[]) || guestItems);
+    // Priority: optimisticItems > cartItems > guestItems
+    const items: CartItem[] = !isMounted 
+        ? [] 
+        : (optimisticItems !== null ? optimisticItems : (cartItems as CartItem[]) || guestItems);
 
     const addItem = useCallback(async (productId: Id<"products">, quantity: number = 1, product?: any) => {
+        // Immediate UI Update
+        const newItem: CartItem = { productId, quantity, product };
+        setOptimisticItems(prev => {
+            const current = prev || (cartItems as CartItem[]) || guestItems;
+            const existing = current.find(i => i.productId === productId);
+            if (existing) {
+                return current.map(i => i.productId === productId ? { ...i, quantity: i.quantity + quantity } : i);
+            }
+            return [...current, newItem];
+        });
+
         if (cartItems) {
-            await addToCartMutation({ productId, quantity });
+            try {
+                await addToCartMutation({ productId, quantity });
+            } catch (error) {
+                setOptimisticItems(null); // Rollback on error
+                console.error("Add to cart failed", error);
+            }
         } else {
             setGuestItems(prev => {
                 const existing = prev.find(i => i.productId === productId);
                 if (existing) {
                     return prev.map(i => i.productId === productId ? { ...i, quantity: i.quantity + quantity } : i);
                 }
-                return [...prev, { productId, quantity, product }];
+                return [...prev, newItem];
             });
+            setOptimisticItems(null); // Clear optimistic once guest state is updated
         }
-    }, [cartItems, addToCartMutation]);
+    }, [cartItems, guestItems, addToCartMutation]);
 
     const updateQuantity = useCallback(async (productId: Id<"products">, quantity: number, cartItemId?: Id<"cartItems">) => {
+        setOptimisticItems(prev => {
+            const current = prev || (cartItems as CartItem[]) || guestItems;
+            if (quantity <= 0) {
+                return current.filter(i => i.productId !== productId);
+            }
+            return current.map(i => i.productId === productId ? { ...i, quantity } : i);
+        });
+
         if (cartItems && cartItemId) {
-            await updateQuantityMutation({ cartItemId, quantity });
+            try {
+                await updateQuantityMutation({ cartItemId, quantity });
+            } catch (error) {
+                setOptimisticItems(null);
+                console.error("Update quantity failed", error);
+            }
         } else {
             setGuestItems(prev => {
                 if (quantity <= 0) {
@@ -71,23 +112,42 @@ export function useCart() {
                 }
                 return prev.map(i => i.productId === productId ? { ...i, quantity } : i);
             });
+            setOptimisticItems(null);
         }
-    }, [cartItems, updateQuantityMutation]);
+    }, [cartItems, guestItems, updateQuantityMutation]);
 
     const removeItem = useCallback(async (productId: Id<"products">, cartItemId?: Id<"cartItems">) => {
+        setOptimisticItems(prev => {
+            const current = prev || (cartItems as CartItem[]) || guestItems;
+            return current.filter(i => i.productId !== productId);
+        });
+
         if (cartItems && cartItemId) {
-            await removeFromCartMutation({ cartItemId });
+            try {
+                await removeFromCartMutation({ cartItemId });
+            } catch (error) {
+                setOptimisticItems(null);
+                console.error("Remove item failed", error);
+            }
         } else {
             setGuestItems(prev => prev.filter(i => i.productId !== productId));
+            setOptimisticItems(null);
         }
-    }, [cartItems, removeFromCartMutation]);
+    }, [cartItems, guestItems, removeFromCartMutation]);
 
     const clearCart = useCallback(async () => {
+        setOptimisticItems([]);
         if (cartItems) {
-            await clearCartMutation();
+            try {
+                await clearCartMutation();
+            } catch (error) {
+                setOptimisticItems(null);
+                console.error("Clear cart failed", error);
+            }
         } else {
             setGuestItems([]);
             localStorage.removeItem("ummies_cart");
+            setOptimisticItems(null);
         }
     }, [cartItems, clearCartMutation]);
 
@@ -97,6 +157,6 @@ export function useCart() {
         updateQuantity,
         removeItem,
         clearCart,
-        isLoading: !isMounted || cartItems === undefined
+        isLoading: !isMounted || (cartItems === undefined && !optimisticItems)
     };
 }

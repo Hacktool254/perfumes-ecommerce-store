@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { User, X, Menu, ChevronDown, ArrowUpRight, Search, ShoppingBag } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "@/hooks/use-cart";
+import { useMutation } from "convex/react";
+import { api } from "@workspaceRoot/convex/_generated/api";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 
 // ─── Dropdown: SHOP ────────────────────────────────────────────────────────
@@ -307,12 +309,29 @@ function getDropdown(type?: string) {
 
 export function Header() {
     const pathname = usePathname();
+    const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const { items } = useCart();
+    const logSearch = useMutation(api.searches.log);
 
     const totalItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+    const handleSearch = async (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && searchQuery.trim()) {
+            const query = searchQuery.trim();
+            setIsSearchOpen(false);
+            setSearchQuery("");
+            
+            // Log search (non-blocking)
+            logSearch({ query }).catch(console.error);
+            
+            // Redirect
+            router.push(`/shop?search=${encodeURIComponent(query)}`);
+        }
+    };
 
     return (
         <>
@@ -494,7 +513,11 @@ export function Header() {
                         <input
                             type="text"
                             placeholder="Search"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={handleSearch}
                             className="w-full pl-11 pr-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:border-black transition-all text-sm placeholder:text-gray-400"
+                            autoFocus
                         />
                     </div>
 

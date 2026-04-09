@@ -75,7 +75,6 @@ export const metadata: Metadata = {
   },
 };
 
-import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -88,16 +87,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ConvexAuthNextjsServerProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${fredoka.variable} ${playfairDisplay.variable} antialiased flex flex-col min-h-screen bg-background text-foreground`}
-        >
-          <ConvexClientProvider>
-            {children}
-          </ConvexClientProvider>
-        </body>
-      </html>
-    </ConvexAuthNextjsServerProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${fredoka.variable} ${playfairDisplay.variable} antialiased flex flex-col min-h-screen bg-background text-foreground`}
+      >
+        <ConvexClientProvider>
+          {children}
+        </ConvexClientProvider>
+      </body>
+    </html>
   );
 }

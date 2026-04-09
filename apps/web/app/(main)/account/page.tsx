@@ -1,13 +1,14 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Camera } from "lucide-react";
+import { Camera, Loader2, User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const profileSchema = z.object({
     fullName: z.string().min(1, "Full name is required"),
@@ -18,7 +19,12 @@ type ProfileValues = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
     const user = useQuery(api.users.viewer);
+    const updateProfile = useMutation(api.userDashboard.updateProfile);
+    const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+    const updateUserImage = useMutation(api.users.updateImage);
     const router = useRouter();
+    const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     const { register, handleSubmit, reset } = useForm<ProfileValues>({
         resolver: zodResolver(profileSchema),
@@ -43,131 +49,211 @@ export default function ProfilePage() {
     if (user === null) return <div className="p-8 text-center text-muted-foreground animate-pulse">Redirecting to login...</div>;
 
     const onSubmitInfo = async (data: ProfileValues) => {
-        // TODO: Implement update mutation
-        console.log("Saving Account Info:", data);
+        setIsSaving(true);
+        try {
+            // Split name into first and last
+            const nameParts = data.fullName.trim().split(/\s+/);
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+
+            await updateProfile({
+                firstName,
+                lastName,
+                phone: data.phone,
+            });
+            alert("Profile updated successfully!");
+        } catch (error) {
+            console.error("Failed to update profile:", error);
+            alert("Failed to update profile. Please try again.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            // 1. Get upload URL
+            const postUrl = await generateUploadUrl();
+
+            // 2. Upload file
+            const result = await fetch(postUrl, {
+                method: "POST",
+                headers: { "Content-Type": file.type },
+                body: file,
+            });
+
+            if (!result.ok) throw new Error("Upload failed");
+
+            const { storageId } = await result.json();
+
+            // 3. Update user record
+            await updateUserImage({ storageId });
+            
+            alert("Profile picture updated!");
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Failed to upload image. Please try again.");
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     return (
         <div className="max-w-4xl pb-10">
-            <h1 className="text-[28px] font-bold text-foreground leading-tight">Profile</h1>
-            <p className="text-muted-foreground text-sm mb-6">Manage your account settings</p>
+            <header className="mb-8">
+                <div className="flex items-center gap-2 text-[#DBC2A6] mb-3">
+                    <UserIcon size={14} className="opacity-50" />
+                    <span className="text-[10px] uppercase tracking-[0.3em] font-black">Identity Hub</span>
+                </div>
+                <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
+                    Profile <span className="text-[#DBC2A6]">Settings</span>
+                </h1>
+                <p className="text-white/40 text-sm mt-3 font-medium max-w-sm leading-relaxed">
+                    Manage your personal credentials and secure access parameters.
+                </p>
+            </header>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
                 {/* 1. Profile Picture Card */}
-                <div className="bg-card border border-border rounded-lg p-6">
-                    <h2 className="text-lg font-semibold flex items-center gap-2 mb-6 text-card-foreground">
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                        Profile Picture
-                    </h2>
+                <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] p-8 md:p-10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#DBC2A6]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#DBC2A6]/10 transition-colors duration-700" />
+                    
+                    <h2 className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20 mb-8 px-2">Visual Identifier</h2>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex flex-col md:flex-row items-center gap-10">
                         <div className="relative">
-                            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center text-3xl text-muted-foreground font-medium">
-                                {(user.name?.[0] || user.firstName?.[0] || "U").toUpperCase()}
+                            <div className="w-32 h-32 bg-[#0A0D0B] rounded-3xl flex items-center justify-center text-4xl text-[#DBC2A6] font-black overflow-hidden border border-white/10 shadow-2xl relative group/avatar">
+                                {isUploading ? (
+                                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10">
+                                        <Loader2 className="animate-spin w-8 h-8 text-[#DBC2A6]" />
+                                    </div>
+                                ) : user.image ? (
+                                    <Image 
+                                        src={user.image} 
+                                        alt="Avatar" 
+                                        fill 
+                                        className="object-cover group-hover/avatar:scale-110 transition-transform duration-700" 
+                                    />
+                                ) : (
+                                    (user.name?.[0] || user.firstName?.[0] || "U").toUpperCase()
+                                )}
                             </div>
-                            <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground border-2 border-background hover:bg-primary/90 transition-colors">
-                                <Camera size={14} />
-                            </button>
+                            <label className="absolute -bottom-3 -right-3 w-12 h-12 bg-[#DBC2A6] rounded-2xl flex items-center justify-center text-[#0A0D0B] border-4 border-[#1A1E1C] hover:scale-110 transition-all cursor-pointer shadow-xl">
+                                <Camera size={18} strokeWidth={3} />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleImageUpload}
+                                    disabled={isUploading}
+                                />
+                            </label>
                         </div>
-                        <div className="text-sm text-muted-foreground max-w-sm">
-                            Click the camera icon or avatar to upload a new profile picture.
-                            Supported formats: JPG, PNG, GIF. Max size: 5MB.
+                        <div className="flex-1 text-center md:text-left">
+                            <h3 className="text-white font-bold text-lg mb-2">Avatar Intelligence</h3>
+                            <p className="text-white/30 text-sm font-medium leading-relaxed max-w-xs mx-auto md:mx-0">
+                                {isUploading ? "Synchronizing visual data with secure storage..." : "Your visual signature is used across all system touchpoints. JPG, PNG or GIF recommended."}
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 {/* 2. Account Information Card */}
-                <div className="bg-card border border-border rounded-lg p-6">
-                    <h2 className="text-lg font-semibold mb-6 text-card-foreground">Account Information</h2>
+                <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] p-8 md:p-10 relative overflow-hidden group">
+                    <h2 className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20 mb-8 px-2">Core Parameters</h2>
 
-                    <form onSubmit={handleSubmit(onSubmitInfo)} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-semibold text-card-foreground mb-2">Full Name</label>
+                    <form onSubmit={handleSubmit(onSubmitInfo)} className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Legal Full Name</label>
                                 <input
                                     {...register("fullName")}
-                                    className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-colors text-sm"
-                                    placeholder="Enter full name"
+                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
+                                    placeholder="e.g. Alexander Pierce"
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-semibold text-card-foreground mb-2">Email</label>
-                                <input
-                                    value={user.email}
-                                    disabled
-                                    className="w-full px-4 py-2.5 rounded-md border border-border bg-muted text-muted-foreground cursor-not-allowed text-sm"
-                                />
-                                <p className="text-xs text-muted-foreground mt-1.5 flex justify-end">Email cannot be changed</p>
+                            <div className="space-y-3 opacity-60">
+                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Authentication Email</label>
+                                <div className="relative">
+                                    <input
+                                        value={user.email}
+                                        disabled
+                                        className="w-full px-6 py-4 rounded-2xl bg-black/20 border border-white/5 text-white/40 cursor-not-allowed font-bold text-sm"
+                                    />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] uppercase tracking-tighter font-black bg-white/5 px-2 py-1 rounded-md">Locked</div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-semibold text-card-foreground mb-2">Phone Number</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Comm-Link Number</label>
                                 <input
                                     {...register("phone")}
-                                    className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-colors text-sm"
-                                    placeholder="+1 (555) 123-4567"
+                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
+                                    placeholder="+254 7XX XXX XXX"
                                 />
                             </div>
                         </div>
 
-                        <div>
+                        <div className="pt-4">
                             <button
                                 type="submit"
-                                className="px-5 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                                disabled={isSaving}
+                                className="group relative overflow-hidden px-10 py-4 rounded-2xl bg-[#DBC2A6] text-[#0A0D0B] text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-3 shadow-xl shadow-[#DBC2A6]/10"
                             >
-                                Save Changes
+                                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <div className="w-1.5 h-1.5 rounded-full bg-[#0A0D0B] group-hover:scale-150 transition-transform" />}
+                                Update Core Data
                             </button>
                         </div>
                     </form>
                 </div>
 
                 {/* 3. Change Password Card */}
-                <div className="bg-card border border-border rounded-lg p-6">
-                    <h2 className="text-lg font-semibold flex items-center gap-2 mb-6 text-card-foreground">
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                        Change Password
-                    </h2>
+                <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] p-8 md:p-10 relative overflow-hidden group">
+                    <h2 className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20 mb-8 px-2">Access Security</h2>
 
-                    <form className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-semibold text-card-foreground mb-2">Current Password</label>
+                    <form className="space-y-8">
+                        <div className="space-y-3">
+                            <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Existing Access Code</label>
                             <input
                                 type="password"
-                                className="w-full max-w-md md:max-w-none px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-colors text-sm"
-                                placeholder="Enter current password"
+                                className="w-full max-w-md px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
+                                placeholder="••••••••••••"
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-semibold text-card-foreground mb-2">New Password</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">New Terminal Password</label>
                                 <input
                                     type="password"
-                                    className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-colors text-sm"
-                                    placeholder="Enter new password"
+                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
+                                    placeholder="Enter new code"
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-semibold text-card-foreground mb-2">Confirm New Password</label>
+                            <div className="space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Confirm New Code</label>
                                 <input
                                     type="password"
-                                    className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-colors text-sm"
-                                    placeholder="Confirm new password"
+                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
+                                    placeholder="Repeat new code"
                                 />
                             </div>
                         </div>
 
-                        {/* Note: The screenshot cuts off here, but presumably there's a button, though I will omit it if it's strictly matching the visible area, or add a standard one. I'll omit the save button for password to exactly match what's visible, or add it just below the fold. Let's add it for functional completeness matching the style. */}
-                        <div>
+                        <div className="pt-4">
                             <button
                                 type="button"
-                                className="px-5 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                                className="group relative overflow-hidden px-10 py-4 rounded-2xl border border-[#DBC2A6]/30 text-[#DBC2A6] text-xs font-black uppercase tracking-widest hover:bg-[#DBC2A6]/5 transition-all active:scale-[0.98]"
                             >
-                                Update Password
+                                Rotate Security Credentials
                             </button>
                         </div>
                     </form>

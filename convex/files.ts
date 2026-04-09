@@ -1,15 +1,19 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAdmin } from "./users";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 /**
  * Generate a short-lived upload URL for the client to upload a file directly
- * to Convex storage. Admin only.
+ * to Convex storage. Common function for users and admins.
  */
 export const generateUploadUrl = mutation({
     args: {},
     handler: async (ctx) => {
-        await requireAdmin(ctx);
+        // Must be logged in
+        const userId = await getAuthUserId(ctx);
+        if (!userId) throw new Error("Unauthorized");
+        
         return await ctx.storage.generateUploadUrl();
     },
 });

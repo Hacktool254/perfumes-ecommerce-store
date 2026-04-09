@@ -1,59 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useAuth } from "@/lib/auth-context";
 
 // ─── Zod Schemas ─────────────────────────────────────────────────────────────
+// ... items omitted ... (schema definitions)
 
-const loginSchema = z.object({
-    email: z.email("Please enter a valid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-const registerSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.email("Please enter a valid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-const forgotSchema = z.object({
-    email: z.email("Please enter a valid email address"),
-});
-
-const resetSchema = z.object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
-type RegisterValues = z.infer<typeof registerSchema>;
-type ForgotValues = z.infer<typeof forgotSchema>;
-type ResetValues = z.infer<typeof resetSchema>;
-
-// ─── Props ────────────────────────────────────────────────────────────────────
-
-interface AuthFormProps {
-    mode: "login" | "register" | "forgot" | "reset";
-    redirectPath?: string;
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
-export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthFormProps) {
-    const { signIn } = useAuthActions();
+export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard" }: AuthFormProps) {
+    const { login, register, error: contextError, clearError } = useAuth();
+    const { signIn } = useAuthActions(); 
     const router = useRouter();
     const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(initialMode);
-    const [serverError, setServerError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Clear error on mode change
+    useEffect(() => {
+        clearError();
+    }, [mode, clearError]);
 
     // ── Forms ──
     const loginForm = useForm<LoginValues>({
@@ -79,32 +49,22 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
     // ── Handlers ──
 
     async function handleLogin(values: LoginValues) {
-        setServerError(null);
         setIsLoading(true);
         try {
-            await signIn("password", { flow: "signIn", email: values.email, password: values.password });
-            router.push(redirectPath);
+            await login(values.email, values.password);
         } catch {
-            setServerError("Invalid email or password. Please try again.");
+            // Error is handled by context
         } finally {
             setIsLoading(false);
         }
     }
 
     async function handleRegister(values: RegisterValues) {
-        setServerError(null);
         setIsLoading(true);
         try {
-            await signIn("password", { flow: "signUp", email: values.email, password: values.password, name: values.name });
-            router.push(redirectPath);
-        } catch (error: any) {
-            console.error("Registration error:", error);
-            const msg = error?.message || "";
-            if (msg.toLowerCase().includes("already")) {
-                setServerError("An account already exists with this email. Please sign in instead.");
-            } else {
-                setServerError("Could not create account. Please try again or contact support.");
-            }
+            await register(values.name, values.email, values.password);
+        } catch {
+            // Error is handled by context
         } finally {
             setIsLoading(false);
         }
@@ -393,7 +353,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                     )}
                                 </div>
 
-                                {serverError && <div className="auth-error">{serverError}</div>}
+                                {contextError && <div className="auth-error">{contextError}</div>}
 
                                 <button
                                     id="login-submit"
@@ -480,7 +440,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                     )}
                                 </div>
 
-                                {serverError && <div className="auth-error">{serverError}</div>}
+                                {contextError && <div className="auth-error">{contextError}</div>}
 
                                 <button
                                     id="register-submit"
@@ -522,7 +482,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                     )}
                                 </div>
 
-                                {serverError && <div className="auth-error">{serverError}</div>}
+                                {contextError && <div className="auth-error">{contextError}</div>}
                                 {successMessage && (
                                     <div style={{ background: "rgba(194, 154, 60, 0.1)", border: "1px solid rgba(194, 154, 60, 0.3)", borderRadius: "12px", color: "#c2993c", fontSize: "0.8125rem", padding: "0.6rem 0.9rem", textAlign: "center" }}>
                                         {successMessage}
@@ -577,7 +537,7 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account" }: AuthF
                                     )}
                                 </div>
 
-                                {serverError && <div className="auth-error">{serverError}</div>}
+                                {contextError && <div className="auth-error">{contextError}</div>}
                                 {successMessage && (
                                     <div style={{ background: "rgba(194, 154, 60, 0.1)", border: "1px solid rgba(194, 154, 60, 0.3)", borderRadius: "12px", color: "#c2993c", fontSize: "0.8125rem", padding: "0.6rem 0.9rem", textAlign: "center" }}>
                                         {successMessage}

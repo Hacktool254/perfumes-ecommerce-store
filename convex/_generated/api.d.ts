@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as addresses from "../addresses.js";
 import type * as adminScripts from "../adminScripts.js";
 import type * as auth from "../auth.js";
 import type * as authMutations from "../authMutations.js";
@@ -23,11 +24,13 @@ import type * as http from "../http.js";
 import type * as httpAuth from "../httpAuth.js";
 import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
+import type * as preferences from "../preferences.js";
 import type * as products from "../products.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
 import type * as temp_debug from "../temp_debug.js";
 import type * as updateImages from "../updateImages.js";
+import type * as userDashboard from "../userDashboard.js";
 import type * as users from "../users.js";
 import type * as wipe from "../wipe.js";
 import type * as wishlist from "../wishlist.js";
@@ -39,6 +42,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  addresses: typeof addresses;
   adminScripts: typeof adminScripts;
   auth: typeof auth;
   authMutations: typeof authMutations;
@@ -54,11 +58,13 @@ declare const fullApi: ApiFromModules<{
   httpAuth: typeof httpAuth;
   orders: typeof orders;
   payments: typeof payments;
+  preferences: typeof preferences;
   products: typeof products;
   reviews: typeof reviews;
   seed: typeof seed;
   temp_debug: typeof temp_debug;
   updateImages: typeof updateImages;
+  userDashboard: typeof userDashboard;
   users: typeof users;
   wipe: typeof wipe;
   wishlist: typeof wishlist;

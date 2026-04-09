@@ -12,7 +12,19 @@ export const viewer = query({
     handler: async (ctx) => {
         const userId = await getAuthUserId(ctx);
         if (userId === null) return null;
-        return await ctx.db.get(userId);
+        const user = await ctx.db.get(userId);
+        if (!user) return null;
+
+        let imageUrl = user.image;
+        if (user.image && !user.image.startsWith("http")) {
+            const url = await ctx.storage.getUrl(user.image as any);
+            if (url) imageUrl = url;
+        }
+
+        return {
+            ...user,
+            image: imageUrl,
+        };
     },
 });
 
@@ -147,4 +159,20 @@ export const clearAllAdmins = internalMutation({
         }
         return `Cleared ${count} admin accounts.`;
     }
+});
+/**
+ * Update the user's profile image storage ID.
+ */
+export const updateImage = mutation({
+    args: { storageId: v.optional(v.id("_storage")) },
+    handler: async (ctx, args) => {
+        const user = await requireUser(ctx);
+        
+        await ctx.db.patch(user._id, {
+            image: args.storageId,
+            updatedAt: Date.now(),
+        });
+
+        return { success: true };
+    },
 });

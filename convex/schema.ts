@@ -32,6 +32,21 @@ export default defineSchema({
         .index("email", ["email"])
         .index("phone", ["phone"]),
 
+    // ─── Addresses ──────────────────────────────────────────────────────────────
+    userAddresses: defineTable({
+        userId: v.id("users"),
+        fullName: v.string(),
+        phone: v.string(),
+        street: v.string(),
+        apartment: v.optional(v.string()),
+        city: v.string(),
+        state: v.optional(v.string()), // or County in Kenya
+        postalCode: v.optional(v.string()),
+        country: v.string(),
+        isDefault: v.boolean(),
+        updatedAt: v.number(),
+    }).index("by_user", ["userId"]),
+
     // ─── Categories ──────────────────────────────────────────────────────────────
     categories: defineTable({
         name: v.string(),
@@ -184,4 +199,22 @@ export default defineSchema({
     })
         .index("by_token", ["token"])
         .index("by_user", ["userId"]),
+
+    // ─── User Preferences ──────────────────────────────────────────────────────
+    userPreferences: defineTable({
+        userId: v.id("users"),
+        marketingCategories: v.array(v.string()), // ['women', 'men', 'kids', 'beauty', etc.]
+        orderNotifications: v.boolean(),
+        promotions: v.boolean(),
+        updatedAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // ─── User Searches ─────────────────────────────────────────────────────────
+    userSearches: defineTable({
+        userId: v.id("users"),
+        query: v.string(),
+        createdAt: v.number(),
+    })
+        .index("by_user", ["userId"])
+        .index("by_user_createdAt", ["userId", "createdAt"]),
 });
