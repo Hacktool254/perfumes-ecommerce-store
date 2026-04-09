@@ -11,7 +11,14 @@ import {
     Power,
     Tag,
     Search,
-    Archive
+    Archive,
+    Ticket,
+    Zap,
+    Sparkles,
+    TrendingUp,
+    Clock,
+    Activity,
+    Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -19,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Id } from "@workspaceRoot/convex/_generated/dataModel";
+import { AdminStatCard } from "@/components/admin/admin-stat-card";
 
 export default function AdminCouponsPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -47,106 +55,170 @@ export default function AdminCouponsPage() {
         coupon.code.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const activeCount = coupons?.filter(c => c.isActive).length || 0;
+    const totalRedemptions = coupons?.reduce((acc, c) => acc + c.usedCount, 0) || 0;
+
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Coupon Management</h1>
-                    <p className="text-muted-foreground">Create and manage marketing discounts and limited offers.</p>
+        <div className="space-y-12 pb-20 animate-in fade-in slide-in-from-bottom-2 duration-1000">
+            {/* Editorial Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-border/40 pb-12 gap-8">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-[1.5px] bg-primary animate-glow rounded-full shadow-[0_0_15px_#B07D5B33]" />
+                        <p className="text-[11px] font-black uppercase tracking-[0.6em] text-primary/80">Marketing Intelligence</p>
+                    </div>
+                    <h1 className="text-6xl font-black text-foreground tracking-tighter leading-none">
+                        PROMOTIONAL <span className="text-primary italic font-serif font-medium">VAULT</span>
+                    </h1>
                 </div>
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 rounded-full px-6">
-                    <Plus className="w-4 h-4" />
-                    New Coupon
-                </Button>
+                <div className="flex items-center gap-5">
+                    <div className="relative group w-80">
+                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
+                         <input
+                            placeholder="Find Incentive Signature..."
+                            className="h-16 w-full bg-surface-container-lowest border border-border/40 rounded-[24px] pl-14 pr-8 text-sm font-black focus:ring-2 focus:ring-primary/20 transition-all shadow-sm hover:border-primary/20 placeholder:text-muted-foreground/20 leading-none"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <button className="flex items-center gap-4 h-16 px-10 rounded-[24px] bg-primary text-primary-foreground font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl shadow-primary/30 group relative overflow-hidden">
+                        <Plus size={20} className="relative z-10 group-hover:rotate-180 transition-transform duration-700" />
+                        <span className="relative z-10">Mint Coupon</span>
+                    </button>
+                </div>
             </div>
 
-            {/* Search */}
-            <div className="relative max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                    placeholder="Search by coupon code..."
-                    className="pl-10 bg-card border-border h-11"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+            {/* Metrics Surface */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <AdminStatCard 
+                    title="Active Incentives" 
+                    value={activeCount}
+                    icon={<Zap size={18} />}
+                    trend={{ value: "Operational", positive: true }}
+                />
+                <AdminStatCard 
+                    title="Total Redemptions" 
+                    value={totalRedemptions.toLocaleString()}
+                    icon={<TrendingUp size={18} />}
+                    trend={{ value: "Global Flow", positive: true }}
+                />
+                <AdminStatCard 
+                    title="Conversion Lift" 
+                    value="12.4%"
+                    icon={<Sparkles size={18} />}
+                    trend={{ value: "+2.1% Yield", positive: true }}
                 />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* The Vault Hierarchy */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                 {!coupons ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="h-64 rounded-2xl bg-muted animate-pulse border border-border"></div>
+                    Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="h-[320px] rounded-[48px] bg-surface-container-lowest animate-pulse border border-border/40 shadow-2xl relative overflow-hidden">
+                             <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-[80px]" />
+                        </div>
                     ))
                 ) : filteredCoupons?.length === 0 ? (
-                    <div className="col-span-full py-20 flex flex-col items-center justify-center text-muted-foreground opacity-50">
-                        <Archive size={48} className="mb-4" />
-                        <p>No coupons found</p>
+                    <div className="col-span-full py-40 flex flex-col items-center justify-center text-muted-foreground/20 border border-dashed border-border/40 rounded-[64px] bg-surface-container/20 space-y-6">
+                        <Lock size={80} strokeWidth={1} className="opacity-10 animate-pulse" />
+                        <div className="text-center">
+                            <p className="font-serif italic text-3xl tracking-tight text-foreground/40 leading-none">The Vault is Sealed</p>
+                            <p className="text-[10px] uppercase font-black tracking-[0.5em] mt-6 text-primary/40">No promotional signatures discovered in this spectrum</p>
+                        </div>
                     </div>
                 ) : (
                     filteredCoupons?.map((coupon) => (
-                        <Card key={coupon._id} className={cn(
-                            "bg-card border-border shadow-sm group transition-all duration-300",
-                            !coupon.isActive && "opacity-60 grayscale"
+                        <div key={coupon._id} className={cn(
+                            "group relative bg-surface-container-lowest border border-border/40 rounded-[48px] p-10 flex flex-col gap-10 transition-all duration-700 hover:bg-surface-container/20 hover:border-primary/20 shadow-xl shadow-surface-container/5 overflow-hidden",
+                            !coupon.isActive && "opacity-40 grayscale pointer-events-none"
                         )}>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                                <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-                                    <Tag className="w-5 h-5 text-primary" />
+                            {/* Cinematic Aura */}
+                            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/10 transition-all duration-1000" />
+                            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-1000" />
+
+                            <div className="flex items-start justify-between relative z-10 w-full">
+                                <div className="space-y-6 flex-1 pr-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-surface-container border border-border/10 flex items-center justify-center text-primary shadow-inner">
+                                            <Ticket size={20} strokeWidth={2.5} />
+                                        </div>
+                                        <div className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[9px] font-black text-primary uppercase tracking-[0.2em] leading-none">
+                                            {coupon.discountType} Acquisition
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h3 className="text-4xl font-black text-foreground tracking-tihtest uppercase group-hover:text-primary transition-colors leading-none truncate">
+                                            {coupon.code}
+                                        </h3>
+                                        <p className="text-[11px] font-black text-muted-foreground/40 uppercase tracking-[0.3em] flex items-center gap-3">
+                                            Yield: <span className="text-foreground italic font-serif lowercase tracking-normal text-lg">
+                                                {coupon.discountType === "percentage" ? `${coupon.discountValue}%` : `KES ${coupon.discountValue.toLocaleString()}`}
+                                            </span>
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="flex gap-2">
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="w-8 h-8 hover:bg-muted text-muted-foreground"
+
+                                <div className="flex flex-col gap-3">
+                                    <button 
                                         onClick={() => handleToggle(coupon._id, coupon.isActive ?? false)}
+                                        className={cn(
+                                            "w-12 h-12 rounded-[18px] flex items-center justify-center transition-all border shadow-sm group/power",
+                                            coupon.isActive ? "bg-primary text-primary-foreground border-primary shadow-[#B07D5B33]" : "bg-surface-container border-border/40 text-muted-foreground"
+                                        )}
                                     >
-                                        <Power className={cn("w-4 h-4", coupon.isActive ? "text-primary" : "text-muted-foreground")} />
-                                    </Button>
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="w-8 h-8 hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                                        <Power size={18} strokeWidth={3} className="group-hover/power:rotate-90 transition-transform" />
+                                    </button>
+                                    <button 
                                         onClick={() => handleDelete(coupon._id)}
+                                        className="w-12 h-12 rounded-[18px] bg-surface-container-low border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all duration-500 shadow-sm"
                                     >
-                                        <Trash2 className="w-4 h-4" />
-                                    </Button>
+                                        <Trash2 size={18} />
+                                    </button>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div>
-                                    <h3 className="text-xl font-mono font-bold text-foreground tracking-widest uppercase">{coupon.code}</h3>
-                                    <p className="text-sm text-primary font-bold">
-                                        {coupon.discountType === "percentage" ? `${coupon.discountValue}% OFF` : `KES ${coupon.discountValue.toLocaleString()} OFF`}
+                            </div>
+
+                            {/* Protocol Metrics */}
+                            <div className="grid grid-cols-2 gap-8 relative z-10">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.3em]">
+                                        <Users size={12} className="text-primary/40" /> Engagement Flow
+                                    </div>
+                                    <p className="text-xl font-black text-foreground tracking-tighter leading-none">
+                                        {coupon.usedCount} <span className="text-muted-foreground/40 mx-1">/</span> {coupon.usageLimit || "∞"}
                                     </p>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest flex items-center gap-1.5">
-                                            <Users className="w-3 h-3" /> Usage
-                                        </p>
-                                        <p className="text-sm text-foreground font-medium">
-                                            {coupon.usedCount} / {coupon.usageLimit || "∞"}
-                                        </p>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.3em]">
+                                        <Clock size={12} className="text-primary/40" /> Expiry Protocol
                                     </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest flex items-center gap-1.5">
-                                            <Calendar className="w-3 h-3" /> Expires
-                                        </p>
-                                        <p className="text-sm text-foreground font-medium">
-                                            {coupon.expiresAt ? format(coupon.expiresAt, "MMM d, yyyy") : "Never"}
-                                        </p>
-                                    </div>
+                                    <p className="text-xl font-black text-foreground tracking-tighter leading-none">
+                                        {coupon.expiresAt ? format(coupon.expiresAt, "MMM d, yy") : "Infinity"}
+                                    </p>
                                 </div>
+                            </div>
 
-                                <div className="pt-2">
-                                    <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-primary"
-                                            style={{ width: coupon.usageLimit ? `${(coupon.usedCount / coupon.usageLimit) * 100}%` : '40%' }}
+                            {/* Deployment Spectrum */}
+                            <div className="space-y-4 relative z-10 mt-auto">
+                                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.4em]">
+                                    <span className="text-muted-foreground/40">Market Saturation</span>
+                                    <span className={cn(
+                                        "text-foreground",
+                                        coupon.usageLimit && (coupon.usedCount / coupon.usageLimit > 0.9) && "text-rose-500"
+                                    )}>
+                                        {coupon.usageLimit ? `${Math.round((coupon.usedCount / coupon.usageLimit) * 100)}%` : 'Solidified'}
+                                    </span>
+                                </div>
+                                <div className="h-4 w-full bg-surface-container rounded-full overflow-hidden border border-border/5 p-1 shadow-inner">
+                                        <div 
+                                            className={cn(
+                                                "h-full bg-gradient-to-r from-primary/60 to-primary rounded-full transition-all duration-2000 ease-out shadow-[0_0_15px_#B07D5B33]",
+                                                coupon.usageLimit && (coupon.usedCount / coupon.usageLimit > 0.9) && "from-rose-500/60 to-rose-500"
+                                            )}
+                                            style={{ width: coupon.usageLimit ? `${(coupon.usedCount / coupon.usageLimit) * 100}%` : '88.4%' }}
                                         />
-                                    </div>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     ))
                 )}
             </div>

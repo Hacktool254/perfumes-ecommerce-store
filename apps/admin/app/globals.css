@@ -91,15 +91,15 @@
   --secondary: var(--color-5);
   --secondary-foreground: var(--color-1);
 
-  --muted: color-mix(in srgb, var(--color-1) 15%, var(--color-5));
-  --muted-foreground: color-mix(in srgb, var(--color-1) 70%, var(--color-5));
+  --muted: #EBC3BE;
+  --muted-foreground: #CE9E86;
 
-  --accent: color-mix(in srgb, var(--color-1) 15%, var(--color-5));
+  --accent: #EBC3BE;
   --accent-foreground: var(--color-1);
 
   --destructive: oklch(0.577 0.245 27.325);
-  --border: color-mix(in srgb, var(--color-1) 25%, var(--color-5));
-  --input: color-mix(in srgb, var(--color-1) 25%, var(--color-5));
+  --border: #E6BDB4;
+  --input: #E6BDB4;
   --ring: var(--color-1);
 
   --chart-1: oklch(0.646 0.222 41.116);
@@ -112,9 +112,9 @@
   --sidebar-foreground: #2A2121;
   --sidebar-primary: var(--color-1);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: color-mix(in srgb, var(--color-1) 15%, var(--color-5));
+  --sidebar-accent: #EBC3BE;
   --sidebar-accent-foreground: #2A2121;
-  --sidebar-border: color-mix(in srgb, var(--color-1) 25%, var(--color-5));
+  --sidebar-border: #E6BDB4;
   --sidebar-ring: var(--color-1);
 
   /* Serene Architect Tonal Hierarchy */
@@ -130,10 +130,10 @@
   --background: var(--color-3);
   --foreground: var(--color-5);
   
-  --card: color-mix(in srgb, var(--color-3) 90%, black);
+  --card: #672520;
   --card-foreground: var(--color-5);
   
-  --popover: color-mix(in srgb, var(--color-3) 90%, black);
+  --popover: #672520;
   --popover-foreground: var(--color-5);
 
   --primary: var(--color-2);
@@ -142,15 +142,15 @@
   --secondary: var(--color-4);
   --secondary-foreground: var(--color-3);
 
-  --muted: color-mix(in srgb, var(--color-3) 80%, white);
+  --muted: #8F544F;
   --muted-foreground: var(--color-4);
 
-  --accent: color-mix(in srgb, var(--color-2) 30%, var(--color-3));
+  --accent: #823742;
   --accent-foreground: var(--color-4);
 
   --destructive: oklch(0.704 0.191 22.216);
-  --border: color-mix(in srgb, var(--color-2) 40%, var(--color-3));
-  --input: color-mix(in srgb, var(--color-2) 40%, var(--color-3));
+  --border: #873B4C;
+  --input: #873B4C;
   --ring: var(--color-2);
 
   --chart-1: oklch(0.488 0.243 264.376);
@@ -163,15 +163,15 @@
   --sidebar-foreground: var(--color-5);
   --sidebar-primary: var(--color-2);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: color-mix(in srgb, var(--color-2) 30%, var(--color-3));
+  --sidebar-accent: #823742;
   --sidebar-accent-foreground: var(--color-5);
-  --sidebar-border: color-mix(in srgb, var(--color-2) 40%, var(--color-3));
+  --sidebar-border: #873B4C;
   --sidebar-ring: var(--color-2);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
   body {

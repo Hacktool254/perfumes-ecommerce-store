@@ -244,7 +244,7 @@ export default function AdminProductsPage() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
+                                                    <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_#B07D5B33]" />
                                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">Active</span>
                                                 </div>
                                             </TableCell>
