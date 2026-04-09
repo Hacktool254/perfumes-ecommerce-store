@@ -32,6 +32,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { Id } from "@workspaceRoot/convex/_generated/dataModel";
+import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
 
 const productSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -242,29 +243,49 @@ export function ProductForm({ initialData }: { initialData?: any }) {
                                 <FormDescription className="text-neutral-500">Add up to 5 high-resolution images. First image will be the primary cover.</FormDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
                                     {images.map((src, i) => (
-                                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-neutral-700 group">
-                                            <Image src={src} alt="Product preview" fill className="object-cover" />
-                                            <button
-                                                type="button"
-                                                onClick={() => setImages(prev => prev.filter((_, idx) => idx !== i))}
-                                                className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </button>
+                                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-neutral-700 group ring-1 ring-white/5">
+                                            <Image src={src} alt="Product preview" fill className="object-cover transition-transform group-hover:scale-110 duration-500" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setImages(prev => prev.filter((_, idx) => idx !== i))}
+                                                    className="p-2 rounded-full bg-red-500 text-white shadow-lg transform hover:scale-110 transition-transform"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {i === 0 && (
+                                                <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-primary/90 text-[8px] font-bold text-primary-foreground rounded uppercase tracking-widest">
+                                                    Primary
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
-                                    {images.length < 5 && (
-                                        <button
-                                            type="button"
-                                            className="aspect-square rounded-xl border-2 border-dashed border-neutral-800 hover:border-primary/50 hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 text-neutral-500 hover:text-primary group"
-                                        >
-                                            <Upload className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                                            <span className="text-[10px] uppercase font-bold tracking-widest">Upload</span>
-                                        </button>
-                                    )}
                                 </div>
+
+                                {images.length < 5 && (
+                                    <UploadDropzone
+                                        endpoint="imageUploader"
+                                        onClientUploadComplete={(res) => {
+                                            if (res) {
+                                                const urls = res.map(file => file.url);
+                                                setImages(prev => [...prev, ...urls].slice(0, 5));
+                                            }
+                                        }}
+                                        onUploadError={(error: Error) => {
+                                            alert(`ERROR! ${error.message}`);
+                                        }}
+                                        className="ut-label:text-primary ut-button:bg-primary ut-button:rounded-full ut-allowed-content:text-neutral-500 border-neutral-800 bg-neutral-900/50 hover:bg-neutral-800/50 transition-colors h-40"
+                                        appearance={{
+                                            button: "bg-primary text-primary-foreground px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all",
+                                            label: "text-neutral-400 font-serif text-sm",
+                                            allowedContent: "text-[10px] text-neutral-600 uppercase tracking-widest mt-1",
+                                            container: "border-2 border-dashed border-neutral-800 rounded-2xl hover:border-primary/50 transition-all",
+                                        }}
+                                    />
+                                )}
                             </CardContent>
                         </Card>
                     </div>

@@ -14,9 +14,11 @@ import {
     ChevronRight,
     Search,
     Bell,
-    Sparkles
+    Sparkles,
+    LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 
 const navItems = [
     { name: "Overview", href: "/overview", icon: LayoutGrid },
@@ -30,6 +32,15 @@ const navItems = [
 
 export function AdminSidebar() {
     const pathname = usePathname();
+    const { user, logout } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
 
     return (
         <aside className="w-80 h-screen bg-surface-container-lowest/80 backdrop-blur-xl border-none flex flex-col sticky top-0 z-50">
@@ -116,23 +127,29 @@ export function AdminSidebar() {
 
             {/* User Profile Hook */}
             <div className="p-8 border-t border-surface-container-highest/10 bg-surface-container-low/30">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-surface-container overflow-hidden p-1 shadow-sm">
-                            <img 
-                                src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=200&auto=format&fit=crop" 
-                                alt="User" 
-                                className="w-full h-full object-cover rounded-xl"
-                            />
+                <div className="mt-auto">
+                    <div className="bg-neutral-900 shadow-inner rounded-3xl p-4 border border-neutral-800">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 overflow-hidden">
+                                <img 
+                                    src={user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "Admin")}&background=BF8A68&color=fff`} 
+                                    alt={user?.name || "Admin"} 
+                                    className="w-full h-full object-cover p-0.5" 
+                                />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-bold text-white truncate">{user?.name || "Admin Curator"}</span>
+                                <span className="text-[10px] text-primary font-bold uppercase tracking-widest leading-none">Verified</span>
+                            </div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="text-sm font-extrabold text-foreground tracking-tight">Admin Curator</span>
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Kenya HQ</span>
-                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-800 hover:bg-red-500/10 hover:text-red-500 text-neutral-400 rounded-2xl transition-all duration-300 font-bold text-xs uppercase tracking-widest border border-neutral-700 hover:border-red-500/50"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                        </button>
                     </div>
-                    <button className="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors">
-                        <Bell size={18} className="text-muted-foreground" />
-                    </button>
                 </div>
             </div>
         </aside>

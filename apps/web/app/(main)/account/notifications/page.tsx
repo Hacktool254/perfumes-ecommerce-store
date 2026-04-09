@@ -2,9 +2,10 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
-import { Bell, Shield, Sparkles, Check, X } from "lucide-react";
+import { Bell, Shield, Sparkles, Check, X, Package, Truck, CreditCard, Clock, Settings2, Activity } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 const categoryOptions = [
     "Women's Perfumes",
@@ -17,6 +18,7 @@ const categoryOptions = [
 
 export default function NotificationsPage() {
     const prefs = useQuery(api.preferences.get);
+    const orders = useQuery(api.orders.list);
     const updatePrefs = useMutation(api.preferences.update);
     const [localPrefs, setLocalPrefs] = useState<{
         marketingCategories: string[];
@@ -37,13 +39,11 @@ export default function NotificationsPage() {
 
     if (!localPrefs) {
         return (
-            <div className="flex flex-col gap-8 animate-pulse">
-                <div className="h-12 bg-white/5 rounded-2xl w-1/4" />
-                <div className="space-y-4">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-20 bg-white/5 rounded-[32px]" />
-                    ))}
-                </div>
+            <div className="space-y-12 animate-pulse">
+                <div className="h-8 bg-white/5 rounded-lg w-48 mx-4" />
+                <div className="h-[400px] bg-white/5 rounded-[40px] w-full" />
+                <div className="h-8 bg-white/5 rounded-lg w-48 mx-4" />
+                <div className="h-[400px] bg-white/5 rounded-[40px] w-full" />
             </div>
         );
     }
@@ -70,94 +70,154 @@ export default function NotificationsPage() {
     };
 
     return (
-        <div className="space-y-12 max-w-3xl">
-            {/* Header */}
-            <header>
-                <div className="flex items-center gap-2 text-[#DBC2A6] mb-3">
-                    <Bell size={16} />
-                    <span className="text-[10px] uppercase tracking-[0.3em] font-black">Preference Center</span>
+        <div className="space-y-16 pb-12">
+            {/* Preference Center Module */}
+            <section className="space-y-8">
+                <div className="flex items-center justify-between px-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-6 bg-[#DBC2A6] rounded-full" />
+                        <h2 className="text-xl font-black tracking-tight text-white uppercase flex items-center gap-2">
+                            Notification Protocol
+                        </h2>
+                    </div>
+                    <div className="px-4 py-2 bg-[#DBC2A6]/10 border border-[#DBC2A6]/20 rounded-xl flex items-center gap-2">
+                        <Settings2 size={12} className="text-[#DBC2A6]" />
+                        <span className="text-[10px] uppercase tracking-widest font-black text-[#DBC2A6]">Preference Config</span>
+                    </div>
                 </div>
-                <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-                    Control Center
-                </h1>
-                <p className="text-white/40 text-sm mt-3 font-medium max-w-sm leading-relaxed">
-                    Manage how we communicate with you. Your privacy and attention are our highest priorities.
-                </p>
-            </header>
 
-            {/* Notification Sections */}
-            <div className="space-y-8">
-                {/* Essential Communications */}
-                <section>
-                    <h2 className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20 mb-6 px-4">Transactions & Security</h2>
-                    <div className="space-y-4">
+                <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] p-8 md:p-12 shadow-2xl relative overflow-hidden flex flex-col gap-12">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#DBC2A6]/10 to-transparent" />
+                    
+                    {/* Primary Toggles */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <ToggleButton 
-                            title="Order Status Updates"
-                            description="Real-time notifications for shipping, delivery, and payments."
+                            title="Transaction Manifests"
+                            description="Real-time procurement logs, shipping coordinates, and delivery verification."
                             active={localPrefs.orderNotifications}
                             onClick={toggleOrderNotifs}
                             icon={<Shield size={20} />}
                         />
-                    </div>
-                </section>
-
-                {/* Subscriptions */}
-                <section>
-                    <div className="flex items-center justify-between mb-6 px-4">
-                        <h2 className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20">Product Intelligence</h2>
-                        <div className="flex items-center gap-2">
-                             <Sparkles size={12} className="text-[#DBC2A6]" />
-                             <span className="text-[9px] uppercase tracking-widest font-bold text-[#DBC2A6]">Personalized</span>
-                        </div>
-                    </div>
-                    <div className="space-y-4">
                         <ToggleButton 
-                            title="Global Promotions"
-                            description="Early access to seasonal drops and exclusive member-only pricing."
+                            title="Intelligence Briefings"
+                            description="Early access to seasonal drops and exclusive member-only pricing data."
                             active={localPrefs.promotions}
                             onClick={togglePromotions}
                             icon={<Sparkles size={20} />}
                         />
                     </div>
-                </section>
 
-                {/* Category Preferences (Matching Image 2) */}
-                <section>
-                    <h2 className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20 mb-6 px-4">Interest Clusters</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {categoryOptions.map((cat) => (
-                            <button
-                                key={cat}
-                                onClick={() => toggleCategory(cat)}
-                                className={cn(
-                                    "flex items-center justify-between p-6 rounded-[32px] border transition-all duration-500 text-left group",
-                                    localPrefs.marketingCategories.includes(cat)
-                                        ? "bg-[#DBC2A6]/10 border-[#DBC2A6]/30 text-white"
-                                        : "bg-[#1A1E1C] border-white/5 text-white/40 hover:border-white/10"
-                                )}
-                            >
-                                <span className={cn(
-                                    "text-sm font-bold tracking-tight",
-                                    localPrefs.marketingCategories.includes(cat) ? "text-[#DBC2A6]" : "group-hover:text-white/60"
-                                )}>{cat}</span>
-                                <div className={cn(
-                                    "w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-500",
-                                    localPrefs.marketingCategories.includes(cat)
-                                        ? "bg-[#DBC2A6] border-[#DBC2A6] text-[#0A0D0B] scale-110 shadow-[0_0_12px_#DBC2A6]"
-                                        : "border-white/10 group-hover:border-white/20"
-                                )}>
-                                    {localPrefs.marketingCategories.includes(cat) && <Check size={12} strokeWidth={4} />}
-                                </div>
-                            </button>
-                        ))}
+                    {/* Interest Clusters */}
+                    <div className="space-y-8">
+                        <div className="flex items-center gap-3 px-2">
+                             <div className="w-1 h-3 bg-white/20 rounded-full" />
+                             <h3 className="text-[10px] uppercase tracking-[0.25em] font-black text-white/40">Interest Clusters</h3>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {categoryOptions.map((cat) => (
+                                <button
+                                    key={cat}
+                                    onClick={() => toggleCategory(cat)}
+                                    className={cn(
+                                        "flex items-center justify-between p-6 rounded-[24px] border transition-all duration-500 text-left group relative overflow-hidden",
+                                        localPrefs.marketingCategories.includes(cat)
+                                            ? "bg-[#DBC2A6]/10 border-[#DBC2A6]/30 text-white shadow-xl shadow-[#DBC2A6]/5"
+                                            : "bg-[#0A0D0B] border-white/5 text-white/40 hover:border-white/10"
+                                    )}
+                                >
+                                    <span className={cn(
+                                        "text-xs font-black uppercase tracking-widest",
+                                        localPrefs.marketingCategories.includes(cat) ? "text-[#DBC2A6]" : "group-hover:text-white/60"
+                                    )}>{cat}</span>
+                                    <div className={cn(
+                                        "w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-500",
+                                        localPrefs.marketingCategories.includes(cat)
+                                            ? "bg-[#DBC2A6] border-[#DBC2A6] text-[#0A0D0B] scale-110 shadow-[0_0_12px_#DBC2A6]"
+                                            : "border-white/10 group-hover:border-white/20 bg-black/40"
+                                    )}>
+                                        {localPrefs.marketingCategories.includes(cat) && <Check size={12} strokeWidth={4} />}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </section>
-            </div>
+                </div>
+            </section>
+            
+            {/* System Activity Hub */}
+            <section className="space-y-8">
+                <div className="flex items-center justify-between px-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-6 bg-[#DBC2A6] rounded-full" />
+                        <h2 className="text-xl font-black tracking-tight text-white uppercase flex items-center gap-2">
+                            Real-Time Activity Feed
+                        </h2>
+                    </div>
+                    <div className="px-4 py-2 bg-[#DBC2A6]/10 border border-[#DBC2A6]/20 rounded-xl flex items-center gap-2">
+                        <Activity size={12} className="text-[#DBC2A6]" />
+                        <span className="text-[10px] uppercase tracking-widest font-black text-[#DBC2A6]">Live Systems</span>
+                    </div>
+                </div>
+
+                <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] overflow-hidden shadow-2xl relative min-h-[400px]">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#DBC2A6]/5 blur-[100px] -mr-32 -mt-32 rounded-full" />
+                    <div className="absolute top-0 left-16 md:left-24 w-px h-full bg-white/5 z-0" />
+                    
+                    <div className="relative z-10 p-10 md:p-16 space-y-12">
+                        {orders && orders.length > 0 ? (
+                            orders.map((order) => (
+                                <div key={order._id} className="flex gap-10 md:gap-16 group">
+                                    <div className={cn(
+                                        "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-700 shadow-2xl z-20 group-hover:scale-110",
+                                        order.status === "delivered" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 scale-105" :
+                                        order.status === "shipped" ? "bg-blue-500/10 border-blue-500/20 text-blue-500" :
+                                        order.status === "paid" ? "bg-[#DBC2A6]/10 border-[#DBC2A6]/20 text-[#DBC2A6]" :
+                                        "bg-[#0A0D0B] border-white/10 text-white/20"
+                                    )}>
+                                        {order.status === "delivered" ? <Package size={20} /> : 
+                                         order.status === "shipped" ? <Truck size={20} /> : 
+                                         order.status === "paid" ? <CreditCard size={20} /> : 
+                                         <Clock size={20} />}
+                                    </div>
+                                    <div className="flex-1 pt-2">
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-3">
+                                            <h4 className="text-sm font-black text-white capitalize tracking-widest">
+                                                Order Sequence {order.status}
+                                            </h4>
+                                            <span className="text-[10px] text-white/20 uppercase tracking-[0.2em] font-black group-hover:text-white/40 transition-colors">
+                                                {format(order.createdAt, "MMM d, HH:mm:ss")}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-white/30 leading-relaxed font-bold tracking-tight max-w-2xl bg-[#0A0D0B]/30 p-4 rounded-2xl border border-white/5 italic">
+                                            {order.status === "pending" && `Manifest #UTX-${order._id.slice(-6).toUpperCase()} initiated. Awaiting validation sequence.`}
+                                            {order.status === "paid" && `Payment verified for #UTX-${order._id.slice(-6).toUpperCase()}. Commencing artifact curation.`}
+                                            {order.status === "shipped" && `Artifacts for #UTX-${order._id.slice(-6).toUpperCase()} in transit. Tracking protocols active.`}
+                                            {order.status === "delivered" && `Sequence complete. #UTX-${order._id.slice(-6).toUpperCase()} successfully archived at destination.`}
+                                            {order.status === "cancelled" && `Manifest #UTX-${order._id.slice(-6).toUpperCase()} decommissioned by system.`}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-24 text-center space-y-6 opacity-30 group">
+                                <div className="w-20 h-20 bg-[#0A0D0B] rounded-[32px] flex items-center justify-center mx-auto mb-8 border border-white/5 shadow-3xl transform group-hover:scale-110 transition-transform duration-700">
+                                    <Bell className="text-white/10" size={32} strokeWidth={1} />
+                                </div>
+                                <p className="text-[10px] uppercase tracking-[0.3em] font-black">Link Established - No Incoming Data</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
             
             {/* Disclaimer */}
-            <footer className="pt-8 border-t border-white/5 flex items-center gap-4 text-white/20 italic text-xs font-medium">
-                <Shield size={14} />
-                <span>End-to-end encrypted notification routing. We do not sell your interest data.</span>
+            <footer className="pt-8 border-t border-white/5 flex items-center justify-center gap-6 text-white/20 italic text-[10px] font-black uppercase tracking-[0.2em]">
+                <div className="flex items-center gap-2">
+                    <Shield size={14} className="text-[#DBC2A6]/40" />
+                    <span>E2E Encrypted Routing</span>
+                </div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white/5" />
+                <span>Verified Data Integrity</span>
             </footer>
         </div>
     );
@@ -180,36 +240,36 @@ function ToggleButton({
         <button
             onClick={onClick}
             className={cn(
-                "w-full flex items-center gap-6 p-8 rounded-[40px] border transition-all duration-500 text-left group relative overflow-hidden",
+                "flex-1 flex items-center gap-8 p-8 md:p-10 rounded-[40px] border transition-all duration-700 text-left group relative overflow-hidden",
                 active 
-                    ? "bg-[#1A1E1C] border-[#DBC2A6]/20 shadow-2xl" 
-                    : "bg-[#1A1E1C] border-white/5 opacity-60 hover:opacity-100"
+                    ? "bg-[#0A0D0B] border-[#DBC2A6]/30 shadow-3xl" 
+                    : "bg-[#0A0D0B] border-white/5 opacity-40 hover:opacity-100 hover:border-white/10"
             )}
         >
             <div className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 border",
+                "w-16 h-16 rounded-[24px] flex items-center justify-center transition-all duration-700 border",
                 active 
-                    ? "bg-[#DBC2A6]/10 text-[#DBC2A6] border-[#DBC2A6]/20" 
+                    ? "bg-[#DBC2A6] text-[#0A0D0B] border-[#DBC2A6] scale-105 shadow-2xl" 
                     : "bg-white/5 text-white/20 border-white/5 group-hover:bg-white/10"
             )}>
                 {icon}
             </div>
             <div className="flex-1 min-w-0">
                 <h3 className={cn(
-                    "text-base font-black tracking-tight mb-1 transition-colors",
-                    active ? "text-white" : "text-white/40"
+                    "text-base font-black tracking-tight mb-2 transition-colors uppercase",
+                    active ? "text-[#DBC2A6]" : "text-white/40"
                 )}>{title}</h3>
-                <p className="text-xs text-white/30 font-medium leading-relaxed">{description}</p>
+                <p className="text-xs text-white/20 font-bold leading-relaxed tracking-tight">{description}</p>
             </div>
             <div className={cn(
-                "w-14 h-8 rounded-full relative transition-all duration-500 border flex items-center px-1",
+                "w-16 h-9 rounded-full relative transition-all duration-700 border flex items-center px-1.5 group-hover:scale-105",
                 active 
-                    ? "bg-[#DBC2A6] border-[#DBC2A6] shadow-[0_0_15px_#DBC2A6]" 
-                    : "bg-black/40 border-white/10"
+                    ? "bg-[#DBC2A6] border-[#DBC2A6] shadow-[0_0_20px_rgba(219,194,166,0.3)]" 
+                    : "bg-black/60 border-white/10"
             )}>
                 <div className={cn(
-                    "w-6 h-6 rounded-full transition-transform duration-500 shadow-xl",
-                    active ? "translate-x-6 bg-white" : "translate-x-0 bg-white/20"
+                    "w-6 h-6 rounded-full transition-all duration-700 shadow-2xl",
+                    active ? "translate-x-7 bg-white scale-110" : "translate-x-0 bg-white/10"
                 )} />
             </div>
         </button>

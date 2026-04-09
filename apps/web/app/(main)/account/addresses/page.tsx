@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
-import { MapPin, Plus, Trash2, Edit2, X, Loader2, Check } from "lucide-react";
-import { Badge } from "@workspaceRoot/packages/ui/src/badge";
+import { MapPin, Plus, Trash2, Edit2, X, Loader2, Check, Globe, Phone, User, Landmark, Navigation2 } from "lucide-react";
+import { cn } from "@workspaceRoot/packages/ui/src/lib/utils";
 
 export default function AddressesPage() {
     const addresses = useQuery(api.addresses.list);
@@ -27,7 +27,7 @@ export default function AddressesPage() {
     });
 
     const handleRemove = async (id: any) => {
-        if (confirm("Are you sure you want to remove this address?")) {
+        if (confirm("Are you sure you want to decommission this logistics node?")) {
             await removeAddress({ id });
         }
     };
@@ -51,200 +51,226 @@ export default function AddressesPage() {
             });
         } catch (error) {
             console.error("Failed to add address:", error);
-            alert("Failed to add address. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
     if (addresses === undefined) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse">Loading addresses...</div>;
+        return (
+            <div className="space-y-8 animate-pulse">
+                <div className="h-8 bg-white/5 rounded-lg w-48 mx-4" />
+                <div className="h-[600px] bg-white/5 rounded-[40px] w-full" />
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-4xl pb-10">
-            <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                    <div className="flex items-center gap-2 text-[#DBC2A6] mb-3">
-                        <MapPin size={14} className="opacity-50" />
-                        <span className="text-[10px] uppercase tracking-[0.3em] font-black">Logistics Node</span>
-                    </div>
-                    <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-                        Shipping <span className="text-[#DBC2A6]">Registry</span>
-                    </h1>
-                    <p className="text-white/40 text-sm mt-3 font-medium max-w-sm leading-relaxed">
-                        Manage your secure delivery coordinates and procurement addresses.
-                    </p>
+        <div className="space-y-8 pb-12">
+            {/* Module Header */}
+            <div className="flex items-center justify-between px-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-6 bg-[#DBC2A6] rounded-full" />
+                    <h2 className="text-xl font-black tracking-tight text-white uppercase flex items-center gap-2">
+                        Logistics Registry
+                    </h2>
                 </div>
                 {!isAdding && (
                     <button
                         onClick={() => setIsAdding(true)}
-                        className="group relative overflow-hidden px-8 py-4 rounded-2xl bg-[#DBC2A6] text-[#0A0D0B] text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl shadow-[#DBC2A6]/10"
+                        className="px-6 py-3 rounded-xl bg-[#DBC2A6]/10 border border-[#DBC2A6]/20 text-[#DBC2A6] text-[10px] font-black uppercase tracking-widest hover:bg-[#DBC2A6]/20 transition-all flex items-center gap-2"
                     >
-                        <Plus size={16} strokeWidth={3} />
-                        Register New Node
+                        <Plus size={14} strokeWidth={3} />
+                        Deploy New Node
                     </button>
                 )}
-            </header>
+            </div>
 
-            {isAdding && (
-                <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] p-8 md:p-10 mb-10 relative overflow-hidden group animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#DBC2A6]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#DBC2A6]/10 transition-colors duration-700" />
-                    
-                    <div className="flex items-center justify-between mb-10">
-                        <h2 className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20 px-2">New Coordinate Entry</h2>
-                        <button onClick={() => setIsAdding(false)} className="text-white/20 hover:text-white transition-colors p-2">
-                            <X size={20} />
-                        </button>
-                    </div>
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-3">
-                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Recipient Name</label>
+            {/* Main Content Box */}
+            <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col min-h-[600px]">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#DBC2A6]/10 to-transparent" />
+                
+                {isAdding ? (
+                    <div className="p-8 md:p-16 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="flex items-center justify-between mb-12">
+                            <div className="space-y-1">
+                                <h3 className="text-2xl font-black text-white tracking-tighter uppercase">Node Configuration</h3>
+                                <p className="text-white/20 text-[10px] font-black uppercase tracking-widest leading-none">Establishing secure delivery coordinates</p>
+                            </div>
+                            <button onClick={() => setIsAdding(false)} className="w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div className="space-y-4">
+                                <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">
+                                    <User size={12} className="text-[#DBC2A6]" /> Recipient Identity
+                                </label>
                                 <input
                                     required
-                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
+                                    className="w-full px-8 py-5 rounded-[24px] bg-[#0A0D0B] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 transition-all font-bold text-sm"
                                     value={formData.fullName}
                                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                                    placeholder="Enter full name"
+                                    placeholder="Enter full legal name"
                                 />
                             </div>
-                            <div className="space-y-3">
-                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Contact Link</label>
+                            <div className="space-y-4">
+                                <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">
+                                    <Phone size={12} className="text-[#DBC2A6]" /> Comms Protocol
+                                </label>
                                 <input
                                     required
-                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
+                                    className="w-full px-8 py-5 rounded-[24px] bg-[#0A0D0B] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 transition-all font-bold text-sm"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    placeholder="+254 7XX XXX XXX"
+                                    placeholder="+254 XXX XXX XXX"
                                 />
                             </div>
-                        </div>
-                        <div className="space-y-3">
-                            <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Sector / Street Address</label>
-                            <input
-                                required
-                                className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
-                                value={formData.street}
-                                onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                                placeholder="House number and street name"
-                            />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="space-y-3">
-                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">City Hub</label>
+                            <div className="md:col-span-2 space-y-4">
+                                <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">
+                                    <Navigation2 size={12} className="text-[#DBC2A6]" /> Surface Coordinates (Street)
+                                </label>
                                 <input
                                     required
-                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
+                                    className="w-full px-8 py-5 rounded-[24px] bg-[#0A0D0B] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 transition-all font-bold text-sm"
+                                    value={formData.street}
+                                    onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                                    placeholder="Sector, Street, Building Identification"
+                                />
+                            </div>
+                            <div className="space-y-4">
+                                <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">
+                                    <Landmark size={12} className="text-[#DBC2A6]" /> Urban Hub (City)
+                                </label>
+                                <input
+                                    required
+                                    className="w-full px-8 py-5 rounded-[24px] bg-[#0A0D0B] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 transition-all font-bold text-sm"
                                     value={formData.city}
                                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                    placeholder="Nairobi"
+                                    placeholder="City Name"
                                 />
                             </div>
-                            <div className="space-y-3">
-                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Zone / County</label>
+                            <div className="space-y-4">
+                                <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">
+                                    <Globe size={12} className="text-[#DBC2A6]" /> Global Region
+                                </label>
                                 <input
-                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
-                                    value={formData.state}
-                                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                                    placeholder="Nairobi County"
+                                    required
+                                    className="w-full px-8 py-5 rounded-[24px] bg-[#0A0D0B] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 transition-all font-bold text-sm"
+                                    value={formData.country}
+                                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                                    placeholder="Country"
                                 />
                             </div>
-                            <div className="space-y-3">
-                                <label className="text-[10px] uppercase tracking-widest font-black text-white/40 ml-1">Neural Code</label>
-                                <input
-                                    className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-white/10 focus:outline-none focus:border-[#DBC2A6]/30 focus:bg-white/[0.05] transition-all font-bold text-sm"
-                                    value={formData.postalCode}
-                                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                                    placeholder="00100"
-                                />
-                            </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 pt-4 group/checkbox cursor-pointer" onClick={() => setFormData({ ...formData, isDefault: !formData.isDefault })}>
-                            <div className={`w-10 h-6 rounded-full relative transition-all duration-500 border flex items-center px-1 ${formData.isDefault ? "bg-[#DBC2A6] border-[#DBC2A6]" : "bg-black/40 border-white/10"}`}>
-                                <div className={`w-4 h-4 rounded-full transition-transform duration-500 ${formData.isDefault ? "translate-x-4 bg-white" : "translate-x-0 bg-white/20"}`} />
-                            </div>
-                            <span className="text-xs font-black uppercase tracking-widest text-white/40 group-hover/checkbox:text-white transition-colors">Establish as Primary Node</span>
-                        </div>
-
-                        <div className="flex justify-end gap-6 pt-6 border-t border-white/5">
-                            <button
-                                type="button"
-                                onClick={() => setIsAdding(false)}
-                                className="px-10 py-4 rounded-2xl border border-white/10 text-white/40 text-xs font-black uppercase tracking-widest hover:text-white hover:border-white/20 transition-all"
-                            >
-                                Abort
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="group relative overflow-hidden px-10 py-4 rounded-2xl bg-[#DBC2A6] text-[#0A0D0B] text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-3 shadow-xl shadow-[#DBC2A6]/10"
-                            >
-                                {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} strokeWidth={3} />}
-                                Persist Registry
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {addresses.map((address) => (
-                    <div key={address._id} className="bg-[#1A1E1C] border border-white/5 rounded-[40px] p-8 md:p-10 relative overflow-hidden group hover:border-[#DBC2A6]/20 transition-all duration-500 shadow-2xl">
-                        {address.isDefault && (
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#DBC2A6]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#DBC2A6]/10 transition-colors duration-700" />
-                        )}
-                        <div className="flex justify-between items-start mb-10">
-                            <div>
-                                {address.isDefault && (
-                                    <div className="inline-flex items-center gap-2 bg-[#DBC2A6]/10 text-[#DBC2A6] px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-[#DBC2A6]/20 mb-4">
-                                        Primary Node
+                            
+                            <div className="md:col-span-2 py-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-10">
+                                <div className="flex items-center gap-6 cursor-pointer group/toggle" onClick={() => setFormData({ ...formData, isDefault: !formData.isDefault })}>
+                                    <div className={cn(
+                                        "w-14 h-8 rounded-full relative transition-all duration-500 border flex items-center px-1.5",
+                                        formData.isDefault ? "bg-[#DBC2A6] border-[#DBC2A6] shadow-[0_0_20px_rgba(219,194,166,0.2)]" : "bg-black/60 border-white/10"
+                                    )}>
+                                        <div className={cn(
+                                            "w-5 h-5 rounded-full transition-transform duration-500 shadow-xl",
+                                            formData.isDefault ? "translate-x-6 bg-white" : "translate-x-0 bg-white/10"
+                                        )} />
                                     </div>
-                                )}
-                                <h3 className="text-xl font-black text-white tracking-tighter">{address.fullName}</h3>
-                            </div>
-                            <div className="flex items-center gap-2 relative z-10">
-                                <button className="p-3 text-white/20 hover:text-[#DBC2A6] hover:bg-[#DBC2A6]/5 rounded-xl transition-all">
-                                    <Edit2 size={16} />
-                                </button>
-                                <button
-                                    onClick={() => handleRemove(address._id)}
-                                    className="p-3 text-white/20 hover:text-rose-400 hover:bg-rose-500/5 rounded-xl transition-all"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        </div>
+                                    <div className="space-y-0.5 text-left">
+                                        <p className="text-[10px] uppercase tracking-[0.2em] font-black text-white group-hover/toggle:text-[#DBC2A6] transition-colors leading-none">Primary Logistics Link</p>
+                                        <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Establish as default delivery node</p>
+                                    </div>
+                                </div>
 
-                        <div className="text-sm text-white/40 space-y-2 mb-10 font-medium leading-relaxed">
-                            <p className="text-white/60 font-black">{address.street}</p>
-                            {address.apartment && <p>{address.apartment}</p>}
-                            <p>{address.city}{address.state ? `, ${address.state}` : ""}{address.postalCode ? ` ${address.postalCode}` : ""}</p>
-                            <p className="text-white/20 uppercase text-[10px] tracking-widest font-black pt-2">{address.country}</p>
-                        </div>
-
-                        <div className="flex items-center gap-3 text-xs font-black text-[#DBC2A6]">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#DBC2A6] opacity-40" />
-                            <span className="tracking-widest">{address.phone}</span>
-                        </div>
+                                <div className="flex items-center gap-6 w-full md:w-auto">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAdding(false)}
+                                        className="flex-1 md:flex-none px-10 py-5 rounded-[24px] border border-white/5 text-white/20 text-[10px] font-black uppercase tracking-[0.3em] hover:text-white hover:border-white/20 transition-all"
+                                    >
+                                        Abort
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="flex-1 md:flex-none px-12 py-5 rounded-[24px] bg-[#DBC2A6] text-[#0A0D0B] text-[10px] font-black uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-2xl shadow-[#DBC2A6]/20"
+                                    >
+                                        {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} strokeWidth={4} />}
+                                        Finalize Node
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                ))}
-
-                {addresses.length === 0 && !isAdding && (
-                    <div className="md:col-span-2 py-24 bg-[#1A1E1C]/50 border-2 border-dashed border-white/5 rounded-[40px] flex flex-col items-center justify-center text-center px-6">
-                        <div className="w-20 h-20 bg-[#0A0D0B] rounded-3xl flex items-center justify-center mb-8 border border-white/5 shadow-2xl">
-                            <MapPin size={32} className="text-white/10" />
+                ) : addresses.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center p-20 text-center relative group">
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#DBC2A6]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                        <div className="w-24 h-24 bg-[#0A0D0B] rounded-[32px] flex items-center justify-center mb-10 border border-white/5 shadow-3xl transform group-hover:scale-110 transition-transform duration-700">
+                            <MapPin className="text-white/10" size={40} strokeWidth={1} />
                         </div>
-                        <h3 className="text-2xl font-black text-white tracking-tighter mb-3 uppercase">Empty Registry</h3>
-                        <p className="text-sm text-white/30 max-w-xs mb-10 font-medium leading-relaxed">Establish your delivery nodes to enable secure procurement and checkout synchronization.</p>
+                        <h3 className="text-3xl font-black text-white tracking-tighter mb-4 uppercase">Empty Registry</h3>
+                        <p className="text-white/30 text-xs max-w-sm mx-auto mb-12 leading-relaxed font-bold tracking-tight">
+                            Establish your delivery nodes to enable secure procurement and checkout synchronization across the platform.
+                        </p>
                         <button
                             onClick={() => setIsAdding(true)}
-                            className="group relative overflow-hidden px-10 py-5 rounded-[24px] bg-[#DBC2A6] text-[#0A0D0B] text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-4 shadow-2xl shadow-[#DBC2A6]/20"
+                            className="bg-[#DBC2A6] text-[#0A0D0B] px-12 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#DBC2A6]/20 flex items-center gap-3"
                         >
-                            <Plus size={20} strokeWidth={3} />
-                            Deploy First Node
+                            <Plus size={14} strokeWidth={4} />
+                            Deploy Initial Node
                         </button>
+                    </div>
+                ) : (
+                    <div className="p-10 md:p-16">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {addresses.map((address) => (
+                                <div key={address._id} className="bg-[#0A0D0B] border border-white/5 rounded-[32px] p-10 relative overflow-hidden group hover:border-[#DBC2A6]/30 transition-all duration-700 shadow-xl flex flex-col">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#DBC2A6]/[0.02] blur-3xl -mr-16 -mt-16 group-hover:bg-[#DBC2A6]/[0.05] transition-colors duration-700" />
+                                    
+                                    <div className="flex justify-between items-start mb-12 relative z-10">
+                                        <div className="space-y-1">
+                                            {address.isDefault && (
+                                                <div className="inline-flex items-center gap-2 bg-[#DBC2A6]/10 text-[#DBC2A6] px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-[#DBC2A6]/20 mb-4 scale-90 -ml-1">
+                                                    Master Node
+                                                </div>
+                                            )}
+                                            <h3 className="text-xl font-black text-white tracking-tighter uppercase truncate max-w-[180px]">{address.fullName}</h3>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button className="p-3 text-white/10 hover:text-[#DBC2A6] hover:bg-white/5 rounded-xl transition-all">
+                                                <Edit2 size={14} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleRemove(address._id)}
+                                                className="p-3 text-white/10 hover:text-rose-400 hover:bg-rose-500/5 rounded-xl transition-all"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 space-y-4 mb-12 relative z-10 px-1 border-l border-white/5 ml-1">
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] uppercase tracking-widest font-black text-white/20 leading-none mb-2">Street Access</p>
+                                            <p className="text-sm text-white/60 font-bold leading-relaxed">{address.street}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] uppercase tracking-widest font-black text-white/20 leading-none mb-2">Hub Location</p>
+                                            <p className="text-sm text-white/40 font-bold leading-relaxed">
+                                                {address.city}{address.state ? `, ${address.state}` : ""}{address.postalCode ? ` ${address.postalCode}` : ""}
+                                            </p>
+                                        </div>
+                                        <p className="text-[9px] text-[#DBC2A6]/40 uppercase tracking-[0.3em] font-black pt-2">{address.country}</p>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 text-xs font-black text-[#DBC2A6] relative z-10 pt-6 border-t border-white/5">
+                                        <div className="w-10 h-10 rounded-xl bg-[#DBC2A6]/5 border border-[#DBC2A6]/10 flex items-center justify-center scale-90">
+                                            <Phone size={14} className="text-[#DBC2A6]" />
+                                        </div>
+                                        <span className="tracking-[0.15em] opacity-80">{address.phone}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>

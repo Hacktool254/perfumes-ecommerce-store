@@ -27,6 +27,7 @@ import type * as payments from "../payments.js";
 import type * as preferences from "../preferences.js";
 import type * as products from "../products.js";
 import type * as reviews from "../reviews.js";
+import type * as searches from "../searches.js";
 import type * as seed from "../seed.js";
 import type * as temp_debug from "../temp_debug.js";
 import type * as updateImages from "../updateImages.js";
@@ -61,6 +62,7 @@ declare const fullApi: ApiFromModules<{
   preferences: typeof preferences;
   products: typeof products;
   reviews: typeof reviews;
+  searches: typeof searches;
   seed: typeof seed;
   temp_debug: typeof temp_debug;
   updateImages: typeof updateImages;

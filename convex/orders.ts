@@ -167,7 +167,10 @@ export const get = query({
         const user = await requireUser(ctx);
         const order = await ctx.db.get(args.orderId);
 
-        if (!order || order.userId !== user._id) {
+        if (!order) return null;
+
+        // Allow access if it's the user's order OR if the user is an admin
+        if (order.userId !== user._id && user.role !== "admin") {
             return null;
         }
 
@@ -259,64 +262,127 @@ export const getStats = query({
         const authUser = await ctx.db.get(authUserId);
         if (authUser?.role !== "admin") return null;
 
-
         const allOrders = await ctx.db.query("orders").collect();
-        const allProducts = await ctx.db.query("products").filter(q => q.eq(q.field("isActive"), true)).collect();
+        const allProducts = await ctx.db.query("products").collect();
+        const allUsers = await ctx.db.query("users").collect();
+        const allCategories = await ctx.db.query("categories").collect();
+        const orderItems = await ctx.db.query("orderItems").collect();
 
-        // 1. Revenue & Sales calculation
-        let totalRevenue = 0;
-        let salesCount = 0;
         const now = Date.now();
         const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+        const sixtyDaysAgo = now - (60 * 24 * 60 * 60 * 1000);
 
-        let monthlyRevenue = 0;
-        let monthlySales = 0;
+        // 1. Core Metrics & Deltas (Current vs Previous 30 days)
+        let p0Revenue = 0, p0Sales = 0;
+        let p1Revenue = 0, p1Sales = 0;
 
         for (const order of allOrders) {
-            if (order.status !== "cancelled" && order.status !== "pending") {
-                totalRevenue += order.totalAmount;
-                salesCount++;
-
+            if (order.status !== "cancelled") {
                 if (order.createdAt > thirtyDaysAgo) {
-                    monthlyRevenue += order.totalAmount;
-                    monthlySales++;
+                    p0Revenue += order.totalAmount;
+                    p0Sales++;
+                } else if (order.createdAt > sixtyDaysAgo) {
+                    p1Revenue += order.totalAmount;
+                    p1Sales++;
                 }
             }
         }
 
-        // 2. Conversion Rate (Placeholder until we have a real visitors table)
-        // For now, we'll return a mock or semi-calculated value if we have user count
-        const userCount = (await ctx.db.query("users").collect()).length;
-        const conversionRate = userCount > 0 ? (salesCount / userCount) * 100 : 0;
+        const p0AOV = p0Sales > 0 ? p0Revenue / p0Sales : 0;
+        const p1AOV = p1Sales > 0 ? p1Revenue / p1Sales : 0;
 
-        // 3. Low Stock Alerts
-        const lowStockItems = allProducts.filter(p => p.stock <= 10);
+        const p0Conversion = allUsers.length > 0 ? (p0Sales / allUsers.length) * 100 : 0;
+        const p1Conversion = allUsers.length > 0 ? (p1Sales / allUsers.length) * 100 : 0;
 
-        // 4. Top Products (By quantity sold)
-        // This is expensive to calculate on every query, but fine for small/medium shop
-        const orderItems = await ctx.db.query("orderItems").collect();
-        const productSales: Record<string, number> = {};
+        const calculateDelta = (curr: number, prev: number) => {
+            if (prev === 0) return curr > 0 ? 100 : 0;
+            return parseFloat(((curr - prev) / prev * 100).toFixed(1));
+        };
 
-        for (const item of orderItems) {
-            productSales[item.productId] = (productSales[item.productId] || 0) + item.quantity;
+        // 2. Longitudinal Data (Last 6 Months)
+        const months = [];
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const monthName = date.toLocaleString('default', { month: 'short' });
+            const monthStart = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
+            const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59).getTime();
+
+            let mRevenue = 0;
+            let mOrders = 0;
+
+            for (const order of allOrders) {
+                if (order.status !== "cancelled" && order.createdAt >= monthStart && order.createdAt <= monthEnd) {
+                    mRevenue += order.totalAmount;
+                    mOrders++;
+                }
+            }
+            months.push({ name: monthName, value: mRevenue, orders: mOrders });
         }
 
-        const topProducts = Object.entries(productSales)
+        // 3. Category Intelligence
+        const categoryStats: Record<string, number> = {};
+        let totalVal = 0;
+        for (const item of orderItems) {
+            const product = allProducts.find(p => p._id === item.productId);
+            if (product && product.categoryId) {
+                const category = allCategories.find(c => c._id === product.categoryId);
+                const categoryName = category?.name || "Uncategorized";
+                const val = item.unitPrice * item.quantity;
+                categoryStats[categoryName] = (categoryStats[categoryName] || 0) + val;
+                totalVal += val;
+            }
+        }
+        const revenueByCategory = Object.entries(categoryStats).map(([name, value]) => ({
+            name,
+            value,
+            percentage: totalVal > 0 ? Math.round((value / totalVal) * 100) : 0
+        })).sort((a, b) => b.value - a.value);
+
+        // 4. Status Snapshot
+        const statusBreakdown = {
+            delivered: allOrders.filter(o => o.status === "delivered").length,
+            shipped: allOrders.filter(o => o.status === "shipped").length,
+            processing: allOrders.filter(o => o.status === "paid" || o.status === "pending").length,
+            pending: allOrders.filter(o => o.status === "pending").length,
+            cancelled: allOrders.filter(o => o.status === "cancelled").length,
+        };
+
+        // 5. Top Products Enhanced
+        const productRevenue: Record<string, number> = {};
+        for (const item of orderItems) {
+            productRevenue[item.productId] = (productRevenue[item.productId] || 0) + (item.unitPrice * item.quantity);
+        }
+
+        const topProducts = Object.entries(productRevenue)
             .sort(([, a], [, b]) => b - a)
             .slice(0, 5)
-            .map(([id]) => {
-                return allProducts.find(p => p._id === id);
+            .map(([id, revenue]) => {
+                const product = allProducts.find(p => p._id === id);
+                return product ? {
+                    ...product,
+                    revenue,
+                    share: totalVal > 0 ? Math.round((revenue / totalVal) * 100) : 0
+                } : null;
             })
             .filter(Boolean);
 
         return {
-            totalRevenue,
-            totalSales: salesCount,
-            monthlyRevenue,
-            monthlySales,
-            conversionRate: parseFloat(conversionRate.toFixed(2)),
-            lowStockCount: lowStockItems.length,
-            topProducts: topProducts.slice(0, 5),
+            totalRevenue: allOrders.reduce((acc, o) => o.status !== "cancelled" ? acc + o.totalAmount : acc, 0),
+            totalSales: allOrders.filter(o => o.status !== "cancelled").length,
+            p0Revenue,
+            p0Sales,
+            p0AOV,
+            p0Conversion,
+            revenueDelta: calculateDelta(p0Revenue, p1Revenue),
+            salesDelta: calculateDelta(p0Sales, p1Sales),
+            aovDelta: calculateDelta(p0AOV, p1AOV),
+            conversionDelta: calculateDelta(p0Conversion, p1Conversion),
+            months,
+            revenueByCategory,
+            statusBreakdown,
+            topProducts,
+            lowStockCount: allProducts.filter(p => p.stock <= 10).length,
             recentOrders: allOrders.slice(0, 5),
         };
     },

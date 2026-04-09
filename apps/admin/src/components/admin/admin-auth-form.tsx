@@ -106,7 +106,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
                 
                 {/* Header Logo & Title */}
                 <div className="flex flex-col items-center text-center mb-10">
-                    <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-[#414A37] to-[#2B3124] shadow-[0_0_40px_rgba(65,74,55,0.3)] border border-[#414A37]/50 flex items-center justify-center mb-6">
+                    <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-[#414A37] to-[#2B3124] shadow-[0_0_40px_#414a374d] border border-[#414A37]/50 flex items-center justify-center mb-6">
                         <Sparkles className="w-10 h-10 text-[#DBC2A6]" />
                     </div>
                     
@@ -120,7 +120,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
                 </div>
 
                 {/* Main Auth Container */}
-                <div className="bg-[#111412]/80 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 md:p-12 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                <div className="bg-[#111412]/80 backdrop-blur-xl border border-white/5 rounded-[32px] p-8 md:p-12 shadow-[0_8px_32px_#00000066]">
                     <p className="text-sm text-gray-400 text-center mb-8 leading-relaxed max-w-md mx-auto">
                         Welcome to the internal management system. Please log in with your administrative credentials to manage inventory, monitor orders, and configure platform settings.
                     </p>

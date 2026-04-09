@@ -2,8 +2,9 @@
 
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminGuard } from "@/components/admin/admin-guard";
-import { Search, Bell, ChevronDown } from "lucide-react";
+import { Search, Bell, ChevronDown, Wallet } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 
 export default function AdminLayout({
     children,
@@ -11,7 +12,8 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const isAuthPage = pathname === "/admin/login" || pathname === "/admin/register";
+    const { user } = useAuth();
+    const isAuthPage = pathname === "/admin/login" || pathname === "/admin/register" || pathname === "/login" || pathname === "/register";
 
     if (isAuthPage) {
         return (
@@ -35,7 +37,7 @@ export default function AdminLayout({
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search Anythings"
+                                placeholder="Global Intelligence Search"
                                 className="w-full h-12 pl-12 pr-4 bg-card rounded-full border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm shadow-sm placeholder:text-muted-foreground"
                             />
                         </div>
@@ -51,13 +53,25 @@ export default function AdminLayout({
                             {/* User Profile Info */}
                             <div className="flex items-center gap-3">
                                 <div className="text-right hidden md:block">
-                                    <p className="text-xs text-muted-foreground font-medium leading-none mb-1">Your Balance</p>
-                                    <p className="text-lg font-bold text-foreground leading-none">$1365</p>
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none mb-1">Operational Health</p>
+                                    <div className="flex items-center justify-end gap-1.5 font-bold text-foreground leading-none">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span>Systems Active</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 cursor-pointer bg-card px-2 py-1.5 rounded-full pr-4 shadow-sm border border-border hover:bg-muted/50 transition-colors">
-                                    <img src="https://i.pravatar.cc/150?u=admin" alt="Admin" className="w-9 h-9 rounded-full object-cover" />
-                                    <span className="text-sm font-semibold text-card-foreground">Khandaker Rasel</span>
-                                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                <div className="flex items-center gap-2 cursor-pointer bg-card px-2 py-1.5 rounded-full pr-4 shadow-sm border border-border hover:bg-muted/50 transition-colors group">
+                                    <div className="w-9 h-9 rounded-full bg-surface-container overflow-hidden p-0.5 border border-primary/10">
+                                        <img 
+                                            src={user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "Admin")}&background=BF8A68&color=fff`} 
+                                            alt={user?.name || "Admin"} 
+                                            className="w-full h-full rounded-full object-cover" 
+                                        />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-extrabold text-card-foreground leading-tight">{user?.name || "Curator"}</span>
+                                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter opacity-60">Master Authority</span>
+                                    </div>
+                                    <ChevronDown className="w-4 h-4 text-muted-foreground ml-1 group-hover:translate-y-0.5 transition-transform" />
                                 </div>
                             </div>
                         </div>

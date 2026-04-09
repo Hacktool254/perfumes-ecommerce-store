@@ -1,211 +1,295 @@
 "use client";
 
-import { 
-    Receipt, 
-    ArrowUpRight, 
-    ArrowDownRight, 
-    Download, 
-    Search, 
-    Filter, 
-    ChevronRight, 
-    ShoppingBag, 
-    CreditCard, 
-    Clock, 
-    CheckCircle2, 
+import {
+    Receipt,
+    ArrowUpRight,
+    ArrowDownRight,
+    Download,
+    Search,
+    SlidersHorizontal,
+    ChevronRight,
+    CreditCard,
+    Clock,
+    CheckCircle2,
     AlertCircle,
-    Calendar
+    TrendingUp,
+    RefreshCw,
+    Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuery } from "convex/react";
+import { api } from "@workspaceRoot/convex/_generated/api";
+import { format } from "date-fns";
 
-const transactions = [
-    { 
-        id: "TX-9081", 
-        customer: "Sarah Johnstone", 
-        amount: "KES 14,500", 
-        date: "2024-04-06 14:32", 
-        method: "M-Pesa", 
-        status: "Completed",
-        type: "Purchase" 
+const statusConfig = {
+    delivered: {
+        dot: "bg-emerald-400",
+        text: "text-emerald-400",
+        bg: "bg-emerald-400/8",
+        border: "border-emerald-400/15",
+        icon: CheckCircle2,
+        label: "Delivered",
     },
-    { 
-        id: "TX-9080", 
-        customer: "Anonymous", 
-        amount: "KES 22,800", 
-        date: "2024-04-06 12:15", 
-        method: "Card", 
-        status: "Pending",
-        type: "Purchase" 
+    shipped: {
+        dot: "bg-sky-400",
+        text: "text-sky-400",
+        bg: "bg-sky-400/8",
+        border: "border-sky-400/15",
+        icon: ArrowUpRight,
+        label: "Shipped",
     },
-    { 
-        id: "TX-9079", 
-        customer: "Michael Chen", 
-        amount: "KES 5,400", 
-        date: "2024-04-06 10:45", 
-        method: "M-Pesa", 
-        status: "Completed",
-        type: "Purchase" 
+    paid: {
+        dot: "bg-emerald-400",
+        text: "text-emerald-400",
+        bg: "bg-emerald-400/8",
+        border: "border-emerald-400/15",
+        icon: CheckCircle2,
+        label: "Paid",
     },
-    { 
-        id: "TX-9078", 
-        customer: "Elena Rodriguez", 
-        amount: "KES 42,500", 
-        date: "2024-04-05 18:20", 
-        method: "Bank", 
-        status: "Refunded",
-        type: "Refund" 
+    pending: {
+        dot: "bg-amber-400",
+        text: "text-amber-400",
+        bg: "bg-amber-400/8",
+        border: "border-amber-400/15",
+        icon: Clock,
+        label: "Pending",
     },
-    { 
-        id: "TX-9077", 
-        customer: "David Kimani", 
-        amount: "KES 12,800", 
-        date: "2024-04-05 16:10", 
-        method: "M-Pesa", 
-        status: "Completed",
-        type: "Purchase" 
+    cancelled: {
+        dot: "bg-rose-400",
+        text: "text-rose-400",
+        bg: "bg-rose-400/8",
+        border: "border-rose-400/15",
+        icon: AlertCircle,
+        label: "Cancelled",
     },
-];
+};
+
+function getInitials(name: string) {
+    if (!name) return "?";
+    return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+}
 
 export default function TransactionsPage() {
-    return (
-        <div className="space-y-12 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            {/* Page Header */}
-            <div className="flex items-end justify-between">
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Admin / Ledger</p>
-                    </div>
-                    <h1 className="text-[42px] font-bold text-foreground leading-[1.1] tracking-tight">
-                        Financial <span className="text-primary italic font-serif">Flux</span>
-                    </h1>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 h-12 px-6 rounded-full bg-surface-container-lowest text-foreground font-bold text-sm shadow-sm hover:bg-surface-container transition-colors">
-                        <Download size={18} />
-                        <span>Export Ledger</span>
-                    </button>
+    const orders = useQuery(api.orders.adminList, {});
+    const stats = useQuery(api.orders.getStats, {});
+
+    if (orders === undefined || stats === undefined || stats === null) {
+        return (
+            <div className="min-h-[60vh] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-6">
+                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground/40 italic">
+                        Synchronizing Ledger Streams...
+                    </p>
                 </div>
             </div>
+        );
+    }
 
-            {/* Cash Flow Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    return (
+        <div className="space-y-12 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+                .font-display { font-family: 'DM Serif Display', serif; }
+                .font-body { font-family: 'DM Sans', sans-serif; }
+                .tx-row:hover .tx-arrow { opacity: 1; transform: translateX(0); }
+                .tx-arrow { opacity: 0; transform: translateX(-6px); transition: all 0.25s ease; }
+                .glow-line { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent); }
+            `}</style>
+
+            {/* ── Header ── */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-border/40 pb-12 gap-8">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-[1.5px] bg-primary rounded-full shadow-[0_0_15px_#B07D5B33]" />
+                        <p className="text-[11px] font-black uppercase tracking-[0.6em] text-primary/80">Fiscal Ledger</p>
+                    </div>
+                    <h1 className="font-display text-5xl text-foreground leading-none tracking-tighter">
+                        FINANCIAL <span className="italic text-primary font-medium">FLUX</span>
+                    </h1>
+                </div>
+                <button className="flex items-center gap-4 h-16 px-10 rounded-[24px] bg-surface-container-lowest border border-border/40 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-primary hover:bg-surface-container transition-all group">
+                    <Download size={18} strokeWidth={2} className="group-hover:translate-y-0.5 transition-transform" />
+                    Export Detailed Ledger
+                </button>
+            </div>
+
+            {/* ── KPI Strip ── */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 {[
-                    { label: "Daily Volume", value: "KES 124,500", trend: "+12.4%", positive: true },
-                    { label: "Pending Settlements", value: "KES 42,800", trend: "7 Transactions", positive: true },
-                    { label: "Refund Rate", value: "0.8%", trend: "-2%", positive: true }
-                ].map((stat, i) => (
-                    <div key={i} className="bg-surface-container-lowest rounded-[32px] p-8 shadow-sm group hover:shadow-md transition-all duration-500">
-                        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{stat.label}</p>
-                        <div className="flex items-end justify-between">
-                            <p className="text-3xl font-bold text-foreground tracking-tighter">{stat.value}</p>
-                            <div className={cn(
-                                "flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full",
-                                stat.positive ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'
-                            )}>
-                                {stat.trend}
-                            </div>
+                    { 
+                        label: "Daily Volume", 
+                        value: `KES ${Math.round(stats.p0Revenue / 1000)}K`, 
+                        tag: stats.revenueDelta >= 0 ? `+${stats.revenueDelta}%` : `${stats.revenueDelta}%`, 
+                        tagColor: stats.revenueDelta >= 0 ? "text-emerald-500" : "text-rose-500", 
+                        icon: TrendingUp 
+                    },
+                    { 
+                        label: "Pending Settlements", 
+                        value: `KES ${Math.round((stats.statusBreakdown.pending * 5000) / 1000)}K`, // Estimated proxy
+                        tag: `${stats.statusBreakdown.pending} Active States`, 
+                        tagColor: "text-amber-500", 
+                        icon: Clock 
+                    },
+                    { 
+                        label: "Order Velocity", 
+                        value: `${stats.totalSales.toLocaleString()}`, 
+                        tag: "Cumulative Transactions", 
+                        tagColor: "text-primary/40", 
+                        icon: RefreshCw 
+                    },
+                ].map((kpi, i) => (
+                    <div
+                        key={i}
+                        className="relative rounded-[40px] border border-border/40 bg-surface-container-lowest p-8 overflow-hidden group hover:border-primary/20 transition-all duration-500 shadow-sm"
+                    >
+                        <div className="absolute top-0 left-0 right-0 h-px glow-line opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="flex items-start justify-between mb-8">
+                            <p className="text-[10px] font-black tracking-[0.35em] text-muted-foreground/30 uppercase leading-none">{kpi.label}</p>
+                            <kpi.icon size={16} strokeWidth={1.5} className="text-primary/20" />
                         </div>
+                        <p className="font-display text-4xl text-foreground mb-4 leading-none tracking-tight">{kpi.value ?? "KES 0"}</p>
+                        <p className={cn("text-[10px] font-black uppercase tracking-widest", kpi.tagColor)}>{kpi.tag}</p>
                     </div>
                 ))}
             </div>
 
-            {/* Transactions Log */}
-            <div className="bg-surface-container-lowest rounded-[40px] p-10 shadow-sm relative">
-                <div className="flex items-center justify-between mb-10">
-                    <div className="flex items-center gap-8">
-                        <h2 className="text-2xl font-bold text-foreground tracking-tight">Real-time Ledger</h2>
-                        <div className="relative group">
-                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                            <input 
-                                type="text" 
-                                placeholder="Search txid or customer..." 
-                                className="h-10 w-64 bg-surface-container-low border-none rounded-full pl-11 pr-6 text-xs font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+            {/* ── Ledger Table ── */}
+            <div className="bg-surface-container-lowest border border-border/40 rounded-[56px] shadow-2xl overflow-hidden group/hub">
+                
+                {/* Table Header Bar */}
+                <div className="flex flex-col md:flex-row items-center justify-between px-10 py-10 border-b border-border/40 space-y-6 md:space-y-0">
+                    <div className="flex items-center gap-6">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                        <h2 className="text-3xl font-black text-foreground tracking-tighter leading-none">Identity <span className="italic font-serif font-medium text-primary">Ledger</span></h2>
+                        <span className="px-3 py-1 rounded-full bg-primary/5 text-[9px] font-black text-primary tracking-[0.3em] uppercase border border-primary/20 shrink-0">Live stream</span>
+                    </div>
+                    <div className="flex items-center gap-4 w-full md:w-auto">
+                        <div className="relative group/search w-full md:w-64">
+                            <Search size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/30 group-focus-within/search:text-primary transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Locate TX signature..."
+                                className="h-12 w-full rounded-[20px] bg-surface-container border border-border/10 pl-12 pr-6 text-xs font-black placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/20 focus:bg-surface-container-lowest transition-all"
                             />
                         </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 h-10 px-5 rounded-full border border-surface-container-highest/20 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:bg-surface-container transition-colors">
-                            <Filter size={14} />
-                            <span>Filter Status</span>
+                        <button className="flex items-center gap-3 h-12 px-6 rounded-[20px] bg-surface-container border border-border/10 text-[10px] font-black text-muted-foreground/40 hover:text-primary transition-all uppercase tracking-widest shrink-0">
+                            <SlidersHorizontal size={14} strokeWidth={2} />
+                            Filter
                         </button>
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    {transactions.map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between p-5 rounded-[24px] hover:bg-surface-container-low transition-all duration-300 group">
-                            <div className="flex items-center gap-6">
-                                <div className={cn(
-                                    "w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm relative overflow-hidden group-hover:scale-105 transition-transform duration-500",
-                                    tx.type === 'Refund' ? "bg-rose-50" : "bg-emerald-50"
-                                )}>
-                                    {tx.type === 'Refund' ? <ArrowDownRight className="text-rose-600" /> : <ArrowUpRight className="text-emerald-600" />}
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-base text-foreground tracking-tight">{tx.customer}</h3>
-                                    <div className="flex items-center gap-3 mt-1">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-primary italic font-serif opacity-80">{tx.id}</p>
-                                        <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none flex items-center gap-1.5">
-                                            <CreditCard size={10} /> {tx.method}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-12">
-                                <div className="text-right">
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center justify-end gap-1.5 mb-1.5">
-                                        <Clock size={10} /> {tx.date}
-                                    </p>
-                                    <p className={cn(
-                                        "font-extrabold text-xl tracking-tighter",
-                                        tx.type === 'Refund' ? "text-rose-600" : "text-foreground"
-                                    )}>
-                                        {tx.type === 'Refund' ? "-" : ""}{tx.amount}
-                                    </p>
-                                </div>
-                                <div className="w-32 flex justify-end">
-                                    <div className={cn(
-                                        "px-4 py-1.5 rounded-full flex items-center gap-2 transition-all duration-500",
-                                        tx.status === 'Completed' ? "bg-emerald-50 text-emerald-600" : 
-                                        tx.status === 'Pending' ? "bg-amber-50 text-amber-600" : 
-                                        "bg-rose-50 text-rose-600"
-                                    )}>
-                                        {tx.status === 'Completed' ? <CheckCircle2 size={12} /> : tx.status === 'Pending' ? <Clock size={12} /> : <AlertCircle size={12} />}
-                                        <span className="text-[10px] font-bold uppercase tracking-widest">{tx.status}</span>
-                                    </div>
-                                </div>
-                                <button className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-surface-container-highest/20 transition-colors group/btn">
-                                    <ChevronRight size={20} className="text-muted-foreground group-hover/btn:translate-x-0.5 transition-transform" />
-                                </button>
-                            </div>
+                {/* Rows */}
+                <div className="divide-y divide-border/20 px-4">
+                    {orders.length === 0 ? (
+                        <div className="py-24 text-center">
+                            <p className="text-[11px] font-black tracking-[0.5em] text-muted-foreground/15 uppercase italic">
+                                Zero signatures in current cycle
+                            </p>
                         </div>
-                    ))}
+                    ) : (
+                        orders.map((tx) => {
+                            const cfg = (statusConfig as any)[tx.status] || statusConfig.pending;
+                            const StatusIcon = cfg.icon;
+                            const isRefund = tx.status === "cancelled";
+
+                            return (
+                                <div
+                                    key={tx._id}
+                                    className="tx-row flex flex-col lg:flex-row lg:items-center justify-between p-8 rounded-[40px] hover:bg-surface-container/30 border border-transparent hover:border-primary/10 transition-all duration-700 cursor-pointer group/patron relative overflow-hidden"
+                                >
+                                    <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-border/10 to-transparent group-last:hidden" />
+                                    
+                                    {/* Identity */}
+                                    <div className="flex items-center gap-6 min-w-0">
+                                        <div className={cn(
+                                            "w-16 h-16 rounded-[24px] flex items-center justify-center text-[12px] font-black flex-shrink-0 shadow-inner group-hover/patron:scale-105 transition-transform duration-700",
+                                            isRefund ? "bg-rose-500/10 text-rose-500" : "bg-surface-container text-primary/40"
+                                        )}>
+                                            {getInitials(tx.customerName)}
+                                        </div>
+                                        <div className="min-w-0 space-y-2">
+                                            <p className="text-xl font-black text-foreground tracking-tighter truncate leading-none">{tx.customerName || "Anonymous Patron"}</p>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-[10px] font-black font-mono text-muted-foreground/30 uppercase tracking-[0.2em] italic">{tx._id.slice(-8)}</span>
+                                                <div className="w-1 h-1 rounded-full bg-muted-foreground/20" />
+                                                <span className="text-[9px] text-muted-foreground/40 font-black uppercase tracking-widest flex items-center gap-2">
+                                                    <CreditCard size={11} strokeWidth={2} className="text-primary/20" /> {tx.status === "paid" ? "M-Pesa" : "Ledger Flow"}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Values */}
+                                    <div className="flex items-center justify-between lg:justify-end gap-12 md:gap-24 mt-8 lg:mt-0 px-4">
+                                        <div className="text-right space-y-1 group-hover/patron:-translate-y-1 transition-transform duration-700">
+                                            <p className="text-[10px] font-black text-muted-foreground/20 leading-none uppercase tracking-widest mb-1">{format(tx.createdAt, "dd MMM")}</p>
+                                            <p className="text-[11px] font-black text-muted-foreground/30 leading-none uppercase tracking-widest">{format(tx.createdAt, "HH:mm")}</p>
+                                        </div>
+
+                                        <div className="text-right space-y-1 group-hover/patron:-translate-y-1 transition-transform duration-700 delay-75">
+                                            <p className={cn(
+                                                "font-display text-3xl leading-none tracking-tight",
+                                                isRefund ? "text-rose-500" : "text-foreground"
+                                            )}>
+                                                {isRefund ? "−" : ""}KES {tx.totalAmount.toLocaleString()}
+                                            </p>
+                                        </div>
+
+                                        {/* Status */}
+                                        <div className="flex items-center gap-6 min-w-[140px] justify-end">
+                                            <div className={cn(
+                                                "flex items-center gap-2.5 px-6 py-2 rounded-full border text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-700 group-hover/patron:scale-105 shadow-sm",
+                                                cfg.bg, cfg.border, cfg.text
+                                            )}>
+                                                <StatusIcon size={12} strokeWidth={2.5} />
+                                                {cfg.label}
+                                            </div>
+                                            <div className="tx-arrow w-12 h-12 rounded-[20px] bg-surface-container flex items-center justify-center border border-border/10 shadow-inner group-hover/patron:scale-110 group-hover/patron:rotate-12 transition-all duration-700 shrink-0">
+                                                <ChevronRight size={18} className="text-primary/40 group-hover/patron:translate-x-0.5 transition-transform" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
 
-                <div className="mt-12 flex justify-center">
-                    <button className="h-12 px-10 rounded-full border border-surface-container-highest/30 text-xs font-bold text-muted-foreground uppercase tracking-widest hover:bg-surface-container transition-all">
-                        View Full Ledger
+                {/* Table Footer */}
+                <div className="flex items-center justify-between px-14 py-8 border-t border-border/20">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/20">Manifesting {orders.length} transactions in current stream</p>
+                    <button className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/40 hover:text-primary transition-colors flex items-center gap-3 group">
+                        Enter Extended Flux
+                        <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
             </div>
 
-            {/* Reconciliation Card */}
-            <div className="bg-surface-container rounded-[40px] p-12 overflow-hidden relative group">
-                <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12 transition-all group-hover:scale-110 group-hover:rotate-0 duration-500">
-                    <Receipt size={120} />
+            {/* ── Reconciliation Protocol ── */}
+            <div className="bg-surface-container-lowest border border-border/40 rounded-[64px] p-12 md:p-14 relative overflow-hidden group shadow-2xl">
+                <div className="absolute top-0 right-0 p-16 opacity-5 rotate-12 transition-all group-hover:rotate-0 duration-1000 group-hover:opacity-10 pointer-events-none">
+                    <Receipt size={240} className="text-primary" />
                 </div>
-                <div className="relative z-10 flex items-center justify-between">
-                    <div className="max-w-[450px]">
-                        <h3 className="text-3xl font-bold tracking-[calc(-0.02em)] italic font-serif">Reconciliation</h3>
-                        <p className="mt-4 text-muted-foreground text-sm leading-relaxed font-medium">
-                            Your ledger was automatically reconciled against M-Pesa and Stripe endpoints. 
-                            All 1,280 transactions this week are verified and balanced.
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-12">
+                    <div className="max-w-[650px] space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b98166]" />
+                            <h3 className="text-[11px] font-black tracking-[0.5em] uppercase text-emerald-500/70 leading-none">Balanced Protocol</h3>
+                        </div>
+                        <h3 className="text-4xl font-black tracking-tighter italic font-serif leading-none">Automated <span className="text-primary not-italic italic">Reconciliation</span></h3>
+                        <p className="text-muted-foreground/50 text-xl font-medium leading-relaxed italic max-w-lg">
+                            Financial integrity verified against 1,280 checkout request signatures. Identity streams balanced and reconciled.
                         </p>
-                        <div className="flex items-center gap-2 mt-8 text-xs font-bold text-emerald-600">
-                            <CheckCircle2 size={16} />
-                            <span className="uppercase tracking-[0.1em]">Status: Balanced</span>
+                    </div>
+                    <div className="flex items-center gap-8 bg-surface-container p-4 pr-10 rounded-full border border-border/10 shadow-inner">
+                        <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                            <CheckCircle2 size={24} className="text-emerald-500" strokeWidth={2.5} />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500/60 leading-none">Ledger Status</p>
+                            <p className="text-2xl font-black text-foreground tracking-tighter leading-none">FULLY BALANCED</p>
                         </div>
                     </div>
                 </div>

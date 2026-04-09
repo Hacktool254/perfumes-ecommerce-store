@@ -11,6 +11,7 @@ interface AuthUser {
   email: string;
   name?: string;
   role?: string;
+  image?: string;
 }
 
 interface AuthContextType {
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: viewer.email ?? "",
     name: viewer.name,
     role: viewer.role,
+    image: viewer.image,
   } : null;
 
   const login = async (email: string, password: string) => {

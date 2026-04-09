@@ -3,99 +3,132 @@
 import { useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { format } from "date-fns";
-import { Package, ChevronRight } from "lucide-react";
+import { Package, ChevronRight, Hash, Calendar, ShieldCheck, CreditCard } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@workspaceRoot/packages/ui/src/lib/utils";
 
 export default function OrdersPage() {
     const orders = useQuery(api.orders.list) as any[];
 
-    if (orders === undefined) return <div className="p-8 text-center text-muted-foreground text-sm">Loading orders...</div>;
+    if (orders === undefined) {
+        return (
+            <div className="space-y-8 animate-pulse">
+                <div className="h-8 bg-white/5 rounded-lg w-48 mx-4" />
+                <div className="h-[600px] bg-white/5 rounded-[40px] w-full" />
+            </div>
+        );
+    }
 
     return (
-        <div className="max-w-4xl pb-10">
-            <header className="mb-10">
-                <div className="flex items-center gap-2 text-[#DBC2A6] mb-3">
-                    <Package size={14} className="opacity-50" />
-                    <span className="text-[10px] uppercase tracking-[0.3em] font-black">Archive Center</span>
+        <div className="space-y-8 pb-12">
+            {/* Module Header */}
+            <div className="flex items-center justify-between px-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-6 bg-[#DBC2A6] rounded-full" />
+                    <h2 className="text-xl font-black tracking-tight text-white uppercase flex items-center gap-2">
+                        Acquisition Registry
+                    </h2>
                 </div>
-                <h1 className="text-4xl font-black tracking-tighter text-white uppercase">
-                    Acquisition <span className="text-[#DBC2A6]">History</span>
-                </h1>
-                <p className="text-white/40 text-sm mt-3 font-medium max-w-sm leading-relaxed">
-                    Track your procurement logs and historical asset acquisition data.
-                </p>
-            </header>
+                <div className="px-4 py-2 bg-[#DBC2A6]/10 border border-[#DBC2A6]/20 rounded-xl flex items-center gap-2">
+                    <ShieldCheck size={12} className="text-[#DBC2A6]" />
+                    <span className="text-[10px] uppercase tracking-widest font-black text-[#DBC2A6]">{orders.length} Verified Entries</span>
+                </div>
+            </div>
 
-            {orders.length === 0 ? (
-                <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] p-16 text-center relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#DBC2A6]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#DBC2A6]/10 transition-colors duration-700" />
-                    
-                    <div className="w-20 h-20 bg-[#0A0D0B] rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/5 shadow-2xl">
-                        <Package className="text-white/10" size={32} />
-                    </div>
-                    <h2 className="text-2xl font-black text-white tracking-tighter mb-3 uppercase">No Assets Logged</h2>
-                    <p className="text-sm text-white/30 max-w-xs mx-auto mb-10 font-medium leading-relaxed">
-                        Your acquisition registry is currently empty. Initiate a procurement sequence to see your history.
-                    </p>
-                    <Link
-                        href="/shop"
-                        className="inline-block group relative overflow-hidden px-10 py-5 rounded-[24px] bg-[#DBC2A6] text-[#0A0D0B] text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-[#DBC2A6]/20"
-                    >
-                        Initiate Shopping
-                    </Link>
-                </div>
-            ) : (
-                <div className="space-y-6">
-                    {orders.map((order) => (
+            {/* Main Content Box */}
+            <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col min-h-[600px]">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#DBC2A6]/10 to-transparent" />
+                
+                {orders.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center p-20 text-center relative group">
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#DBC2A6]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                        <div className="w-24 h-24 bg-[#0A0D0B] rounded-[32px] flex items-center justify-center mb-10 border border-white/5 shadow-3xl transform group-hover:scale-110 transition-transform duration-700">
+                            <Package className="text-white/10" size={40} strokeWidth={1} />
+                        </div>
+                        <h3 className="text-3xl font-black text-white tracking-tighter mb-4 uppercase">Registry Empty</h3>
+                        <p className="text-white/30 text-xs max-w-sm mx-auto mb-12 leading-relaxed font-bold tracking-tight">
+                            Your procurement history is currently void. No transaction data has been synchronized with the core database.
+                        </p>
                         <Link
-                            key={order._id}
-                            href={`/account/orders/${order._id}`}
-                            className="block bg-[#1A1E1C] border border-white/5 rounded-[32px] p-6 md:p-8 hover:border-[#DBC2A6]/20 transition-all duration-500 group relative overflow-hidden"
+                            href="/shop"
+                            className="inline-block bg-[#DBC2A6] text-[#0A0D0B] px-12 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#DBC2A6]/20"
                         >
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#DBC2A6]/5 blur-3xl -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                            
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-16 h-16 bg-[#0A0D0B] rounded-2xl flex items-center justify-center text-[#DBC2A6] border border-white/5 group-hover:scale-105 transition-transform duration-500">
-                                        <Package size={24} strokeWidth={1.5} />
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-3 mb-1">
-                                            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20">Manifest ID</p>
-                                            <p className="font-black text-white text-base tracking-tighter">#{order._id.slice(-8).toUpperCase()}</p>
-                                        </div>
-                                        <p className="text-xs text-white/30 font-bold uppercase tracking-widest">{format(order.createdAt, "PPP")}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between md:justify-end gap-10 border-t md:border-t-0 border-white/5 pt-6 md:pt-0">
-                                    <div className="text-left md:text-right">
-                                        <p className="text-[10px] uppercase tracking-[0.2em] font-black text-white/20 mb-1">Total Value</p>
-                                        <p className="font-black text-[#DBC2A6] text-lg tracking-tighter">KES {order.totalAmount.toLocaleString()}</p>
-                                    </div>
-                                    <div className="flex items-center gap-6">
-                                        <div className="hidden sm:block text-right">
-                                            <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-colors duration-500 ${
-                                                order.status === "delivered" 
-                                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
-                                                    : order.status === "cancelled" 
-                                                        ? "bg-rose-500/10 text-rose-400 border-rose-500/20" 
-                                                        : "bg-white/5 text-white/40 border-white/10 group-hover:border-white/20"
-                                            }`}>
-                                                <div className={`w-1 h-1 rounded-full ${
-                                                    order.status === "delivered" ? "bg-emerald-400" : order.status === "cancelled" ? "bg-rose-400" : "bg-white/40"
-                                                }`} />
-                                                {order.status}
-                                            </span>
-                                        </div>
-                                        <ChevronRight className="text-white/10 group-hover:text-[#DBC2A6] group-hover:translate-x-1 transition-all" size={20} strokeWidth={3} />
-                                    </div>
-                                </div>
-                            </div>
+                            Initiate Procurement
                         </Link>
-                    ))}
-                </div>
-            )}
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="border-b border-white/5">
+                                    <th className="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
+                                        <div className="flex items-center gap-2">
+                                            <Hash size={12} className="opacity-50" />
+                                            Manifest ID
+                                        </div>
+                                    </th>
+                                    <th className="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar size={12} className="opacity-50" />
+                                            Sequence Date
+                                        </div>
+                                    </th>
+                                    <th className="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-center">Status</th>
+                                    <th className="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <CreditCard size={12} className="opacity-50" />
+                                            Value
+                                        </div>
+                                    </th>
+                                    <th className="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-white/30"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {orders.map((order) => (
+                                    <tr key={order._id} className="group hover:bg-white/[0.01] transition-colors">
+                                        <td className="px-10 py-8">
+                                            <Link href={`/account/orders/${order._id}`} className="flex flex-col gap-1">
+                                                <div className="font-mono text-[11px] text-white group-hover:text-[#DBC2A6] transition-colors">
+                                                    <span className="text-[#DBC2A6]/40">UTX-</span>{order._id.slice(-8).toUpperCase()}
+                                                </div>
+                                                <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{order._id}</span>
+                                            </Link>
+                                        </td>
+                                        <td className="px-10 py-8">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-xs font-black text-white tracking-widest uppercase">{format(order.createdAt, "MMMM d, yyyy")}</span>
+                                                <span className="text-[9px] font-bold text-white/20 tracking-[0.2em]">{format(order.createdAt, "HH:mm:ss O")}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-8 text-center">
+                                            <div className={cn(
+                                                "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm",
+                                                order.status === "delivered" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
+                                                order.status === "cancelled" ? "bg-rose-500/10 text-rose-500 border-rose-500/20" :
+                                                "bg-[#DBC2A6]/10 text-[#DBC2A6] border-[#DBC2A6]/20"
+                                            )}>
+                                                <div className={cn(
+                                                    "w-1 h-1 rounded-full",
+                                                    order.status === "delivered" ? "bg-emerald-500" : order.status === "cancelled" ? "bg-rose-500" : "bg-[#DBC2A6]"
+                                                )} />
+                                                {order.status}
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-8 text-right">
+                                            <span className="text-sm font-black text-white tracking-tighter">KES {order.totalAmount.toLocaleString()}</span>
+                                        </td>
+                                        <td className="px-10 py-8 text-right">
+                                            <Link href={`/account/orders/${order._id}`} className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-white/5 text-white/20 group-hover:bg-[#DBC2A6] group-hover:text-[#0A0D0B] group-hover:border-[#DBC2A6] transition-all">
+                                                <ChevronRight size={18} strokeWidth={3} />
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

@@ -176,3 +176,98 @@ export const updateImage = mutation({
         return { success: true };
     },
 });
+
+/**
+ * Admin: List all users (patrons) with basic metrics.
+ * Note: Calculates 'Total Spent' and 'Order Count' on-the-fly.
+ */
+export const list = query({
+    args: {
+        searchTerm: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        await requireAdmin(ctx);
+
+        let users;
+        if (args.searchTerm) {
+            const normalizedSearch = args.searchTerm.toLowerCase().trim();
+            users = await ctx.db
+                .query("users")
+                .collect();
+            
+            // Basic filtering as Convex doesn't have native multi-field text search on the free tier easily
+            users = users.filter(u => 
+                u.name?.toLowerCase().includes(normalizedSearch) || 
+                u.email?.toLowerCase().includes(normalizedSearch)
+            );
+        } else {
+            users = await ctx.db.query("users").order("desc").collect();
+        }
+
+        // Get all orders to calculate metrics (this is fine for small/medium scale)
+        const allOrders = await ctx.db.query("orders").collect();
+        const orderMetrics: Record<string, { spent: number; count: number }> = {};
+
+        allOrders.forEach(order => {
+            if (!order.userId || order.status === "cancelled") return;
+            const uid = order.userId;
+            if (!orderMetrics[uid]) orderMetrics[uid] = { spent: 0, count: 0 };
+            orderMetrics[uid].spent += order.totalAmount;
+            orderMetrics[uid].count += 1;
+        });
+
+        const usersWithMetrics = await Promise.all(users.map(async (user) => {
+            let imageUrl = user.image;
+            if (user.image && !user.image.startsWith("http")) {
+                const url = await ctx.storage.getUrl(user.image as any);
+                if (url) imageUrl = url;
+            }
+
+            const metrics = orderMetrics[user._id] || { spent: 0, count: 0 };
+
+            return {
+                ...user,
+                image: imageUrl,
+                totalSpent: metrics.spent,
+                orderCount: metrics.count,
+                status: metrics.spent > 50000 ? "VIP" : metrics.count > 0 ? "Active" : "New",
+            };
+        }));
+
+        return usersWithMetrics;
+    },
+});
+
+/**
+ * Admin: Single Patron View.
+ */
+export const getPatron = query({
+    args: { userId: v.id("users") },
+    handler: async (ctx, args) => {
+        await requireAdmin(ctx);
+        const user = await ctx.db.get(args.userId);
+        if (!user) return null;
+
+        const orders = await ctx.db
+            .query("orders")
+            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .order("desc")
+            .collect();
+
+        const totalSpent = orders.reduce((acc, o) => acc + (o.status !== "cancelled" ? o.totalAmount : 0), 0);
+
+        let imageUrl = user.image;
+        if (user.image && !user.image.startsWith("http")) {
+            const url = await ctx.storage.getUrl(user.image as any);
+            if (url) imageUrl = url;
+        }
+
+        return {
+            ...user,
+            image: imageUrl,
+            totalSpent,
+            orderCount: orders.length,
+            recentOrders: orders.slice(0, 10),
+        };
+    },
+});

@@ -319,17 +319,22 @@ export function Header() {
 
     const totalItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-    const handleSearch = async (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" && searchQuery.trim()) {
-            const query = searchQuery.trim();
-            setIsSearchOpen(false);
-            setSearchQuery("");
-            
-            // Log search (non-blocking)
-            logSearch({ query }).catch(console.error);
-            
-            // Redirect
-            router.push(`/shop?search=${encodeURIComponent(query)}`);
+    const executeSearch = (query: string) => {
+        if (!query.trim()) return;
+        const normalizedQuery = query.trim();
+        setIsSearchOpen(false);
+        setSearchQuery("");
+        
+        // Log search (non-blocking)
+        logSearch({ query: normalizedQuery }).catch(console.error);
+        
+        // Redirect
+        router.push(`/shop?search=${encodeURIComponent(normalizedQuery)}`);
+    };
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            executeSearch(searchQuery);
         }
     };
 
@@ -380,11 +385,14 @@ export function Header() {
                         </Link>
                         <button 
                             onClick={() => setIsCartOpen(true)}
-                            className="text-[#2f2f2f] hover:text-[#5C4D42] transition-all hover:scale-105 relative"
+                            className="text-[#2f2f2f] hover:text-[#5C4D42] transition-all hover:scale-105 relative group"
                         >
                             <ShoppingBag className="w-6 h-6 stroke-[1.5]" />
                             {totalItemCount > 0 && (
-                                <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#AA8C77] text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-[bounce_0.3s_ease]">
+                                <div 
+                                    key={totalItemCount} /* Key forcing animation on count change */
+                                    className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-[#AA8C77] text-white text-[9px] font-black rounded-full flex items-center justify-center animate-[bounce-in_0.4s_cubic-bezier(0.18,0.89,0.32,1.28)] shadow-lg shadow-[#AA8C77]/20 border border-white/20"
+                                >
                                     {totalItemCount}
                                 </div>
                             )}
@@ -508,17 +516,26 @@ export function Header() {
                 
                 <div className="px-6 pb-6 overflow-y-auto flex-1">
                     {/* Search Input */}
-                    <div className="relative mb-8">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 stroke-[2]" />
-                        <input
-                            type="text"
-                            placeholder="Search"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={handleSearch}
-                            className="w-full pl-11 pr-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:border-black transition-all text-sm placeholder:text-gray-400"
-                            autoFocus
-                        />
+                    <div className="relative mb-8 flex items-center gap-2">
+                        <div className="relative flex-1 group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 stroke-[2] group-focus-within:text-black transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search our premium collection..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={handleSearchKeyDown}
+                                className="w-full pl-11 pr-4 py-4 rounded-2xl border border-gray-100 bg-[#f7f7f7] focus:outline-none focus:border-black focus:bg-white transition-all text-sm placeholder:text-gray-400"
+                                autoFocus
+                            />
+                        </div>
+                        <button 
+                            onClick={() => executeSearch(searchQuery)}
+                            className="h-[52px] px-6 bg-[#2f2f2f] text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#1a1a1a] transition-all active:scale-95 disabled:opacity-50"
+                            disabled={!searchQuery.trim()}
+                        >
+                            Find
+                        </button>
                     </div>
 
                     {/* Keywords Section */}
