@@ -17,6 +17,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@workspaceRoot/packages/ui/src/lib/utils";
+import { Id } from "@workspaceRoot/convex/_generated/dataModel";
 
 import { toast } from "sonner";
 

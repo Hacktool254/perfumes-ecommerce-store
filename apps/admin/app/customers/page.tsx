@@ -13,15 +13,35 @@ import {
     Loader2,
     TrendingUp,
     Zap,
+    Download
 } from "lucide-react";
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useQuery, useConvex } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { cn } from "@/lib/utils";
+import { exportToCSV } from "@/lib/export-utils";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 export default function CustomersPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const customers = useQuery(api.users.list, { searchTerm });
+    const convex = useConvex();
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleExportPatrons = async () => {
+        setIsExporting(true);
+        try {
+            const data = await convex.query(api.export.patrons);
+            exportToCSV(data, `patron_matrix_${format(new Date(), "yyyy-MM-dd")}.csv`);
+            toast.success("Patron Matrix exported successfully");
+        } catch (error) {
+            console.error("Export failed", error);
+            toast.error("Failed to export patrons");
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     if (customers === undefined) {
         return (
@@ -233,9 +253,14 @@ export default function CustomersPage() {
                     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 leading-none">
                         {customers.length} unique signatures manifest
                     </p>
-                    <button className="text-[11px] font-black uppercase tracking-[0.4em] text-primary/40 hover:text-primary transition-colors flex items-center gap-3 group">
-                        Export Identity Matrix
-                        <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    <button 
+                        disabled={isExporting}
+                        onClick={handleExportPatrons}
+                        className="text-[11px] font-black uppercase tracking-[0.4em] text-primary/40 hover:text-primary transition-colors flex items-center gap-3 group disabled:opacity-50"
+                    >
+                        {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                        {isExporting ? "Manifesting Matrix..." : "Export Identity Matrix"}
+                        {!isExporting && <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />}
                     </button>
                 </div>
             </div>

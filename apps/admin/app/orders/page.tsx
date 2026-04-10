@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvex } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
+import { exportToCSV } from "@/lib/export-utils";
+import { toast } from "sonner";
 import {
     Search,
     Filter,
@@ -60,6 +62,23 @@ export default function AdminOrdersPage() {
 
     const selectedOrder = useQuery(api.orders.get, selectedOrderId ? { orderId: selectedOrderId } : "skip" as any);
 
+    const convex = useConvex();
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleExportManifest = async () => {
+        setIsExporting(true);
+        try {
+            const data = await convex.query(api.export.orders);
+            exportToCSV(data, `orders_manifest_${format(new Date(), "yyyy-MM-dd")}.csv`);
+            toast.success("Order Manifest exported successfully");
+        } catch (error) {
+            console.error("Export failed", error);
+            toast.error("Failed to export manifest");
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     const handleUpdateStatus = async (orderId: Id<"orders">, newStatus: OrderStatus) => {
         try {
             await updateStatus({ id: orderId, status: newStatus });
@@ -99,9 +118,14 @@ export default function AdminOrdersPage() {
                     </h1>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" className="h-14 px-8 rounded-2xl bg-surface-container-lowest border border-border/50 text-xs font-extrabold uppercase tracking-widest hover:bg-surface-container transition-all shadow-sm gap-3 shrink-0">
-                        <Download size={18} className="text-primary" />
-                        <span>Manifest</span>
+                    <Button 
+                        variant="ghost" 
+                        disabled={isExporting}
+                        onClick={handleExportManifest}
+                        className="h-14 px-8 rounded-2xl bg-surface-container-lowest border border-border/50 text-xs font-extrabold uppercase tracking-widest hover:bg-surface-container transition-all shadow-sm gap-3 shrink-0"
+                    >
+                        {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} className="text-primary" />}
+                        <span>{isExporting ? "Manifesting..." : "Manifest"}</span>
                     </Button>
                 </div>
             </div>

@@ -15,10 +15,14 @@ import {
     TrendingUp,
     Download
 } from "lucide-react";
-import { useQuery } from "convex/react";
+import { useQuery, useConvex } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { exportToCSV } from "@/lib/export-utils";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 // Branding Palette (Stable Hex Values)
 const COLORS = {
@@ -60,6 +64,22 @@ const StreamTooltip = ({ active, payload, label }: any) => {
 
 export default function AnalyticsDashboard() {
     const stats = useQuery(api.orders.getStats);
+    const convex = useConvex();
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleExportReport = async () => {
+        setIsExporting(true);
+        try {
+            const data = await convex.query(api.export.revenueReport);
+            exportToCSV(data, `fiscal_report_${format(new Date(), "yyyy-MM")}.csv`);
+            toast.success("Fiscal Report exported successfully");
+        } catch (error) {
+            console.error("Export failed", error);
+            toast.error("Failed to export report");
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     if (stats === undefined || stats === null) {
         return (
@@ -83,11 +103,15 @@ export default function AnalyticsDashboard() {
                     </h1>
                 </div>
                 <div className="flex items-center gap-5">
-                    <button className="px-8 h-16 rounded-[24px] bg-surface-container-lowest border border-border/40 shadow-sm flex items-center gap-6 group hover:bg-surface-container transition-all hover:border-primary/20">
-                        <Download className="w-5 h-5 text-primary/60 group-hover:scale-110 transition-transform" />
+                    <button 
+                        disabled={isExporting}
+                        onClick={handleExportReport}
+                        className="px-8 h-16 rounded-[24px] bg-surface-container-lowest border border-border/40 shadow-sm flex items-center gap-6 group hover:bg-surface-container transition-all hover:border-primary/20 disabled:opacity-50"
+                    >
+                        {isExporting ? <Loader2 className="w-5 h-5 text-primary animate-spin" /> : <Download className="w-5 h-5 text-primary/60 group-hover:scale-110 transition-transform" />}
                         <div className="flex flex-col text-left">
                             <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 leading-none mb-1">Fiscal Record</span>
-                            <span className="text-sm font-extrabold text-foreground tracking-tight uppercase leading-none">Download Report</span>
+                            <span className="text-sm font-extrabold text-foreground tracking-tight uppercase leading-none">{isExporting ? "Exporting..." : "Download Report"}</span>
                         </div>
                     </button>
                     <div className="px-8 h-16 rounded-[24px] bg-primary text-primary-foreground flex items-center gap-4 shadow-2xl shadow-primary/30 group">

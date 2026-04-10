@@ -199,28 +199,22 @@ export const listRecent = query({
                     .withIndex("by_slug", (q) => q.eq("slug", "perfume"))
                     .first();
 
-                const isSpecial = ["men", "women", "unisex"].includes(args.categorySlug);
+                const categorySlug = args.categorySlug;
+                const isSpecial = ["men", "women", "unisex"].includes(categorySlug);
 
-                let q = ctx.db.query("products");
-                
-                // If it's one of the special gender categories, use augmented logic
-                if (isSpecial && perfume) {
-                    const genderMap: Record<string, string> = { "men": "men", "women": "women", "unisex": "unisex" };
-                    const targetGender = genderMap[args.categorySlug];
-                    
-                    q = q.filter((q) => 
-                        q.or(
+                const q = isSpecial && perfume
+                    ? ctx.db.query("products").filter((q) => {
+                        const genderMap: Record<string, string> = { "men": "men", "women": "women", "unisex": "unisex" };
+                        const targetGender = genderMap[categorySlug];
+                        return q.or(
                             q.eq(q.field("categoryId"), category._id),
                             q.and(
                                 q.eq(q.field("categoryId"), perfume._id),
                                 q.eq(q.field("gender"), targetGender)
                             )
-                        )
-                    );
-                } else {
-                    // Standard category filtering
-                    q = q.withIndex("by_category_createdAt", (q) => q.eq("categoryId", category._id));
-                }
+                        );
+                    })
+                    : ctx.db.query("products").withIndex("by_category_createdAt", (q) => q.eq("categoryId", category._id));
 
                 return await q
                     .filter((q) =>

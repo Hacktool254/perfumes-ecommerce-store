@@ -9,8 +9,38 @@ import { z } from "zod";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useAuth } from "@/lib/auth-context";
 
-// ─── Zod Schemas ─────────────────────────────────────────────────────────────
-// ... items omitted ... (schema definitions)
+const loginSchema = z.object({
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+const registerSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+const forgotSchema = z.object({
+    email: z.string().email("Please enter a valid email address"),
+});
+
+const resetSchema = z.object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
+type RegisterValues = z.infer<typeof registerSchema>;
+type ForgotValues = z.infer<typeof forgotSchema>;
+type ResetValues = z.infer<typeof resetSchema>;
+
+interface AuthFormProps {
+    mode: "login" | "register" | "forgot" | "reset";
+    redirectPath?: string;
+}
 
 export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard" }: AuthFormProps) {
     const { login, register, error: contextError, clearError } = useAuth();
@@ -18,11 +48,13 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard
     const router = useRouter();
     const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(initialMode);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [serverError, setServerError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Clear error on mode change
+    // Clear local error too
     useEffect(() => {
         clearError();
+        setServerError(null);
     }, [mode, clearError]);
 
     // ── Forms ──
@@ -353,7 +385,9 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard
                                     )}
                                 </div>
 
-                                {contextError && <div className="auth-error">{contextError}</div>}
+                                {(contextError || serverError) && (
+                                    <div className="auth-error">{contextError || serverError}</div>
+                                )}
 
                                 <button
                                     id="login-submit"
@@ -440,7 +474,9 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard
                                     )}
                                 </div>
 
-                                {contextError && <div className="auth-error">{contextError}</div>}
+                                {(contextError || serverError) && (
+                                    <div className="auth-error">{contextError || serverError}</div>
+                                )}
 
                                 <button
                                     id="register-submit"
@@ -482,7 +518,9 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard
                                     )}
                                 </div>
 
-                                {contextError && <div className="auth-error">{contextError}</div>}
+                                {(contextError || serverError) && (
+                                    <div className="auth-error">{contextError || serverError}</div>
+                                )}
                                 {successMessage && (
                                     <div style={{ background: "rgba(194, 154, 60, 0.1)", border: "1px solid rgba(194, 154, 60, 0.3)", borderRadius: "12px", color: "#c2993c", fontSize: "0.8125rem", padding: "0.6rem 0.9rem", textAlign: "center" }}>
                                         {successMessage}
@@ -537,7 +575,9 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard
                                     )}
                                 </div>
 
-                                {contextError && <div className="auth-error">{contextError}</div>}
+                                {(contextError || serverError) && (
+                                    <div className="auth-error">{contextError || serverError}</div>
+                                )}
                                 {successMessage && (
                                     <div style={{ background: "rgba(194, 154, 60, 0.1)", border: "1px solid rgba(194, 154, 60, 0.3)", borderRadius: "12px", color: "#c2993c", fontSize: "0.8125rem", padding: "0.6rem 0.9rem", textAlign: "center" }}>
                                         {successMessage}

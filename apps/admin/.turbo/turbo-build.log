@@ -2,36 +2,44 @@
 > admin@0.1.0 build
 > next build
 
-⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of C:\Users\pc\package-lock.json as the root directory.
- To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
- Detected additional lockfiles: 
-   * C:\Users\pc\OneDrive\Desktop\Dev\Ummiesessence\package-lock.json
-
 ▲ Next.js 16.1.6 (Turbopack)
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 9.1s
+✓ Compiled successfully in 14.3s
   Running TypeScript ...
-Failed to compile.
+  Collecting page data using 19 workers ...
+  Generating static pages using 19 workers (0/18) ...
+  Generating static pages using 19 workers (4/18) 
+  Generating static pages using 19 workers (8/18) 
+  Generating static pages using 19 workers (13/18) 
+✓ Generating static pages using 19 workers (18/18) in 1853.5ms
+  Finalizing page optimization ...
 
-./app/overview/page.tsx:182:140
-Type error: Object literal may only specify known properties, and 'textTransform' does not exist in type 'Props | ReactElement<unknown, string | JSXElementConstructor<any>> | ((props: XAxisTickContentProps) => ReactNode)'.
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /analytics
+├ ƒ /api/auth/[[...convexAuth]]
+├ ƒ /api/uploadthing
+├ ○ /coupons
+├ ○ /customers
+├ ○ /documents
+├ ○ /inventory
+├ ○ /login
+├ ○ /marketing
+├ ○ /orders
+├ ○ /overview
+├ ○ /products
+├ ƒ /products/[id]/edit
+├ ○ /products/new
+├ ○ /register
+├ ○ /settings
+└ ○ /transactions
 
-[0m [90m 180 |[39m                                     axisLine[33m=[39m{[36mfalse[39m} 
- [90m 181 |[39m                                     tickLine[33m=[39m{[36mfalse[39m} 
-[31m[1m>[22m[39m[90m 182 |[39m                                     tick[33m=[39m{{ fill[33m:[39m [32m'color-mix(in srgb, var(--foreground), transparent 70%)'[39m[33m,[39m fontSize[33m:[39m [35m10[39m[33m,[39m fontWeight[33m:[39m [35m900[39m[33m,[39m textTransform[33m:[39m [32m'uppercase'[39m[33m,[39m letterSpacing[33m:[39m [32m'0.3em'[39m }}
- [90m     |[39m                                                                                                                                            [31m[1m^[22m[39m
- [90m 183 |[39m                                     dy[33m=[39m{[35m20[39m}
- [90m 184 |[39m                                 [33m/[39m[33m>[39m
- [90m 185 |[39m                                 [33m<[39m[33mYAxis[39m [0m
-Next.js build worker exited with code: 1 and signal: null
-npm error Lifecycle script `build` failed with error:
-npm error code 1
-npm error path C:\Users\pc\OneDrive\Desktop\Dev\Ummiesessence\apps\admin
-npm error workspace admin@0.1.0
-npm error location C:\Users\pc\OneDrive\Desktop\Dev\Ummiesessence\apps\admin
-npm error command failed
-npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next build
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

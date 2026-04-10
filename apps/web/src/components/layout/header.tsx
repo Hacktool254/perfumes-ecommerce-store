@@ -340,7 +340,7 @@ export function Header() {
 
     return (
         <>
-            <header className="sticky top-0 left-0 w-full z-50 bg-[#F3C7C8] transition-all font-sans">
+            <header className="sticky top-0 left-0 w-full z-[100] bg-[#F3C7C8] transition-all font-sans">
                 <div className="w-full flex items-center justify-between h-24 px-4 md:px-8 xl:px-12 relative">
                     
                     {/* Left: Logo */}
@@ -398,10 +398,10 @@ export function Header() {
                             )}
                         </button>
                         <button 
-                            onClick={() => setIsSidebarOpen(true)}
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             className="lg:hidden text-[#2f2f2f] hover:text-[#5C4D42] transition-colors"
                         >
-                            <Menu className="w-6 h-6 stroke-[1.5]" />
+                            {isSidebarOpen ? <X className="w-6 h-6 stroke-[1.5]" /> : <Menu className="w-6 h-6 stroke-[1.5]" />}
                         </button>
                     </div>
 

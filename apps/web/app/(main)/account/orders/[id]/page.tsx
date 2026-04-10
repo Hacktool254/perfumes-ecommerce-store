@@ -30,6 +30,16 @@ import { Id } from "@workspaceRoot/convex/_generated/dataModel";
 export default function OrderDetailsPage() {
     const params = useParams();
     const router = useRouter();
+
+    if (!params) {
+        return (
+            <div className="space-y-12 animate-pulse">
+                <div className="h-16 bg-white/[0.02] rounded-[32px] w-96" />
+                <div className="h-[800px] bg-white/[0.02] rounded-[64px] w-full" />
+            </div>
+        );
+    }
+
     const orderId = params.id as Id<"orders">;
     
     const order = useQuery(api.orders.get, { orderId });
@@ -225,10 +235,10 @@ export default function OrderDetailsPage() {
                                     <span>Base Value</span>
                                     <span className="text-white">KES {(order.totalAmount + (order.discountApplied || 0)).toLocaleString()}</span>
                                 </div>
-                                {order.discountApplied > 0 && (
+                                {((order.discountApplied || 0) > 0) && (
                                     <div className="flex justify-between text-[10px] font-bold text-[#B07D5B]/40 uppercase tracking-widest italic leading-none">
                                         <span>Offset Applied</span>
-                                        <span className="text-[#B07D5B]">- KES {order.discountApplied.toLocaleString()}</span>
+                                        <span className="text-[#B07D5B]">- KES {(order.discountApplied || 0).toLocaleString()}</span>
                                     </div>
                                 )}
                                 <div className="h-px bg-white/5" />
