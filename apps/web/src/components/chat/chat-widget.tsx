@@ -17,7 +17,7 @@ export function ChatWidget() {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: "welcome",
-            text: "Hello! Welcome to Ummie's Essence 👋\n\nI'm your AI assistant. I can help you with:\n\n• Product prices & availability\n• Placing orders\n• Delivery information\n• Product recommendations\n\nWhat would you like to know?",
+            text: "Hello! Welcome to Ummie's Essence 👋\n\nI'm your AI assistant powered by Google AI. I can help you with:\n\n• Product prices & availability (via n8n)\n• Placing orders\n• Delivery information\n• Product recommendations\n• WhatsApp ordering (coming soon)\n\nWhat would you like to know?",
             sender: "bot",
             timestamp: new Date(),
         },
@@ -36,6 +36,19 @@ export function ChatWidget() {
     }, [messages]);
 
 
+    // Session ID for conversation tracking
+    const [sessionId, setSessionId] = useState<string>(() => {
+        // Generate or retrieve session ID from localStorage
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem("chatbot_session_id");
+            if (saved) return saved;
+            const newId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+            localStorage.setItem("chatbot_session_id", newId);
+            return newId;
+        }
+        return `session_${Date.now()}`;
+    });
+
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
 
@@ -51,19 +64,53 @@ export function ChatWidget() {
         setIsLoading(true);
 
         try {
-            const response = await fetch("http://localhost:5678/webhook/whatsapp-chatbot", {
+            // Build conversation history for context
+            const history = messages.slice(-10).map(m => ({
+                role: m.sender === "user" ? "user" : "model" as "user" | "model",
+                content: m.text,
+            }));
+
+            // Try the API route first (with n8n fallback built-in)
+            const response = await fetch("/api/chatbot", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: input,
-                    from: userInfo.email || "website-user",
-                    name: userInfo.name,
-                    timestamp: new Date().toISOString(),
+                    sessionId,
+                    userEmail: userInfo.email,
+                    userName: userInfo.name,
+                    history,
                 }),
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Fallback to direct n8n call if API route fails
+                console.warn("API route failed, falling back to n8n direct");
+                const n8nResponse = await fetch("http://localhost:5678/webhook/whatsapp-chatbot", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        message: input,
+                        from: userInfo.email || "website-user",
+                        name: userInfo.name,
+                        sessionId,
+                        timestamp: new Date().toISOString(),
+                    }),
+                });
+
+                if (!n8nResponse.ok) {
+                    throw new Error(`n8n error: ${n8nResponse.status}`);
+                }
+
+                const data = await n8nResponse.json();
+                const botMessage: Message = {
+                    id: (Date.now() + 1).toString(),
+                    text: data.response || data.message || "I'm not sure how to respond to that. Try asking about a product like 'What's the price of Yara?' or 'Is Khamrah in stock?'",
+                    sender: "bot",
+                    timestamp: new Date(),
+                };
+                setMessages(prev => [...prev, botMessage]);
+                return;
             }
 
             const data = await response.json();
@@ -71,17 +118,23 @@ export function ChatWidget() {
 
             const botMessage: Message = {
                 id: (Date.now() + 1).toString(),
-                text: data.response || data.message || "I'm not sure how to respond to that. Try asking about a product like 'What's the price of Yara?' or 'Is Khamrah in stock?'",
+                text: data.response || "I'm not sure how to respond to that. Try asking about a product like 'What's the price of Yara?' or 'Is Khamrah in stock?'",
                 sender: "bot",
                 timestamp: new Date(),
             };
 
             setMessages(prev => [...prev, botMessage]);
+
+            // Update session ID if provided
+            if (data.sessionId && data.sessionId !== sessionId) {
+                setSessionId(data.sessionId);
+                localStorage.setItem("chatbot_session_id", data.sessionId);
+            }
         } catch (error) {
             console.error("Chat error:", error);
             const botMessage: Message = {
                 id: (Date.now() + 1).toString(),
-                text: "I'm having trouble connecting to the server. Please make sure n8n is running on port 5678.\n\nYou can start it by running: docker start n8n-local",
+                text: "I'm having trouble connecting. Please check:\n\n1. Make sure n8n is running: `docker ps`\n2. Start n8n if needed: `docker start n8n-local`\n3. Refresh this page\n\nIf n8n is running, your workflow might not be configured. Check http://localhost:5678",
                 sender: "bot",
                 timestamp: new Date(),
             };

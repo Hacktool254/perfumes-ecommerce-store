@@ -12,7 +12,32 @@
       "Bash(curl -s \"https://dev-polished-badger-601.convex.cloud/api/query\" -X POST -H \"Content-Type: application/json\" -d '{\"path\": \"products/list\", \"args\": {\"paginationOpts\": {\"numItems\": 10, \"cursor\": null}}}')",
       "Bash(ls -la apps/admin/.env*)",
       "Bash(curl -s \"https://tacit-caterpillar-440.convex.site/registerHttp\" -X OPTIONS -H \"Content-Type: application/json\" -D -)",
-      "Bash(npx convex:*)"
+      "Bash(npx convex:*)",
+      "Bash(docker --version)",
+      "Bash(docker info:*)",
+      "Bash(docker start n8n-local:*)",
+      "Bash(curl -s http://localhost:5678/healthz)",
+      "Bash(curl -s http://localhost:5678/rest/workflows)",
+      "Bash(npm run:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker cp:*)",
+      "Bash(winpty docker:*)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec n8n-local:*)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec -i n8n-local sh -c \"cat > /home/node/workflow.json\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec -i n8n-local sh -c 'cat > /home/node/workflow.json && cat /home/node/workflow.json | head -5')",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec -i n8n-local sh -c \"cat > /home/node/workflow-simple.json\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec -i n8n-local sh -c \"cat > /home/node/workflow-final.json && cat /home/node/workflow-final.json | wc -l\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker restart n8n-local:*)",
+      "Bash(curl:*)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec -i n8n-local sh -c \"cat > /home/node/workflow-fixed.json\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec -i n8n-local sh -c \"cat > /home/node/workflow-v3.json\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec -i n8n-local sh -c \"cat > /home/node/workflow-v4.json\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill:*)",
+      "Bash(kill -9 46700)",
+      "Bash(npx cross-env:*)",
+      "Bash(PORT=3002 npx next:*)",
+      "Bash(cmd:*)"
     ]
   }
 }
