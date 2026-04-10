@@ -227,4 +227,15 @@ export default defineSchema({
     })
         .index("by_user", ["userId"])
         .index("by_user_createdAt", ["userId", "createdAt"]),
+
+    // ─── Chatbot Conversations ─────────────────────────────────────────────────
+    chatbotConversations: defineTable({
+        sessionId: v.string(),
+        userMessage: v.string(),
+        botResponse: v.string(),
+        hasProductQuery: v.boolean(),
+        timestamp: v.number(),
+    })
+        .index("by_session", ["sessionId"])
+        .index("by_timestamp", ["timestamp"]),
 });

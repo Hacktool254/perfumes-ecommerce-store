@@ -24,6 +24,19 @@ import {
 import { cn } from "@workspaceRoot/packages/ui/src/lib/utils";
 import { toast } from "sonner";
 
+interface Address {
+    _id: string;
+    fullName: string;
+    phone: string;
+    street: string;
+    apartment?: string;
+    city: string;
+    state?: string;
+    postalCode?: string;
+    country: string;
+    isDefault: boolean;
+}
+
 export default function AddressesPage() {
     const addresses = useQuery(api.addresses.list);
     const addAddress = useMutation(api.addresses.add);
@@ -46,7 +59,7 @@ export default function AddressesPage() {
         isDefault: false,
     });
 
-    const handleEdit = (address: any) => {
+    const handleEdit = (address: Address) => {
         setFormData({
             fullName: address.fullName,
             phone: address.phone,
@@ -107,7 +120,7 @@ export default function AddressesPage() {
         }
     };
 
-    if (addresses === undefined) {
+    if (addresses === undefined || addresses === null) {
         return (
             <div className="flex flex-col gap-12 animate-pulse">
                 <div className="h-16 bg-white/[0.02] rounded-[32px] w-96" />
@@ -238,7 +251,7 @@ export default function AddressesPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-                        {addresses.map((address) => (
+                        {(addresses as Address[]).map((address: Address) => (
                             <div key={address._id} className="bg-[#0a0a0b] border border-[#B07D5B1A] rounded-[40px] md:rounded-[48px] p-8 md:p-10 relative overflow-hidden group hover:border-[#B07D5B33] transition-all duration-700 shadow-2xl flex flex-col">
                                 <div className="absolute top-0 right-0 w-44 h-44 bg-[#B07D5B02] blur-[80px] rounded-full -mr-20 -mt-20 group-hover:bg-[#B07D5B05] transition-all duration-1000" />
                                 

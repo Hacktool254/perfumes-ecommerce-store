@@ -27,12 +27,14 @@ export const seedFromJSON = mutation({
                 categoryMap.set(p.category.toLowerCase(), categoryId);
             }
 
-            // Check if product already exists by name and brand
+            // Check if product already exists by name, brand, size, and gender
             const existing = await ctx.db
                 .query("products")
                 .filter((q) => q.and(
                     q.eq(q.field("name"), p.name),
-                    q.eq(q.field("brand"), p.brand)
+                    q.eq(q.field("brand"), p.brand),
+                    q.eq(q.field("size"), p.size),
+                    q.eq(q.field("gender"), p.gender)
                 ))
                 .first();
 

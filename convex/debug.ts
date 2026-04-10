@@ -1,4 +1,4 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 
 export const count = query({
     args: {},
@@ -7,6 +7,18 @@ export const count = query({
         return products.length;
     },
 });
+
+export const clearProducts = mutation({
+    args: {},
+    handler: async (ctx) => {
+        const products = await ctx.db.query("products").collect();
+        for (const product of products) {
+            await ctx.db.delete(product._id);
+        }
+        return `Cleared ${products.length} products`;
+    },
+});
+
 export const listSlugs = query({
     args: {},
     handler: async (ctx) => {

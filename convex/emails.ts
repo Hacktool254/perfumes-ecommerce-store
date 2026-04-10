@@ -49,7 +49,7 @@ export const sendOrderConfirmation = internalAction({
         const user = await ctx.runQuery(internal.emails.getUserEmail, { userId: order.userId });
         if (!user || !user.email) return;
 
-        const itemsHtml = order.items.map(item =>
+        const itemsHtml = order.items.map((item: any) =>
             `<li>${item.product?.name} x ${item.quantity} - KES ${item.unitPrice * item.quantity}</li>`
         ).join("");
 

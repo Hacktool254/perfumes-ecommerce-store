@@ -154,7 +154,7 @@ export function ShopFilters() {
                         </div>
                     ) : categories.length === 0 ? (
                         <div className="text-xs text-muted-foreground italic py-2">No categories found.</div>
-                    ) : categories.map((cat) => (
+                    ) : categories.map((cat: any) => (
                         <FilterCheckbox
                             key={cat._id}
                             label={cat.name}

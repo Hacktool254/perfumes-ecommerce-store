@@ -2,19 +2,19 @@
 const seedData = require('./convex/seed_products.json');
 const https = require('https');
 
-const CONVEX_URL = 'https://tacit-caterpillar-440.convex.cloud';
+const CONVEX_URL = 'https://polished-badger-601.convex.cloud';
 
 async function seed() {
   console.log('Seeding products to Convex...');
   console.log(`Total products: ${seedData.products.length}`);
 
   const mutationBody = JSON.stringify({
-    path: 'seed:seed',
-    args: { products: seedData.products }
+    path: 'seed:seedFromJSON',
+    args: {}
   });
 
   const options = {
-    hostname: 'tacit-caterpillar-440.convex.cloud',
+    hostname: 'polished-badger-601.convex.cloud',
     path: '/api/mutation',
     method: 'POST',
     headers: {
