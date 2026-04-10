@@ -1,13 +1,15 @@
 "use client";
 
+import React from "react";
 import { useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { ProductForm } from "@/components/admin/product-form";
 import { Loader2 } from "lucide-react";
 import { Id } from "@workspaceRoot/convex/_generated/dataModel";
 
-export default function EditProductPage({ params }: { params: { id: string } }) {
-    const product = useQuery(api.products.getById, { id: params.id as Id<"products"> });
+export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = React.use(params);
+    const product = useQuery(api.products.getById, { id: id as Id<"products"> });
 
     if (product === undefined) {
         return (

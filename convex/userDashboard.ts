@@ -60,26 +60,3 @@ export const getDashboardStats = query({
         };
     },
 });
-
-/**
- * Update the user's profile information.
- */
-export const updateProfile = mutation({
-    args: {
-        firstName: v.string(),
-        lastName: v.string(),
-        phone: v.optional(v.string()),
-    },
-    handler: async (ctx, args) => {
-        const user = await requireUser(ctx);
-
-        await ctx.db.patch(user._id, {
-            firstName: args.firstName,
-            lastName: args.lastName,
-            phone: args.phone,
-            updatedAt: Date.now(),
-        });
-
-        return { success: true };
-    },
-});

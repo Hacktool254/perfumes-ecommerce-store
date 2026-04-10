@@ -2,142 +2,196 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
-import { Heart, ShoppingCart, Trash2, Loader2, Sparkles, Hash } from "lucide-react";
-import Link from "next/link";
+import { 
+    Heart, 
+    ShoppingBag, 
+    Trash2, 
+    Sparkles, 
+    ArrowRight, 
+    Lock, 
+    Shield, 
+    Zap,
+    TrendingUp,
+    Diamond
+} from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
 import { cn } from "@workspaceRoot/packages/ui/src/lib/utils";
+
+import { toast } from "sonner";
 
 export default function WishlistPage() {
     const wishlist = useQuery(api.wishlist.get);
-    const removeFromWishlist = useMutation(api.wishlist.remove);
+    const removeFromWishlist = useMutation(api.wishlist.toggle);
     const addToCart = useMutation(api.cart.add);
-    const [processingId, setProcessingId] = useState<string | null>(null);
 
-    const handleRemove = async (productId: any) => {
-        setProcessingId(`remove-${productId}`);
-        try {
-            await removeFromWishlist({ productId });
-        } catch (error) {
-            console.error("Failed to remove from wishlist:", error);
-        } finally {
-            setProcessingId(null);
-        }
+    const handleAddToCart = async (productId: Id<"products">) => {
+        toast.promise(addToCart({ productId, quantity: 1 }), {
+            loading: "Procuring artifact for local storage...",
+            success: "Artifact successfully secured in cart.",
+            error: "Procurement protocol failed.",
+        });
     };
 
-    const handleAddToCart = async (productId: any) => {
-        setProcessingId(`cart-${productId}`);
-        try {
-            await addToCart({ productId, quantity: 1 });
-        } catch (error) {
-            console.error("Failed to add to cart:", error);
-        } finally {
-            setProcessingId(null);
-        }
+    const handleRemove = async (productId: Id<"products">) => {
+        toast.promise(removeFromWishlist({ productId }), {
+            loading: "Purging artifact from vault...",
+            success: "Vault manifest updated. Artifact removed.",
+            error: "Security breach: Purge failed.",
+        });
     };
 
     if (wishlist === undefined) {
         return (
-            <div className="space-y-8 animate-pulse">
-                <div className="h-8 bg-white/5 rounded-lg w-48 mx-4" />
-                <div className="h-[600px] bg-white/5 rounded-[40px] w-full" />
+            <div className="flex flex-col gap-12 animate-pulse">
+                <div className="h-16 bg-white/[0.02] rounded-[32px] w-96" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="aspect-[3/4] bg-white/[0.02] rounded-[48px]" />
+                    ))}
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8 pb-12">
-            {/* Module Header */}
-            <div className="flex items-center justify-between px-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-6 bg-[#DBC2A6] rounded-full" />
-                    <h2 className="text-xl font-black tracking-tight text-white uppercase flex items-center gap-2">
-                        Curation Vault
-                    </h2>
+        <div className="space-y-12 md:space-y-16 pb-24 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+             {/* ── Vault Signature ── */}
+             <div className="flex flex-col lg:flex-row items-center justify-between gap-8 border-b border-[#B07D5B1A] pb-10">
+                <div className="space-y-4 text-center lg:text-left">
+                    <div className="flex flex-col lg:flex-row items-center gap-4">
+                        <div className="hidden lg:block w-1.5 h-8 bg-[#B07D5B] rounded-full shadow-[0_0_15px_#B07D5B66]" />
+                        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-white tracking-tight italic">The Curation Vault</h1>
+                    </div>
+                    <p className="text-white/30 text-base md:text-lg italic lg:pl-6 max-w-lg">Private repository of high-value olfactory artifacts and limited releases.</p>
                 </div>
-                <div className="px-4 py-2 bg-[#DBC2A6]/10 border border-[#DBC2A6]/20 rounded-xl flex items-center gap-2">
-                    <Sparkles size={12} className="text-[#DBC2A6]" />
-                    <span className="text-[10px] uppercase tracking-widest font-black text-[#DBC2A6]">{wishlist.length} Curated Items</span>
+                
+                <div className="px-6 py-3 md:px-8 md:py-4 bg-[#B07D5B1A] border border-[#B07D5B33] rounded-[24px] flex items-center gap-4">
+                    <Lock size={14} className="text-[#B07D5B]" />
+                    <span className="text-[9px] md:text-[10px] uppercase tracking-[0.4em] font-black text-white italic leading-none">Encrypted Secure Access</span>
                 </div>
             </div>
 
-            {/* Main Content Box */}
-            <div className="bg-[#1A1E1C] border border-white/5 rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col min-h-[600px]">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#DBC2A6]/10 to-transparent" />
-                
-                {wishlist.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center p-20 text-center relative group">
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#DBC2A6]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                        <div className="w-24 h-24 bg-[#0A0D0B] rounded-[32px] flex items-center justify-center mb-10 border border-white/5 shadow-3xl transform group-hover:scale-110 transition-transform duration-700">
-                            <Heart className="text-white/10" size={40} strokeWidth={1} />
-                        </div>
-                        <h3 className="text-3xl font-black text-white tracking-tighter mb-4 uppercase">Vault is Empty</h3>
-                        <p className="text-white/30 text-xs max-w-sm mx-auto mb-12 leading-relaxed font-bold tracking-tight">
-                            No assets have been bookmarked for your future collection. Browse the storefront to curate your desires.
-                        </p>
-                        <Link
-                            href="/shop"
-                            className="inline-block bg-[#DBC2A6] text-[#0A0D0B] px-12 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#DBC2A6]/20"
-                        >
-                            Explore Collection
-                        </Link>
+            {wishlist.length === 0 ? (
+                <div className="bg-[#0a0a0b] border border-white/5 rounded-[48px] md:rounded-[64px] p-12 md:p-24 text-center shadow-2xl relative overflow-hidden group/empty animate-in fade-in duration-1000 min-h-[400px] flex flex-col justify-center">
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#B07D5B03] to-transparent opacity-0 group-hover/empty:opacity-100 transition-opacity duration-1000" />
+                    <div className="w-24 h-24 md:w-32 md:h-32 bg-white/[0.01] rounded-[36px] md:rounded-[48px] border border-white/5 flex items-center justify-center mx-auto mb-10 shadow-inner group-hover/empty:scale-110 group-hover/empty:rotate-3 transition-transform duration-700">
+                        <Diamond className="text-white/10" size={48} strokeWidth={1} />
                     </div>
-                ) : (
-                    <div className="p-8 md:p-12">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                            {wishlist.map((item) => (
-                                <div
-                                    key={item._id}
-                                    className="bg-[#0A0D0B] border border-white/5 rounded-[32px] p-2 overflow-hidden hover:border-[#DBC2A6]/30 transition-all duration-700 group flex flex-col relative shadow-xl"
-                                >
-                                    <div className="relative aspect-[4/5] bg-black rounded-[26px] overflow-hidden">
-                                        {item.product?.images?.[0] && (
-                                            <Image
-                                                src={item.product.images[0]}
-                                                alt={item.product.name}
-                                                fill
-                                                className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 group-hover:opacity-100"
-                                            />
-                                        )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0D0B] via-transparent to-transparent opacity-60" />
-                                        
-                                        <button
-                                            onClick={() => handleRemove(item.productId)}
-                                            disabled={processingId === `remove-${item.productId}`}
-                                            className="absolute top-4 right-4 p-3 bg-black/60 backdrop-blur-xl rounded-xl text-white/20 hover:text-rose-400 border border-white/10 transition-all shadow-2xl disabled:opacity-50 hover:scale-110 active:scale-90"
-                                        >
-                                            {processingId === `remove-${item.productId}` ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                                        </button>
-                                    </div>
+                    <h3 className="font-display text-3xl md:text-4xl text-white tracking-tight mb-4 uppercase italic opacity-40 leading-none">Vault Void</h3>
+                    <p className="text-white/20 text-xs md:text-sm max-w-xs mx-auto mb-10 md:mb-14 leading-relaxed font-medium italic">Your curation repository is currently inactive. Secure items during market discovery to populate this archive.</p>
+                    <Link
+                        href="/shop"
+                        className="bg-[#B07D5B] text-[#0a0a0b] px-12 md:px-16 py-5 md:py-6 rounded-[22px] md:rounded-[28px] font-black text-[10px] md:text-[11px] uppercase tracking-[0.4em] hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-4 mx-auto w-full md:w-fit"
+                    >
+                        <TrendingUp size={16} strokeWidth={3} />
+                        Market Discovery
+                    </Link>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10">
+                    {wishlist.map((item) => (
+                        <div key={item._id} className="bg-[#0a0a0b] border border-[#B07D5B1A] rounded-[40px] md:rounded-[48px] overflow-hidden group hover:border-[#B07D5B4D] transition-all duration-700 shadow-3xl hover:shadow-[#B07D5B0D] relative flex flex-col h-full">
+                            {/* Product Header Indicator */}
+                            <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
+                                <div className="bg-[#0a0a0b]/80 backdrop-blur-xl border border-white/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] flex items-center gap-2 text-white">
+                                    <Sparkles size={10} className="text-[#B07D5B]" />
+                                    Artifact {item.productId.slice(-4).toUpperCase()}
+                                </div>
+                            </div>
 
-                                    <div className="p-6 flex flex-col flex-1">
-                                        <Link href={`/product/${item.product?.slug}`}>
-                                            <h3 className="text-[10px] uppercase tracking-[0.2em] font-black text-[#DBC2A6]/40 mb-2 group-hover:text-[#DBC2A6] transition-colors">{item.product?.brand || "Premium Selection"}</h3>
-                                            <h2 className="font-black text-white text-base tracking-tighter mb-6 line-clamp-2">
-                                                {item.product?.name}
-                                            </h2>
-                                        </Link>
-
-                                        <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5">
-                                            <div className="text-left">
-                                                <p className="text-[8px] uppercase tracking-widest font-black text-white/20 mb-1 leading-none">Price / Asset</p>
-                                                <p className="font-black text-[#DBC2A6] text-base tracking-tighter">KES {item.product?.price.toLocaleString() || 0}</p>
-                                            </div>
-                                            <button
-                                                onClick={() => handleAddToCart(item.productId)}
-                                                disabled={processingId === `cart-${item.productId}`}
-                                                className="w-12 h-12 bg-[#DBC2A6] text-[#0A0D0B] rounded-xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all shadow-xl shadow-[#DBC2A6]/10 disabled:opacity-50"
-                                            >
-                                                {processingId === `cart-${item.productId}` ? <Loader2 size={20} className="animate-spin" /> : <ShoppingCart size={20} strokeWidth={2.5} />}
-                                            </button>
-                                        </div>
+                            {/* Image Workspace */}
+                            <Link href={`/product/${item.slug}`} className="relative aspect-[4/5] overflow-hidden group/img">
+                                <Image
+                                    src={item.image}
+                                    alt={item.name}
+                                    fill
+                                    className="object-cover transition-all duration-[2s] ease-out group-hover/img:scale-110 group-hover/img:rotate-1"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-transparent to-transparent opacity-60 transition-opacity duration-1000 group-hover/img:opacity-20" />
+                                
+                                {/* Quick Clear Overlay */}
+                                <div className="absolute inset-0 bg-[#B07D5B1A] opacity-0 group-hover/img:opacity-100 transition-opacity duration-700 flex items-center justify-center">
+                                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white scale-90 group-hover/img:scale-100 transition-transform duration-700">
+                                        <ArrowRight size={20} />
                                     </div>
                                 </div>
-                            ))}
+                            </Link>
+
+                            {/* Intelligence Data */}
+                            <div className="p-6 md:p-8 space-y-6 md:space-y-8 flex-1 flex flex-col">
+                                <div className="space-y-4 flex-1">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <h3 className="font-display text-2xl md:text-3xl text-white leading-tight italic tracking-tight group-hover:text-[#B07D5B] transition-colors">{item.name}</h3>
+                                        <div className="text-right">
+                                            <p className="text-[9px] uppercase font-black tracking-[0.4em] text-white/20 mb-1 leading-none">Valuation</p>
+                                            <p className="text-base md:text-lg font-display text-[#B07D5B] whitespace-nowrap">KES {item.price.toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-black leading-relaxed italic line-clamp-2 pl-4 border-l border-[#B07D5B1A]">
+                                        Premium olfactory synthesis archived at master level quality.
+                                    </p>
+                                </div>
+
+                                {/* Control Interface */}
+                                <div className="grid grid-cols-4 gap-3 md:gap-4 pb-2">
+                                    <button
+                                        onClick={() => handleAddToCart(item.productId)}
+                                        className="col-span-3 bg-[#B07D5B] text-[#0a0a0b] py-4 rounded-[18px] md:rounded-[20px] font-black text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] hover:scale-105 active:scale-95 transition-all shadow-[0_15px_30px_#B07D5B33] flex items-center justify-center gap-2 md:gap-3"
+                                    >
+                                        <ShoppingBag size={14} strokeWidth={3} />
+                                        Procure
+                                    </button>
+                                    <button
+                                        onClick={() => handleRemove(item.productId)}
+                                        className="bg-white/[0.02] border border-white/5 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400 py-4 rounded-[18px] md:rounded-[20px] flex items-center justify-center transition-all group/trash shadow-inner"
+                                        title="Purge from Vault"
+                                    >
+                                        <Trash2 size={16} className="group-hover/trash:scale-110 transition-transform" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Status Footer */}
+                            <div className="px-6 py-4 md:px-8 md:py-4 bg-white/[0.01] border-t border-white/5 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                                     <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white/10">MARKET ACTIVE</span>
+                                </div>
+                                <Zap size={10} className="text-[#B07D5B] opacity-20" />
+                            </div>
                         </div>
-                    </div>
-                )}
+                    ))}
+                </div>
+            )}
+
+            {/* Visual Continuity */}
+            <div className="text-center pt-16 md:pt-24 grayscale opacity-10 hover:grayscale-0 hover:opacity-100 transition-all duration-[4s]">
+                 <div className="inline-flex flex-col md:flex-row items-center gap-4 md:gap-6 cursor-default">
+                    <Shield className="text-[#B07D5B]" size={16} />
+                    <p className="text-[9px] md:text-[10px] font-black tracking-[0.6em] md:tracking-[1em] uppercase text-white">Artifact Vault Integrity Verified</p>
+                    <Unlock className="text-[#B07D5B]" size={16} />
+                 </div>
             </div>
         </div>
+    );
+}
+
+function Unlock({ className, size }: { className?: string, size?: number }) {
+    return (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width={size || 24} 
+            height={size || 24} 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            className={className}
+        >
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+        </svg>
     );
 }

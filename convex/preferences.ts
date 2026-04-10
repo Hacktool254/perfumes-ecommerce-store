@@ -36,6 +36,9 @@ export const update = mutation({
         marketingCategories: v.optional(v.array(v.string())),
         orderNotifications: v.optional(v.boolean()),
         promotions: v.optional(v.boolean()),
+        adminOrderAlerts: v.optional(v.boolean()),
+        adminDeliveryAlerts: v.optional(v.boolean()),
+        adminStockAlerts: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx);
@@ -49,6 +52,9 @@ export const update = mutation({
             marketingCategories: args.marketingCategories ?? existing?.marketingCategories ?? [],
             orderNotifications: args.orderNotifications ?? existing?.orderNotifications ?? true,
             promotions: args.promotions ?? existing?.promotions ?? true,
+            adminOrderAlerts: args.adminOrderAlerts ?? existing?.adminOrderAlerts ?? true,
+            adminDeliveryAlerts: args.adminDeliveryAlerts ?? existing?.adminDeliveryAlerts ?? true,
+            adminStockAlerts: args.adminStockAlerts ?? existing?.adminStockAlerts ?? true,
             updatedAt: Date.now(),
         };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -81,6 +82,22 @@ export function ProductForm({ initialData }: { initialData?: any }) {
         },
     });
 
+    const name = form.watch("name");
+
+    useEffect(() => {
+        // Auto-generate slug from name if we're creating a new product
+        if (!initialData && name) {
+            const generatedSlug = name
+                .toLowerCase()
+                .trim()
+                .replace(/[^\w\s-]/g, "") // Remove non-word characters except spaces and hyphens
+                .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
+                .replace(/^-+|-+$/g, "");   // Remove leading/trailing hyphens
+            
+            form.setValue("slug", generatedSlug, { shouldValidate: true });
+        }
+    }, [name, form, initialData]);
+
     const onSubmit = async (data: ProductFormValues) => {
         try {
             const payload = {
@@ -96,7 +113,7 @@ export function ProductForm({ initialData }: { initialData?: any }) {
             } else {
                 await createProduct(payload);
             }
-            router.push("/admin/products");
+            router.push("/products");
             router.refresh();
         } catch (error) {
             console.error("Failed to save product", error);
@@ -108,7 +125,7 @@ export function ProductForm({ initialData }: { initialData?: any }) {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 animate-in fade-in duration-700">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Link href="/admin/products">
+                        <Link href="/products">
                             <Button variant="ghost" size="icon" className="rounded-full hover:bg-neutral-800">
                                 <ArrowLeft className="w-5 h-5 text-neutral-400" />
                             </Button>
@@ -240,7 +257,7 @@ export function ProductForm({ initialData }: { initialData?: any }) {
                         <Card className="bg-neutral-900 border-neutral-800">
                             <CardHeader>
                                 <CardTitle className="text-lg font-serif">Product Imagery</CardTitle>
-                                <FormDescription className="text-neutral-500">Add up to 5 high-resolution images. First image will be the primary cover.</FormDescription>
+                                <p className="text-sm text-neutral-500">Add up to 5 high-resolution images. First image will be the primary cover.</p>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">

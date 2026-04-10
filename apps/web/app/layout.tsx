@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Fredoka, Playfair_Display } from "next/font/google";
+import { Fredoka, Playfair_Display, DM_Sans, DM_Serif_Display } from "next/font/google";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -15,6 +15,21 @@ const playfairDisplay = Playfair_Display({
   style: ["normal", "italic"],
   variable: "--font-playfair-display",
   display: "swap",
+});
+
+const dmSans = DM_Sans({
+    subsets: ["latin"],
+    weight: ["300", "400", "500", "600", "700", "800", "900"],
+    variable: "--font-dm-sans",
+    display: "swap",
+});
+
+const dmSerifDisplay = DM_Serif_Display({
+    subsets: ["latin"],
+    weight: ["400"],
+    style: ["normal", "italic"],
+    variable: "--font-dm-serif",
+    display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -78,6 +93,7 @@ export const metadata: Metadata = {
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 
@@ -89,10 +105,23 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fredoka.variable} ${playfairDisplay.variable} antialiased flex flex-col min-h-screen bg-background text-foreground`}
+        className={`${fredoka.variable} ${playfairDisplay.variable} ${dmSans.variable} ${dmSerifDisplay.variable} antialiased flex flex-col min-h-screen bg-background text-foreground`}
       >
         <ConvexClientProvider>
           {children}
+          <Toaster 
+            position="top-right"
+            theme="dark"
+            expand={false}
+            richColors
+            toastOptions={{
+              className: "rounded-[24px] border border-[#B07D5B33] bg-[#0a0a0b] text-white font-display italic",
+              style: {
+                background: "#0a0a0b",
+                border: "1px solid rgba(176, 125, 91, 0.2)",
+              }
+            }}
+          />
         </ConvexClientProvider>
       </body>
     </html>

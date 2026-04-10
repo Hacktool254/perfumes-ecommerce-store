@@ -20,11 +20,31 @@ export const list = query({
     },
     handler: async (ctx, args) => {
         console.log("==> products:list CALLED with args:", JSON.stringify(args));
+
+        // 1. Fetch special category IDs to handle augmented logic
+        const specialSlugs = ["men", "women", "unisex", "perfume"];
+        const specialCategories = await Promise.all(
+            specialSlugs.map(slug => 
+                ctx.db.query("categories")
+                    .withIndex("by_slug", q => q.eq("slug", slug))
+                    .first()
+            )
+        );
+
+        const catMap = specialSlugs.reduce((acc, slug, i) => {
+            if (specialCategories[i]) acc[slug] = specialCategories[i]!._id;
+            return acc;
+        }, {} as Record<string, any>);
+
         let q;
 
         try {
-            // Use index for one primary filter if available
-            if (args.categoryIds && args.categoryIds.length === 1) {
+            const isSpecial = args.categoryIds?.some(id => 
+                id === catMap["men"] || id === catMap["women"] || id === catMap["unisex"] || id === catMap["perfume"]
+            );
+
+            // Use index for one primary filter if available, but NOT if it's a special category needing augmentation
+            if (args.categoryIds && args.categoryIds.length === 1 && !isSpecial) {
                 console.log("==> Using by_category index");
                 q = ctx.db.query("products").withIndex("by_category", (q) => q.eq("categoryId", args.categoryIds![0]));
             } else if (args.brands && args.brands.length === 1) {
@@ -50,17 +70,63 @@ export const list = query({
             )
         );
 
-        // Let's use simple .or() chaining if possible, or just not filter if not strictly needed
-        // Since Convex filter closure DSL does not easily loop over variable conditions safely
-        // Another pattern: filter out what DOES NOT match if it's simpler, 
-        // but since we want OR logic across brands, we'll serialize gracefully.
-        
-        if (args.categoryIds && args.categoryIds.length > 1) {
+        // 2. Augmented Category Filtering Logic
+        if (args.categoryIds && args.categoryIds.length > 0) {
+            const hasMen = args.categoryIds.includes(catMap["men"]);
+            const hasWomen = args.categoryIds.includes(catMap["women"]);
+            const hasUnisex = args.categoryIds.includes(catMap["unisex"]);
+            const perfumeId = catMap["perfume"];
+
             q = q.filter((q) => {
+                // Base condition: Matches any of the selected categories
                 let expr = q.eq(q.field("categoryId"), args.categoryIds![0]);
                 for (let i = 1; i < args.categoryIds!.length; i++) {
                     expr = q.or(expr, q.eq(q.field("categoryId"), args.categoryIds![i]));
                 }
+
+                // Augmented condition for Men's Fragrances
+                if (hasMen && perfumeId) {
+                    expr = q.or(expr, 
+                        q.and(
+                            q.eq(q.field("categoryId"), perfumeId),
+                            q.eq(q.field("gender"), "men")
+                        )
+                    );
+                }
+
+                // Augmented condition for Women's Fragrances
+                if (hasWomen && perfumeId) {
+                    expr = q.or(expr, 
+                        q.and(
+                            q.eq(q.field("categoryId"), perfumeId),
+                            q.eq(q.field("gender"), "women")
+                        )
+                    );
+                }
+
+                // Augmented condition for Unisex Fragrances
+                if (hasUnisex && perfumeId) {
+                    expr = q.or(expr, 
+                        q.and(
+                            q.eq(q.field("categoryId"), perfumeId),
+                            q.eq(q.field("gender"), "unisex")
+                        )
+                    );
+                }
+
+                // Augmented condition for "Perfume" Master Category
+                const hasPerfume = args.categoryIds!.includes(perfumeId);
+                const menId = catMap["men"];
+                const womenId = catMap["women"];
+                const unisexId = catMap["unisex"];
+
+                if (hasPerfume) {
+                    // Include all gender-specific categories if "Perfume" is selected
+                    if (menId) expr = q.or(expr, q.eq(q.field("categoryId"), menId));
+                    if (womenId) expr = q.or(expr, q.eq(q.field("categoryId"), womenId));
+                    if (unisexId) expr = q.or(expr, q.eq(q.field("categoryId"), unisexId));
+                }
+
                 return expr;
             });
         }
@@ -127,10 +193,36 @@ export const listRecent = query({
                 .first();
 
             if (category) {
-                // Use compound index to filter by category and order by createdAt
-                return await ctx.db
-                    .query("products")
-                    .withIndex("by_category_createdAt", (q) => q.eq("categoryId", category._id))
+                // Fetch perfume category for augmented logic
+                const perfume = await ctx.db
+                    .query("categories")
+                    .withIndex("by_slug", (q) => q.eq("slug", "perfume"))
+                    .first();
+
+                const isSpecial = ["men", "women", "unisex"].includes(args.categorySlug);
+
+                let q = ctx.db.query("products");
+                
+                // If it's one of the special gender categories, use augmented logic
+                if (isSpecial && perfume) {
+                    const genderMap: Record<string, string> = { "men": "men", "women": "women", "unisex": "unisex" };
+                    const targetGender = genderMap[args.categorySlug];
+                    
+                    q = q.filter((q) => 
+                        q.or(
+                            q.eq(q.field("categoryId"), category._id),
+                            q.and(
+                                q.eq(q.field("categoryId"), perfume._id),
+                                q.eq(q.field("gender"), targetGender)
+                            )
+                        )
+                    );
+                } else {
+                    // Standard category filtering
+                    q = q.withIndex("by_category_createdAt", (q) => q.eq("categoryId", category._id));
+                }
+
+                return await q
                     .filter((q) =>
                         q.or(
                             q.eq(q.field("isActive"), true),
@@ -303,6 +395,17 @@ export const softDelete = mutation({
 });
 
 /**
+ * Permanently delete a product (hard delete).
+ */
+export const remove = mutation({
+    args: { id: v.id("products") },
+    handler: async (ctx, args) => {
+        await requireAdmin(ctx);
+        await ctx.db.delete(args.id);
+    },
+});
+
+/**
  * Admin: Update product stock directly.
  */
 export const updateStock = mutation({
@@ -324,3 +427,5 @@ export const updateStock = mutation({
         return { success: true, newStock };
     },
 });
+
+// --- Migration removed (permanently executed via dedicated script) ---

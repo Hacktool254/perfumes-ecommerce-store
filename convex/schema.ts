@@ -206,8 +206,18 @@ export default defineSchema({
         marketingCategories: v.array(v.string()), // ['women', 'men', 'kids', 'beauty', etc.]
         orderNotifications: v.boolean(),
         promotions: v.boolean(),
+        adminOrderAlerts: v.optional(v.boolean()),
+        adminDeliveryAlerts: v.optional(v.boolean()),
+        adminStockAlerts: v.optional(v.boolean()),
         updatedAt: v.number(),
     }).index("by_user", ["userId"]),
+
+    siteSettings: defineTable({
+        resendApiKey: v.optional(v.string()),
+        whatsappApiKey: v.optional(v.string()),
+        chatbotApiKey: v.optional(v.string()),
+        updatedAt: v.number(),
+    }),
 
     // ─── User Searches ─────────────────────────────────────────────────────────
     userSearches: defineTable({

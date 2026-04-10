@@ -14,7 +14,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     const isAdmin = useQuery(api.users.isAdmin);
     const router = useRouter();
 
-    const isAuthPage = pathname === "/admin/login" || pathname === "/admin/register";
+    const isAuthPage = pathname === "/login" || pathname === "/register";
 
     useEffect(() => {
         // Strict redirection: If we know for a fact they aren't admin, bounce them.

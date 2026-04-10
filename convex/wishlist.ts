@@ -18,11 +18,18 @@ export const get = query({
         const itemsWithProducts = await Promise.all(
             wishlistItems.map(async (item) => {
                 const product = await ctx.db.get(item.productId);
-                return { ...item, product };
+                if (!product) return null;
+                return {
+                    ...item,
+                    name: product.name,
+                    slug: product.slug,
+                    price: product.price,
+                    image: product.images[0],
+                };
             })
         );
 
-        return itemsWithProducts;
+        return itemsWithProducts.filter((i) => i !== null);
     },
 });
 

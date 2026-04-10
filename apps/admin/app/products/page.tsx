@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePaginatedQuery, useMutation, useQuery } from "convex/react";
+import { usePaginatedQuery, useMutation, useQuery, useConvex } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import {
     Plus,
@@ -15,8 +15,13 @@ import {
     AlertTriangle,
     Tag,
     ChevronRight,
-    ShoppingBag
+    ShoppingBag,
+    Download,
+    Loader2
 } from "lucide-react";
+import { exportToCSV } from "@/lib/export-utils";
+import { toast } from "sonner";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -42,6 +47,22 @@ import { AdminStatCard } from "@/components/admin/admin-stat-card";
 export default function AdminProductsPage() {
     const [selectedCategoryId, setSelectedCategoryId] = useState<Id<"categories"> | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const convex = useConvex();
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleExportInventory = async () => {
+        setIsExporting(true);
+        try {
+            const data = await convex.query(api.export.inventory);
+            exportToCSV(data, `inventory_manifest_${format(new Date(), "yyyy-MM-dd")}.csv`);
+            toast.success("Inventory Manifest exported successfully");
+        } catch (error) {
+            console.error("Export failed", error);
+            toast.error("Failed to export inventory");
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     const categories = useQuery(api.categories.list);
     const { results: products, status, loadMore } = usePaginatedQuery(
@@ -84,12 +105,22 @@ export default function AdminProductsPage() {
                         VAULT <span className="text-primary italic font-serif font-medium">MANAGEMENT</span>
                     </h1>
                 </div>
-                <Link href="/products/new">
-                    <button className="flex items-center gap-3 h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-extrabold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 group">
-                        <Plus size={18} className="group-hover:rotate-90 transition-transform duration-500" />
-                        <span>Curate Product</span>
+                <div className="flex items-center gap-4">
+                    <button 
+                        disabled={isExporting}
+                        onClick={handleExportInventory}
+                        className="flex items-center gap-3 h-14 px-8 rounded-2xl bg-surface-container-lowest border border-border/50 text-xs font-extrabold uppercase tracking-widest hover:bg-surface-container transition-all shadow-sm group disabled:opacity-50"
+                    >
+                        {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} className="text-primary/60" />}
+                        <span>{isExporting ? "Manifesting..." : "Manifest"}</span>
                     </button>
-                </Link>
+                    <Link href="/products/new">
+                        <button className="flex items-center gap-3 h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-extrabold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 group">
+                            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-500" />
+                            <span>Curate Product</span>
+                        </button>
+                    </Link>
+                </div>
             </div>
 
             {/* Product Metrics */}
@@ -263,7 +294,11 @@ export default function AdminProductsPage() {
                                                             </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem asChild>
-                                                            <Link href={`/product/${product._id}`} className="flex items-center gap-4 p-4 rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+                                                            <Link 
+                                                                href={`http://localhost:3001/product/${product.slug}`} 
+                                                                target="_blank"
+                                                                className="flex items-center gap-4 p-4 rounded-xl cursor-pointer hover:bg-surface-container transition-colors"
+                                                            >
                                                                 <ExternalLink className="w-4 h-4 text-primary" />
                                                                 <span className="text-sm font-bold">View Presence</span>
                                                             </Link>

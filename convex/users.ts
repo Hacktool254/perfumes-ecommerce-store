@@ -143,6 +143,70 @@ export const seedAdmin = internalMutation({
     },
 });
 
+// Simple hash function for passwords (must match authMutations.ts)
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + "ummie-secret-salt");
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Update the user's basic profile information.
+ */
+export const updateProfile = mutation({
+  args: {
+    firstName: v.string(),
+    lastName: v.string(),
+    phone: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+
+    await ctx.db.patch(user._id, {
+      firstName: args.firstName,
+      lastName: args.lastName,
+      phone: args.phone,
+      name: `${args.firstName} ${args.lastName}`.trim(),
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Update the user's security credentials (password).
+ */
+export const updateSecurity = mutation({
+  args: {
+    currentPassword: v.string(),
+    newPassword: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+
+    // If the user already has a hashedPassword, verify the current one
+    if (user.hashedPassword) {
+      const hashedCurrent = await hashPassword(args.currentPassword);
+      if (user.hashedPassword !== hashedCurrent) {
+        throw new Error("Invalid current security key.");
+      }
+    }
+
+    // Hash and store the new password
+    const hashedNew = await hashPassword(args.newPassword);
+    
+    await ctx.db.patch(user._id, {
+      hashedPassword: hashedNew,
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
 /**
  * Temporarily clear all admin roles to reset accounts.
  */
