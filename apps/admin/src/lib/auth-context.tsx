@@ -6,15 +6,19 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 
-interface AuthUser {
+export interface AuthUser {
   id: string;
   email: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
   role?: string;
   image?: string;
+  phone?: string;
+  createdAt?: number;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -40,8 +44,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     id: viewer._id.toString(),
     email: viewer.email ?? "",
     name: viewer.name,
+    firstName: viewer.firstName,
+    lastName: viewer.lastName,
     role: viewer.role,
     image: viewer.image,
+    phone: viewer.phone,
+    createdAt: viewer._creationTime,
   } : null;
 
   const login = async (email: string, password: string) => {

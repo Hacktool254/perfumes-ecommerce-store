@@ -6,7 +6,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 
-interface AuthUser {
+export interface AuthUser {
   id: string;
   email: string;
   name?: string;
@@ -18,7 +18,7 @@ interface AuthUser {
   createdAt?: number;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
