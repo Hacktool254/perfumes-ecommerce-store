@@ -17,6 +17,7 @@ export const list = query({
         minPrice: v.optional(v.number()),
         maxPrice: v.optional(v.number()),
         inStock: v.optional(v.boolean()),
+        searchTerm: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         console.log("==> products:list CALLED with args:", JSON.stringify(args));
@@ -37,6 +38,55 @@ export const list = query({
         }, {} as Record<string, any>);
 
         let q;
+        
+        // If search term is provided, use the search index
+        if (args.searchTerm) {
+            console.log("==> Using search index for searchTerm:", args.searchTerm);
+            let searchQ = ctx.db
+                .query("products")
+                .withSearchIndex("search_by_name", (q) => 
+                    q.search("name", args.searchTerm!).eq("isActive", true)
+                );
+            
+            // Search indexes in Convex return many results, we take a reasonable limit
+            // since this isn't natively paginated in the same way as standard queries.
+            const results = await searchQ.take(50);
+            
+            // Post-search filtering for other arguments (category, brand, etc.)
+            let filtered = results;
+            
+            if (args.categoryIds && args.categoryIds.length > 0) {
+                // Note: Special category logic would need to be replicated here if search + categories are used together.
+                // For now, simple category check.
+                filtered = filtered.filter(p => args.categoryIds!.includes(p.categoryId));
+            }
+            
+            if (args.brands && args.brands.length > 0) {
+                filtered = filtered.filter(p => p.brand && args.brands!.includes(p.brand));
+            }
+            
+            if (args.gender) {
+                filtered = filtered.filter(p => p.gender === args.gender || p.gender === "unisex");
+            }
+
+            if (args.minPrice !== undefined) {
+                filtered = filtered.filter(p => p.price >= args.minPrice!);
+            }
+
+            if (args.maxPrice !== undefined) {
+                filtered = filtered.filter(p => p.price <= args.maxPrice!);
+            }
+
+            if (args.inStock !== undefined) {
+                filtered = filtered.filter(p => args.inStock ? p.stock > 0 : p.stock <= 0);
+            }
+
+            return {
+                page: filtered,
+                isDone: true,
+                continueCursor: "",
+            };
+        }
 
         try {
             const isSpecial = args.categoryIds?.some(id => 

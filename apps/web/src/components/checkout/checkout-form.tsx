@@ -7,11 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CreditCard, Smartphone, CheckCircle2, Loader2, ArrowRight, X, Info, Lock, ChevronDown, Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useAction, useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useCart } from "@/hooks/use-cart";
+import { Id } from "@workspaceRoot/convex/_generated/dataModel";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
 
 // Form Validation Schema using Zod
 const checkoutSchema = z.object({
@@ -41,19 +43,41 @@ interface CheckoutFormProps {
 export function CheckoutForm({ items, subtotal, total }: CheckoutFormProps) {
     const router = useRouter();
     const { clearCart } = useCart();
-    const [paymentStatus, setPaymentStatus] = useState<"idle" | "processing" | "success" | "failed">("idle");
-    const [selectedPayment, setSelectedPayment] = useState<"card" | "mpesa">("card");
-    const [errorMessage, setErrorMessage] = useState("");
-
-    const placeOrder = useMutation(api.orders.placeOrder);
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { register, handleSubmit, formState: { errors } } = useForm<CheckoutFormValues>({
+    const { register, handleSubmit, watch, formState: { errors } } = useForm<CheckoutFormValues>({
         resolver: zodResolver(checkoutSchema) as any,
         defaultValues: {
             marketing: false
         }
     });
+
+    const email = watch("email");
+
+    const [paymentStatus, setPaymentStatus] = useState<"idle" | "processing" | "waiting_for_pin" | "success" | "failed">("idle");
+    const [selectedPayment, setSelectedPayment] = useState<"card" | "mpesa">("card");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [currentOrderId, setCurrentOrderId] = useState<Id<"orders"> | null>(null);
+
+    const placeOrder = useMutation(api.orders.placeOrder);
+    const initiateStkPush = useAction(api.payments.initiateStkPush);
+    
+    // Poll for order status updates (Using publicTrack so it works for guests)
+    const orderRecord = useQuery(api.orders.publicTrack, 
+        currentOrderId && email ? { orderId: currentOrderId, email } : "skip"
+    );
+
+    useEffect(() => {
+        // If the order status changes to 'paid' while we are waiting, move to success
+        if (orderRecord?.status === "paid" && paymentStatus === "waiting_for_pin") {
+            setPaymentStatus("success");
+            clearCart();
+            // Redirect happens after a short delay to show the success state
+            const timer = setTimeout(() => {
+                router.push(`/order-confirmation/${orderRecord._id}`);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [orderRecord, paymentStatus, clearCart, router]);
 
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
@@ -74,23 +98,37 @@ export function CheckoutForm({ items, subtotal, total }: CheckoutFormProps) {
                 guestItems: guestItemsInput,
             });
 
-            // Simulate the payment waiting period
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            setCurrentOrderId(orderId);
 
-            setPaymentStatus("success");
-
-            // Clear the local/guest cart
-            await clearCart();
-
-            // Redirect to Order Confirmation
-            setTimeout(() => {
-                router.push(`/order-confirmation/${orderId}`);
-            }, 2000);
+            if (selectedPayment === "mpesa") {
+                setPaymentStatus("waiting_for_pin");
+                try {
+                    // Trigger the real M-Pesa STK Push
+                    await initiateStkPush({
+                        orderId,
+                        phoneNumber: data.phone
+                    });
+                    // The useEffect hook will handle the transition to 'success' 
+                    // once the M-Pesa callback verifies the payment.
+                } catch (paymentError: any) {
+                    console.error("Payment initiation failed:", paymentError);
+                    setPaymentStatus("failed");
+                    setErrorMessage(paymentError.message || "Failed to start M-Pesa payment. Please ensure your phone is on and unlocked.");
+                }
+            } else {
+                // For card, we still simulate for now as the Stripe/infrastructure isn't ready
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                setPaymentStatus("success");
+                await clearCart();
+                setTimeout(() => {
+                    router.push(`/order-confirmation/${orderId}`);
+                }, 2000);
+            }
 
         } catch (error: any) {
             console.error(error);
             setPaymentStatus("failed");
-            setErrorMessage(error.message || "Something went wrong. Please try again.");
+            setErrorMessage(error.message || "Something went wrong while placing your order.");
         }
     };
 
@@ -313,6 +351,43 @@ export function CheckoutForm({ items, subtotal, total }: CheckoutFormProps) {
             </form>
 
             <AnimatePresence>
+                {paymentStatus === "waiting_for_pin" && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="bg-white rounded-3xl p-10 max-w-sm w-full text-center shadow-2xl border border-[#AA8C77]/20"
+                        >
+                            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                                <Smartphone className="w-10 h-10 text-green-600" />
+                                <div className="absolute inset-0 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
+                            </div>
+                            <h3 className="font-serif text-3xl text-[#1c2e36] mb-3">Check Your Phone</h3>
+                            <p className="text-gray-500 mb-8 leading-relaxed">
+                                We've sent a secure payment prompt to <span className="font-bold text-black font-mono">{(register('phone').name)}</span>. 
+                                Please enter your M-Pesa PIN to complete the purchase.
+                            </p>
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center justify-center gap-3 py-3 px-4 bg-gray-50 rounded-xl text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Waiting for confirmation...
+                                </div>
+                                <button 
+                                    onClick={() => setPaymentStatus("idle")}
+                                    className="text-xs text-gray-400 hover:text-red-500 font-bold uppercase tracking-widest transition-colors"
+                                >
+                                    Cancel and try again
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
                 {paymentStatus === "success" && (
                     <motion.div
                         initial={{ opacity: 0 }}

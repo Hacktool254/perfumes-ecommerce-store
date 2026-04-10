@@ -24,6 +24,7 @@ export function ProductGrid() {
     const minPriceRaw = searchParams?.get("minPrice");
     const maxPriceRaw = searchParams?.get("maxPrice");
     const inStockRaw = searchParams?.get("inStock");
+    const searchTerm = searchParams?.get("search") || undefined;
 
     const categoryIds = activeCategoriesRaw 
         ? (activeCategoriesRaw.split(",").filter(id => id.length >= 30) as Id<"categories">[]) 
@@ -45,15 +46,16 @@ export function ProductGrid() {
             brands: brands.length > 0 ? brands : undefined,
             minPrice: minPrice,
             maxPrice: maxPrice,
-            inStock: inStock
+            inStock: inStock,
+            searchTerm: searchTerm
         },
         { initialNumItems: 200 } // Load all for pagination
     );
 
-    // Reset to page 1 when filters change
+    // Reset to page 1 when filters or search change
     useEffect(() => {
         setCurrentPage(1);
-    }, [activeCategoriesRaw, gender, activeBrandsRaw, minPriceRaw, maxPriceRaw, inStockRaw]);
+    }, [activeCategoriesRaw, gender, activeBrandsRaw, minPriceRaw, maxPriceRaw, inStockRaw, searchTerm]);
 
     // Keep loading until we have all items
     useEffect(() => {
