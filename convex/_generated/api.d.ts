@@ -30,13 +30,9 @@ import type * as preferences from "../preferences.js";
 import type * as products from "../products.js";
 import type * as reviews from "../reviews.js";
 import type * as searches from "../searches.js";
-import type * as seed from "../seed.js";
 import type * as siteSettings from "../siteSettings.js";
-import type * as temp_debug from "../temp_debug.js";
-import type * as updateImages from "../updateImages.js";
 import type * as userDashboard from "../userDashboard.js";
 import type * as users from "../users.js";
-import type * as wipe from "../wipe.js";
 import type * as wishlist from "../wishlist.js";
 
 import type {
@@ -68,13 +64,9 @@ declare const fullApi: ApiFromModules<{
   products: typeof products;
   reviews: typeof reviews;
   searches: typeof searches;
-  seed: typeof seed;
   siteSettings: typeof siteSettings;
-  temp_debug: typeof temp_debug;
-  updateImages: typeof updateImages;
   userDashboard: typeof userDashboard;
   users: typeof users;
-  wipe: typeof wipe;
   wishlist: typeof wishlist;
 }>;
 

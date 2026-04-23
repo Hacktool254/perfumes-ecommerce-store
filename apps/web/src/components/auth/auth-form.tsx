@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuthActions } from "@convex-dev/auth/react";
 import { useAuth } from "@/lib/auth-context";
 
 const loginSchema = z.object({
@@ -44,8 +43,8 @@ interface AuthFormProps {
 
 export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard" }: AuthFormProps) {
     const { login, register, error: contextError, clearError } = useAuth();
-    const { signIn } = useAuthActions(); 
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(initialMode);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [serverError, setServerError] = useState<string | null>(null);
@@ -107,11 +106,17 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard
         setSuccessMessage(null);
         setIsLoading(true);
         try {
-            await signIn("password", { flow: "reset", email: values.email });
-            setSuccessMessage("If an account exists with this email, you will receive a reset link shortly.");
-        } catch (error) {
+            const res = await fetch("/api/auth/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: values.email }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            setSuccessMessage(data.message || "If an account exists with this email, you will receive a reset link shortly.");
+        } catch (error: any) {
             console.error(error);
-            setServerError("An error occurred. Please try again.");
+            setServerError(error.message || "An error occurred. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -121,12 +126,21 @@ export function AuthForm({ mode: initialMode, redirectPath = "/account/dashboard
         setServerError(null);
         setIsLoading(true);
         try {
-            await signIn("password", { flow: "reset-password", password: values.password });
+            const token = searchParams?.get("token");
+            if (!token) throw new Error("Missing reset token. Please use the link from your email.");
+
+            const res = await fetch("/api/auth/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, newPassword: values.password }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
             setSuccessMessage("Password reset successfully! You can now sign in.");
-            setMode("login");
-        } catch (error) {
+            setTimeout(() => setMode("login"), 2000);
+        } catch (error: any) {
             console.error(error);
-            setServerError("Reset link expired or invalid. Please request a new one.");
+            setServerError(error.message || "Reset link expired or invalid. Please request a new one.");
         } finally {
             setIsLoading(false);
         }

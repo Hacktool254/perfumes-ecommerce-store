@@ -238,4 +238,15 @@ export default defineSchema({
     })
         .index("by_session", ["sessionId"])
         .index("by_timestamp", ["timestamp"]),
+
+    // ─── Password Reset Tokens ──────────────────────────────────────────────────
+    passwordResetTokens: defineTable({
+        email: v.string(),
+        token: v.string(),
+        expiresAt: v.number(),
+        used: v.boolean(),
+        createdAt: v.number(),
+    })
+        .index("by_token", ["token"])
+        .index("by_email", ["email"]),
 });

@@ -21,6 +21,7 @@ export const getProductsForChatbot = query({
             brand: p.brand,
             gender: p.gender,
             discount: p.discount,
+            images: p.images,
         }));
     },
 });
@@ -41,9 +42,12 @@ export const searchProducts = query({
         return products.map((p) => ({
             _id: p._id,
             name: p.name,
+            slug: p.slug,
             price: p.price,
             stock: p.stock,
             brand: p.brand,
+            discount: p.discount,
+            images: p.images,
         }));
     },
 });

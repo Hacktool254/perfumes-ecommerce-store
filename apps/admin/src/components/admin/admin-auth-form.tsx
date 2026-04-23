@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,8 +21,22 @@ const registerSchema = z.object({
     password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
+const forgotSchema = z.object({
+    email: z.string().email("Please enter a valid email address"),
+});
+
+const resetSchema = z.object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+});
+
 type LoginValues = z.infer<typeof loginSchema>;
 type RegisterValues = z.infer<typeof registerSchema>;
+type ForgotValues = z.infer<typeof forgotSchema>;
+type ResetValues = z.infer<typeof resetSchema>;
 
 interface AdminAuthFormProps {
     mode: "login" | "register" | "forgot" | "reset";
@@ -34,8 +48,12 @@ interface AdminAuthFormProps {
 export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAuthFormProps) {
     const { login, register, error: authError, clearError } = useAuth();
     const router = useRouter();
-    const [mode, setMode] = useState<"login" | "register">(initialMode === "register" ? "register" : "login");
+    const searchParams = useSearchParams();
+    const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(
+        initialMode === "register" ? "register" : initialMode === "forgot" ? "forgot" : initialMode === "reset" ? "reset" : "login"
+    );
     const [serverError, setServerError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const loginForm = useForm<LoginValues>({
@@ -46,6 +64,16 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
     const registerForm = useForm<RegisterValues>({
         resolver: zodResolver(registerSchema),
         defaultValues: { name: "", email: "", password: "" },
+    });
+
+    const forgotForm = useForm<ForgotValues>({
+        resolver: zodResolver(forgotSchema),
+        defaultValues: { email: "" },
+    });
+
+    const resetForm = useForm<ResetValues>({
+        resolver: zodResolver(resetSchema),
+        defaultValues: { password: "", confirmPassword: "" },
     });
 
     // Sync auth context error with local state
@@ -92,7 +120,52 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
         }
     }
 
+    async function handleForgot(values: ForgotValues) {
+        setServerError(null);
+        setSuccessMessage(null);
+        setIsLoading(true);
+        try {
+            const res = await fetch("/api/auth/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: values.email }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            setSuccessMessage(data.message || "If an account exists, you will receive a reset link shortly.");
+        } catch (error: any) {
+            setServerError(error.message || "An error occurred.");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function handleReset(values: ResetValues) {
+        setServerError(null);
+        setIsLoading(true);
+        try {
+            const token = searchParams?.get("token");
+            if (!token) throw new Error("Missing reset token.");
+            const res = await fetch("/api/auth/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, newPassword: values.password }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            setSuccessMessage("Password reset successfully!");
+            setTimeout(() => setMode("login"), 2000);
+        } catch (error: any) {
+            setServerError(error.message || "Reset link expired or invalid.");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const isLogin = mode === "login";
+    const isRegister = mode === "register";
+    const isForgot = mode === "forgot";
+    const isReset = mode === "reset";
 
     return (
         <div className="fixed inset-0 z-50 bg-[#0A0D0B] flex flex-col items-center justify-center font-sans">
@@ -171,13 +244,16 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
                                 )}
                             </button>
 
-                            <div className="pt-4 text-center">
+                            <div className="pt-4 flex justify-between">
                                 <button type="button" onClick={() => setMode("register")} className="text-xs text-gray-500 hover:text-[#DBC2A6] transition-colors">
-                                    Need to initialize an admin account? Register
+                                    Need an account? Register
+                                </button>
+                                <button type="button" onClick={() => setMode("forgot")} className="text-xs text-gray-500 hover:text-[#DBC2A6] transition-colors">
+                                    Forgot password?
                                 </button>
                             </div>
                         </form>
-                    ) : (
+                    ) : isRegister ? (
                         <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
                             <div>
                                 <input
@@ -240,7 +316,37 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
                                 </button>
                             </div>
                         </form>
-                    )}
+                    ) : isForgot ? (
+                        <form onSubmit={forgotForm.handleSubmit(handleForgot)} className="space-y-4">
+                            <div>
+                                <input type="email" placeholder="Administrator Email" className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all" {...forgotForm.register("email")} />
+                                {forgotForm.formState.errors.email && <p className="text-red-400 text-xs mt-2 pl-4">{forgotForm.formState.errors.email.message}</p>}
+                            </div>
+                            {serverError && <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-4 rounded-xl text-center">{serverError}</div>}
+                            {successMessage && <div className="bg-green-500/10 border border-green-500/20 text-green-400 text-sm p-4 rounded-xl text-center">{successMessage}</div>}
+                            <button type="submit" disabled={isLoading} className="w-full bg-[#DBC2A6] hover:bg-[#E5D5C5] text-[#111412] font-bold text-sm py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group mt-6">
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>SEND RESET LINK<ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" /></>}
+                            </button>
+                            <div className="pt-4 text-center"><button type="button" onClick={() => setMode("login")} className="text-xs text-gray-500 hover:text-[#DBC2A6] transition-colors">Back to login</button></div>
+                        </form>
+                    ) : isReset ? (
+                        <form onSubmit={resetForm.handleSubmit(handleReset)} className="space-y-4">
+                            <div>
+                                <input type="password" placeholder="New Password" className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all" {...resetForm.register("password")} />
+                                {resetForm.formState.errors.password && <p className="text-red-400 text-xs mt-2 pl-4">{resetForm.formState.errors.password.message}</p>}
+                            </div>
+                            <div>
+                                <input type="password" placeholder="Confirm Password" className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all" {...resetForm.register("confirmPassword")} />
+                                {resetForm.formState.errors.confirmPassword && <p className="text-red-400 text-xs mt-2 pl-4">{resetForm.formState.errors.confirmPassword.message}</p>}
+                            </div>
+                            {serverError && <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-4 rounded-xl text-center">{serverError}</div>}
+                            {successMessage && <div className="bg-green-500/10 border border-green-500/20 text-green-400 text-sm p-4 rounded-xl text-center">{successMessage}</div>}
+                            <button type="submit" disabled={isLoading} className="w-full bg-[#DBC2A6] hover:bg-[#E5D5C5] text-[#111412] font-bold text-sm py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group mt-6">
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>RESET PASSWORD<ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" /></>}
+                            </button>
+                            <div className="pt-4 text-center"><button type="button" onClick={() => setMode("login")} className="text-xs text-gray-500 hover:text-[#DBC2A6] transition-colors">Back to login</button></div>
+                        </form>
+                    ) : null}
                 </div>
 
                 {/* Info Pills */}
