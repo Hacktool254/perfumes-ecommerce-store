@@ -16,6 +16,7 @@ import type * as cart from "../cart.js";
 import type * as categories from "../categories.js";
 import type * as chatbot from "../chatbot.js";
 import type * as chatbotActions from "../chatbotActions.js";
+import type * as clearUsers from "../clearUsers.js";
 import type * as coupons from "../coupons.js";
 import type * as crons from "../crons.js";
 import type * as debug from "../debug.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   categories: typeof categories;
   chatbot: typeof chatbot;
   chatbotActions: typeof chatbotActions;
+  clearUsers: typeof clearUsers;
   coupons: typeof coupons;
   crons: typeof crons;
   debug: typeof debug;
