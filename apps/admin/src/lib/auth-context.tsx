@@ -57,7 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLocalLoading(true);
     try {
       await signIn("password", { flow: "signIn", email, password });
-      router.push("/");
+      // Don't navigate here — the AuthGuard will redirect to "/" once
+      // the viewer query resolves and confirms the admin role.
     } catch (err: any) {
       setError(err.message || "Login failed. Please try again.");
       throw err;
@@ -71,7 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLocalLoading(true);
     try {
       await signIn("password", { flow: "signUp", email, password, name });
-      router.push("/");
+      // Don't navigate here — the AuthGuard will redirect to "/" once
+      // the viewer query resolves and confirms the admin role.
     } catch (err: any) {
       setError(err.message || "Registration failed. Please try again.");
       throw err;

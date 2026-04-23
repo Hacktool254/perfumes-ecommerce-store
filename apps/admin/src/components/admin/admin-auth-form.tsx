@@ -87,7 +87,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
         setIsLoading(true);
         try {
             await login(values.email, values.password);
-            router.push(redirectPath);
+            // AuthGuard handles redirect to dashboard
         } catch (err: any) {
             console.error("Login error:", err);
             const msg = err?.message || "";
@@ -107,7 +107,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
         setIsLoading(true);
         try {
             await register(values.name, values.email, values.password);
-            router.push(redirectPath);
+            // AuthGuard handles redirect to dashboard
         } catch (err: any) {
             console.error("Registration error:", err);
             const msg = err?.message || "";
