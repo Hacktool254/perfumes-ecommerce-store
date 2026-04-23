@@ -28,7 +28,6 @@ import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
 import type * as preferences from "../preferences.js";
 import type * as products from "../products.js";
-import type * as restoreNowRave from "../restoreNowRave.js";
 import type * as reviews from "../reviews.js";
 import type * as searches from "../searches.js";
 import type * as siteSettings from "../siteSettings.js";
@@ -63,7 +62,6 @@ declare const fullApi: ApiFromModules<{
   payments: typeof payments;
   preferences: typeof preferences;
   products: typeof products;
-  restoreNowRave: typeof restoreNowRave;
   reviews: typeof reviews;
   searches: typeof searches;
   siteSettings: typeof siteSettings;

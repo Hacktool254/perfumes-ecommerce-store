@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
         // Flow 1: Request password reset email
         if (body.email && !body.token) {
-            const origin = request.headers.get("origin") || "https://ummiesessence.com";
+            const origin = request.headers.get("origin") || "https://ummieessence.store";
 
             await convex.action(api.emails.requestPasswordReset, {
                 email: body.email,

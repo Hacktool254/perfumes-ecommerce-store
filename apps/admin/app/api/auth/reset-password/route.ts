@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         if (body.email && !body.token) {
-            const origin = request.headers.get("origin") || "https://admin.ummiesessence.com";
+            const origin = request.headers.get("origin") || "https://admin.ummieessence.store";
             await convex.action(api.emails.requestPasswordReset, {
                 email: body.email,
                 appBaseUrl: origin,

@@ -8,7 +8,7 @@ if (!url) {
 
 const client = new ConvexHttpClient(url);
 
-client.mutation("users:promoteToAdmin", { email: "admin@ummiesessence.com" })
+client.mutation("users:promoteToAdmin", { email: "admin@ummieessence.store" })
     .then((res) => {
         console.log("Success:", res);
     })

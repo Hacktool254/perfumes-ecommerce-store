@@ -147,8 +147,8 @@ export function ContactClient() {
                                 {
                                     icon: <Mail className="w-6 h-6" />,
                                     title: "Email Us",
-                                    value: "concierge@ummiesessence.com",
-                                    link: "mailto:concierge@ummiesessence.com"
+                                    value: "support@ummieessence.store",
+                                    link: "mailto:support@ummieessence.store"
                                 },
                                 {
                                     icon: <Phone className="w-6 h-6" />,

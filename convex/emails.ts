@@ -202,7 +202,7 @@ export const sendWelcomeEmail = internalAction({
                 <p style="color:#666;line-height:1.7">Hi ${args.name},</p>
                 <p style="color:#666;line-height:1.7">Thank you for joining ${STORE_NAME}! We're thrilled to have you.</p>
                 <p style="color:#666;line-height:1.7">Explore our curated collection of premium fragrances from top houses like Lattafa, Maison Alhambra, and more.</p>
-                ${btnHtml("Start Shopping", "https://ummiesessence.com/shop")}
+                ${btnHtml("Start Shopping", "https://ummieessence.store/shop")}
                 <p style="color:#999;font-size:12px">Need help? Just reply to this email or chat with Ummie on our website!</p>
             `),
         });
@@ -277,7 +277,7 @@ export const sendShippingNotification = internalAction({
                     <p style="margin:12px 0 0;font-size:12px;color:#999">Estimated Delivery</p>
                     <p style="margin:0;font-weight:600;color:#2f2f2f">Nairobi: Same day · Rest of Kenya: 2-3 days</p>
                 </div>
-                ${btnHtml("Track Your Order", "https://ummiesessence.com/track-order")}
+                ${btnHtml("Track Your Order", "https://ummieessence.store/track-order")}
             `),
         });
     },
@@ -302,7 +302,7 @@ export const sendDeliveryConfirmation = internalAction({
                 <p style="color:#666;line-height:1.7">Hi ${user.name || "there"},</p>
                 <p style="color:#666;line-height:1.7">Your order has been delivered! We hope you love your new fragrance. 🌸</p>
                 <p style="color:#666;line-height:1.7">If you have a moment, we'd love to hear your thoughts — leave a review on our shop!</p>
-                ${btnHtml("Leave a Review", "https://ummiesessence.com/account/orders")}
+                ${btnHtml("Leave a Review", "https://ummieessence.store/account/orders")}
             `),
         });
     },
@@ -355,7 +355,7 @@ export const sendAbandonedCartEmail = internalAction({
                 <p style="color:#666;line-height:1.7">Hi ${user.name || "there"},</p>
                 <p style="color:#666;line-height:1.7">You left some amazing fragrances in your cart! They're still waiting for you.</p>
                 <p style="color:#666;line-height:1.7">Complete your purchase before they sell out! 💨</p>
-                ${btnHtml("Complete Your Order", "https://ummiesessence.com/cart")}
+                ${btnHtml("Complete Your Order", "https://ummieessence.store/cart")}
             `),
         });
     },
@@ -401,7 +401,7 @@ export const sendNewOrderAlert = internalAction({
                     <p style="margin:0 0 8px"><strong>Items:</strong> ${order.items.length}</p>
                     <p style="margin:0;font-weight:700;color:${BRAND_COLOR};font-size:18px">Total: KES ${order.totalAmount.toLocaleString()}</p>
                 </div>
-                ${btnHtml("View in Dashboard", "https://admin.ummiesessence.com/orders")}
+                ${btnHtml("View in Dashboard", "https://admin.ummieessence.store/orders")}
             `),
         });
     },
