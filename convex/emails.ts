@@ -3,14 +3,19 @@ import { action, internalAction, internalMutation, internalQuery, mutation, quer
 import { api, internal } from "./_generated/api";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = "Ummie's Essence <onboarding@resend.dev>";
+
+// Custom Email Addresses
+const EMAIL_SUPPORT = "Ummie's Essence <support@ummieessence.store>";
+const EMAIL_ORDERS = "Ummie's Essence <orders@ummieessence.store>";
+const EMAIL_ALERTS = "Ummie's Essence <alerts@ummieessence.store>";
+
 const STORE_NAME = "Ummie's Essence";
 const BRAND_COLOR = "#8b1538";
 const BRAND_BG = "#fdf6f7";
 
 // ─── Resend API Helper ────────────────────────────────────────────────────────
 
-async function sendEmailViaResend({ to, subject, html }: { to: string; subject: string; html: string }) {
+async function sendEmailViaResend({ fromEmail = EMAIL_SUPPORT, to, subject, html }: { fromEmail?: string; to: string; subject: string; html: string }) {
     if (!RESEND_API_KEY || RESEND_API_KEY === "your_resend_key_here") {
         console.log("[Email Mock] To:", to, "Subject:", subject);
         return { id: "mock_id" };
@@ -22,7 +27,7 @@ async function sendEmailViaResend({ to, subject, html }: { to: string; subject: 
             "Content-Type": "application/json",
             Authorization: `Bearer ${RESEND_API_KEY}`,
         },
-        body: JSON.stringify({ from: FROM_EMAIL, to, subject, html }),
+        body: JSON.stringify({ from: fromEmail, to, subject, html }),
     });
 
     if (!response.ok) {
@@ -224,6 +229,7 @@ export const sendOrderConfirmation = internalAction({
         }).join("");
 
         await sendEmailViaResend({
+            fromEmail: EMAIL_ORDERS,
             to: user.email,
             subject: `Order Confirmed! 🎉 — ${STORE_NAME}`,
             html: emailWrapper("Order Confirmed!", `
@@ -259,6 +265,7 @@ export const sendShippingNotification = internalAction({
         if (!user?.email) return;
 
         await sendEmailViaResend({
+            fromEmail: EMAIL_ORDERS,
             to: user.email,
             subject: `Your order is on its way! 🚚 — ${STORE_NAME}`,
             html: emailWrapper("Your Order Has Shipped!", `
@@ -288,6 +295,7 @@ export const sendDeliveryConfirmation = internalAction({
         if (!user?.email) return;
 
         await sendEmailViaResend({
+            fromEmail: EMAIL_ORDERS,
             to: user.email,
             subject: `Order Delivered! ✅ — ${STORE_NAME}`,
             html: emailWrapper("Order Delivered!", `
@@ -316,6 +324,7 @@ export const sendPaymentConfirmation = internalAction({
             : "";
 
         await sendEmailViaResend({
+            fromEmail: EMAIL_ORDERS,
             to: user.email,
             subject: `Payment Received 💳 — ${STORE_NAME}`,
             html: emailWrapper("Payment Confirmed!", `
@@ -358,6 +367,7 @@ export const sendLowStockAlert = internalAction({
     args: { productName: v.string(), currentStock: v.number(), adminEmail: v.string() },
     handler: async (_ctx, args) => {
         await sendEmailViaResend({
+            fromEmail: EMAIL_ALERTS,
             to: args.adminEmail,
             subject: `⚠️ Low Stock Alert: ${args.productName}`,
             html: emailWrapper("Low Stock Alert", `
@@ -380,6 +390,7 @@ export const sendNewOrderAlert = internalAction({
         if (!order) return;
 
         await sendEmailViaResend({
+            fromEmail: EMAIL_ALERTS,
             to: args.adminEmail,
             subject: `🔔 New Order: KES ${order.totalAmount.toLocaleString()}`,
             html: emailWrapper("New Order Received!", `
