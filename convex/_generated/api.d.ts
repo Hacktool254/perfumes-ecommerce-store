@@ -22,7 +22,7 @@ import type * as debug from "../debug.js";
 import type * as emails from "../emails.js";
 import type * as export_ from "../export.js";
 import type * as files from "../files.js";
-import type * as fixDuplicates from "../fixDuplicates.js";
+import type * as fixNowRave from "../fixNowRave.js";
 import type * as http from "../http.js";
 import type * as httpAuth from "../httpAuth.js";
 import type * as orders from "../orders.js";
@@ -57,7 +57,7 @@ declare const fullApi: ApiFromModules<{
   emails: typeof emails;
   export: typeof export_;
   files: typeof files;
-  fixDuplicates: typeof fixDuplicates;
+  fixNowRave: typeof fixNowRave;
   http: typeof http;
   httpAuth: typeof httpAuth;
   orders: typeof orders;
