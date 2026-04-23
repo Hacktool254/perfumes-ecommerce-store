@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
 import { usePaginatedQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Id } from "@workspaceRoot/convex/_generated/dataModel";
 import { useCart } from "@/hooks/use-cart";
 
@@ -15,6 +15,8 @@ const ITEMS_PER_PAGE = 12;
 
 export function ProductGrid() {
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
     const { addItem } = useCart();
     const [addedId, setAddedId] = useState<string | null>(null);
     const activeCategoriesRaw = searchParams?.get("category");
@@ -25,6 +27,7 @@ export function ProductGrid() {
     const maxPriceRaw = searchParams?.get("maxPrice");
     const inStockRaw = searchParams?.get("inStock");
     const searchTerm = searchParams?.get("search") || undefined;
+    const sortParam = searchParams?.get("sort") || "featured";
 
     const categoryIds = activeCategoriesRaw 
         ? (activeCategoriesRaw.split(",").filter(id => id.length >= 30) as Id<"categories">[]) 
@@ -55,7 +58,7 @@ export function ProductGrid() {
     // Reset to page 1 when filters or search change
     useEffect(() => {
         setCurrentPage(1);
-    }, [activeCategoriesRaw, gender, activeBrandsRaw, minPriceRaw, maxPriceRaw, inStockRaw, searchTerm]);
+    }, [activeCategoriesRaw, gender, activeBrandsRaw, minPriceRaw, maxPriceRaw, inStockRaw, searchTerm, sortParam]);
 
     // Keep loading until we have all items
     useEffect(() => {
@@ -64,15 +67,35 @@ export function ProductGrid() {
         }
     }, [status, loadMore]);
 
-    const totalItems = results.length;
+    const sortedResults = useMemo(() => {
+        let sorted = [...results];
+        switch (sortParam) {
+            case "price-asc":
+                sorted.sort((a, b) => a.price - b.price);
+                break;
+            case "price-desc":
+                sorted.sort((a, b) => b.price - a.price);
+                break;
+            case "newest":
+                sorted.sort((a, b) => b._creationTime - a._creationTime);
+                break;
+            case "featured":
+            default:
+                // Keep default API order
+                break;
+        }
+        return sorted;
+    }, [results, sortParam]);
+
+    const totalItems = sortedResults.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
 
     // Get current page items
     const currentItems = useMemo(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
-        return results.slice(start, end);
-    }, [results, currentPage]);
+        return sortedResults.slice(start, end);
+    }, [sortedResults, currentPage]);
 
     // Generate page numbers to display
     const getPageNumbers = () => {
@@ -109,6 +132,12 @@ export function ProductGrid() {
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
+    const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const params = new URLSearchParams(searchParams?.toString() || "");
+        params.set("sort", e.target.value);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    };
+
     if (status === "LoadingFirstPage") {
         return (
             <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in duration-700">
@@ -138,11 +167,15 @@ export function ProductGrid() {
                 <span>{totalItems} products</span>
                 <div className="flex items-center gap-2">
                     <span>Sort by:</span>
-                    <select className="bg-transparent font-medium focus:outline-none cursor-pointer">
-                        <option>Featured</option>
-                        <option>Best Selling</option>
-                        <option>Price, low to high</option>
-                        <option>Price, high to low</option>
+                    <select 
+                        value={sortParam}
+                        onChange={handleSortChange}
+                        className="bg-transparent font-medium focus:outline-none cursor-pointer"
+                    >
+                        <option value="featured">Featured</option>
+                        <option value="price-asc">Price, low to high</option>
+                        <option value="price-desc">Price, high to low</option>
+                        <option value="newest">Newest</option>
                     </select>
                 </div>
             </div>

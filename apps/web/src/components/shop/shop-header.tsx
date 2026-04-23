@@ -36,6 +36,7 @@ export function ShopHeader() {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     
     const currentView = searchParams?.get("view") || "grid"; // default to grid
+    const sortParam = searchParams?.get("sort") || "featured";
 
     const createQueryString = useCallback(
         (name: string, value: string | null) => {
@@ -52,6 +53,10 @@ export function ShopHeader() {
 
     const setView = (viewType: "list" | "grid") => {
         router.push(`${pathname}?${createQueryString("view", viewType)}`, { scroll: false });
+    };
+
+    const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        router.push(`${pathname}?${createQueryString("sort", e.target.value)}`, { scroll: false });
     };
 
     return (
@@ -158,12 +163,15 @@ export function ShopHeader() {
             <div className="flex-none px-6 py-4 border-b border-gray-100">
                 <div className="flex items-center gap-4">
                     <span className="text-sm text-gray-500 whitespace-nowrap">Sort by:</span>
-                    <select className="flex-1 bg-[#f5f5f5] rounded-full px-4 py-2.5 text-sm font-medium text-[#2f2f2f] appearance-none cursor-pointer border-0 focus:ring-0 focus:outline-none">
-                        <option>Featured</option>
-                        <option>Price: Low to High</option>
-                        <option>Price: High to Low</option>
-                        <option>Newest</option>
-                        <option>Best Selling</option>
+                    <select 
+                        value={sortParam}
+                        onChange={handleSortChange}
+                        className="flex-1 bg-[#f5f5f5] rounded-full px-4 py-2.5 text-sm font-medium text-[#2f2f2f] appearance-none cursor-pointer border-0 focus:ring-0 focus:outline-none"
+                    >
+                        <option value="featured">Featured</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="newest">Newest</option>
                     </select>
                 </div>
             </div>
