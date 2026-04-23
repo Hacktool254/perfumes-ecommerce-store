@@ -36,3 +36,11 @@ export const getAdminEmails = query({
         return admins.map(u => ({ email: u.email, name: u.name }));
     },
 });
+
+export const getRecentUsers = query({
+    args: {},
+    handler: async (ctx) => {
+        const users = await ctx.db.query("users").order("desc").take(5);
+        return users.map(u => ({ email: u.email, name: u.name, role: u.role }));
+    },
+});

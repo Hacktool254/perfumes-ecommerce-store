@@ -14,11 +14,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         // Wait for auth to initialize
         if (isLoading) return;
 
-        // If not logged in or not an admin, and we are not on the login page...
-        if ((!user || user.role !== "admin") && !pathname?.startsWith("/login")) {
+        const isAuthRoute = pathname?.startsWith("/login") || pathname?.startsWith("/register") || pathname?.startsWith("/reset-password");
+
+        // If not logged in or not an admin, and we are not on an auth page...
+        if ((!user || user.role !== "admin") && !isAuthRoute) {
             router.replace("/login");
-        } else if (user && user.role === "admin" && pathname?.startsWith("/login")) {
-            // If logged in as admin and on login page, redirect to dashboard
+        } else if (user && user.role === "admin" && isAuthRoute) {
+            // If logged in as admin and on an auth page, redirect to dashboard
             router.replace("/");
         }
 
@@ -37,8 +39,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         );
     }
 
+    const isAuthRoute = pathname?.startsWith("/login") || pathname?.startsWith("/register") || pathname?.startsWith("/reset-password");
+
     // Allow rendering if doing authentication flow, OR if they are a valid admin
-    if (pathname?.startsWith("/login") || (user && user.role === "admin")) {
+    if (isAuthRoute || (user && user.role === "admin")) {
         return <>{children}</>;
     }
 
