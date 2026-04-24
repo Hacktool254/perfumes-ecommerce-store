@@ -31,6 +31,7 @@ import type * as products from "../products.js";
 import type * as reviews from "../reviews.js";
 import type * as searches from "../searches.js";
 import type * as siteSettings from "../siteSettings.js";
+import type * as temp from "../temp.js";
 import type * as userDashboard from "../userDashboard.js";
 import type * as users from "../users.js";
 import type * as wishlist from "../wishlist.js";
@@ -65,6 +66,7 @@ declare const fullApi: ApiFromModules<{
   reviews: typeof reviews;
   searches: typeof searches;
   siteSettings: typeof siteSettings;
+  temp: typeof temp;
   userDashboard: typeof userDashboard;
   users: typeof users;
   wishlist: typeof wishlist;
