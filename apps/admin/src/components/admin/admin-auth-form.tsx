@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth-context";
-import { Sparkles, LayoutGrid, Package, Receipt, Users, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
+import { Sparkles, LayoutGrid, Package, Receipt, Users, ShieldCheck, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 
 // ─── Zod Schemas ─────────────────────────────────────────────────────────────
 
@@ -55,6 +55,7 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
     const [serverError, setServerError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const loginForm = useForm<LoginValues>({
         resolver: zodResolver(loginSchema),
@@ -211,13 +212,20 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
                                     <p className="text-red-400 text-xs mt-2 pl-4">{loginForm.formState.errors.email.message}</p>
                                 )}
                             </div>
-                            <div>
+                            <div className="relative">
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="Secure Password"
-                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all"
+                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all pr-12"
                                     {...loginForm.register("password")}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#DBC2A6] transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                                 {loginForm.formState.errors.password && (
                                     <p className="text-red-400 text-xs mt-2 pl-4">{loginForm.formState.errors.password.message}</p>
                                 )}
@@ -277,13 +285,20 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
                                     <p className="text-red-400 text-xs mt-2 pl-4">{registerForm.formState.errors.email.message}</p>
                                 )}
                             </div>
-                            <div>
+                            <div className="relative">
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="Secure Password"
-                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all"
+                                    className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all pr-12"
                                     {...registerForm.register("password")}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#DBC2A6] transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                                 {registerForm.formState.errors.password && (
                                     <p className="text-red-400 text-xs mt-2 pl-4">{registerForm.formState.errors.password.message}</p>
                                 )}
@@ -331,12 +346,26 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
                         </form>
                     ) : isReset ? (
                         <form onSubmit={resetForm.handleSubmit(handleReset)} className="space-y-4">
-                            <div>
-                                <input type="password" placeholder="New Password" className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all" {...resetForm.register("password")} />
+                            <div className="relative">
+                                <input type={showPassword ? "text" : "password"} placeholder="New Password" className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all pr-12" {...resetForm.register("password")} />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#DBC2A6] transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                                 {resetForm.formState.errors.password && <p className="text-red-400 text-xs mt-2 pl-4">{resetForm.formState.errors.password.message}</p>}
                             </div>
-                            <div>
-                                <input type="password" placeholder="Confirm Password" className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all" {...resetForm.register("confirmPassword")} />
+                            <div className="relative">
+                                <input type={showPassword ? "text" : "password"} placeholder="Confirm Password" className="w-full bg-[#1A1E1C] border border-white/5 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#414A37] focus:ring-1 focus:ring-[#414A37] transition-all pr-12" {...resetForm.register("confirmPassword")} />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#DBC2A6] transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                                 {resetForm.formState.errors.confirmPassword && <p className="text-red-400 text-xs mt-2 pl-4">{resetForm.formState.errors.confirmPassword.message}</p>}
                             </div>
                             {serverError && <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-4 rounded-xl text-center">{serverError}</div>}
