@@ -1,23 +1,32 @@
-import { convexAuthNextjsMiddleware, createRouteMatcher, nextjsMiddlewareRedirect } from "@convex-dev/auth/nextjs/server";
+import {
+  convexAuthNextjsMiddleware,
+  createRouteMatcher,
+  nextjsMiddlewareRedirect,
+} from "@convex-dev/auth/nextjs/server";
 
-const isSignInPage = createRouteMatcher(["/login", "/register"]);
+const isSignInPage = createRouteMatcher(["/login"]);
 
-export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
+export default convexAuthNextjsMiddleware(
+  async (request, { convexAuth }) => {
     const isAuthenticated = await convexAuth.isAuthenticated();
 
+    console.log(`[Middleware] path=${request.nextUrl.pathname} auth=${isAuthenticated}`);
 
-    // If logged in and hitting login/register, go to dashboard
+    // On login page and already authenticated → go to dashboard
     if (isSignInPage(request) && isAuthenticated) {
-        return nextjsMiddlewareRedirect(request, "/");
+      return nextjsMiddlewareRedirect(request, "/");
     }
 
-    // If NOT logged in and NOT on a sign-in page, go to login
+    // On protected page and NOT authenticated → go to login
     if (!isSignInPage(request) && !isAuthenticated) {
-        return nextjsMiddlewareRedirect(request, "/login");
+      return nextjsMiddlewareRedirect(request, "/login");
     }
-}, { verbose: true });
+
+    // Otherwise let through
+  },
+  { verbose: true }
+);
 
 export const config = {
-    // Include /api/* so the middleware can proxy /api/auth actions to Convex.
-    matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };
