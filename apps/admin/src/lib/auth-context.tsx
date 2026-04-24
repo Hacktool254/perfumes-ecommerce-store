@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearError = () => setError(null);
 
-  const isLoading = isConvexLoading || isLocalLoading || (isAuthenticated && !viewer);
+  const isLoading = isConvexLoading || isLocalLoading || (isAuthenticated && viewer === undefined);
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, register, logout, error, clearError }}>
