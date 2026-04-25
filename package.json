@@ -17,7 +17,7 @@
   ],
   "dependencies": {
     "@auth/core": "^0.37.4",
-    "@convex-dev/auth": "^0.0.90",
+    "@convex-dev/auth": "^0.0.91",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-dropdown-menu": "^2.1.16",

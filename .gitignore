@@ -44,3 +44,4 @@ next-env.d.ts
 
 # turbo cache — never commit build artifacts
 .turbo/
+.env*.local
