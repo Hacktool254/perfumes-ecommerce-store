@@ -88,7 +88,14 @@ export function AdminAuthForm({ mode: initialMode, redirectPath = "/" }: AdminAu
         setIsLoading(true);
         try {
             await login(values.email, values.password);
-            // AuthGuard handles redirect to dashboard
+            
+            // Check admin status by calling the query or let the guard handle it.
+            // But we MUST unset loading state after a timeout to prevent infinite spin
+            // if the guard doesn't navigate (e.g. they aren't an admin).
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 2000);
+            
         } catch (err: any) {
             console.error("Login error:", err);
             const msg = err?.message || "";
