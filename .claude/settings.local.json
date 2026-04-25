@@ -37,7 +37,31 @@
       "Bash(kill -9 46700)",
       "Bash(npx cross-env:*)",
       "Bash(PORT=3002 npx next:*)",
-      "Bash(cmd:*)"
+      "Bash(cmd:*)",
+      "Bash(cat .env.local)",
+      "Bash(cat .env)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex run supervisor:isAdmin --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex run users:list '{\"searchTerm\": \"\"}' --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex data users --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex data adminProfiles --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex run users:promoteToAdmin '{\"email\": \"admin@ummieessence.store\"}' --prod)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex env list --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex data authAccounts --prod)",
+      "Bash(npx vercel *)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex logs --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex logs --prod --success)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex data authSessions --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex data userProfiles --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex env --help)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex env get CONVEX_AUTH_PRIVATE_KEY --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex env get JWT_PRIVATE_KEY --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex env get CONVEX_AUTH_PUBLIC_KEY --prod)",
+      "Bash(CONVEX_DEPLOY_KEY=\"prod:polished-badger-601|eyJ2MiI6ImM0YjFkYjg0YWQ2MjRkMzI4ZWVmM2ZiYWFmMDg4NzZmIn0=\" npx convex env set CONVEX_AUTH_PRIVATE_KEY --env-file .env.keys.tmp --prod)",
+      "Bash(grep '\\\\\\\\r\\\\\\\\n\"' \"c:/Users/pc/OneDrive/Desktop/Dev/Ummiesessence/apps/admin/.env.vercel.production.local\")",
+      "Bash(git commit *)"
     ]
   }
 }
