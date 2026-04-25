@@ -9,12 +9,14 @@
  */
 
 import type * as addresses from "../addresses.js";
+import type * as adminActions from "../adminActions.js";
 import type * as adminScripts from "../adminScripts.js";
 import type * as auth from "../auth.js";
 import type * as cart from "../cart.js";
 import type * as categories from "../categories.js";
 import type * as chatbot from "../chatbot.js";
 import type * as chatbotActions from "../chatbotActions.js";
+import type * as cleanup from "../cleanup.js";
 import type * as coupons from "../coupons.js";
 import type * as crons from "../crons.js";
 import type * as debug from "../debug.js";
@@ -43,12 +45,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   addresses: typeof addresses;
+  adminActions: typeof adminActions;
   adminScripts: typeof adminScripts;
   auth: typeof auth;
   cart: typeof cart;
   categories: typeof categories;
   chatbot: typeof chatbot;
   chatbotActions: typeof chatbotActions;
+  cleanup: typeof cleanup;
   coupons: typeof coupons;
   crons: typeof crons;
   debug: typeof debug;

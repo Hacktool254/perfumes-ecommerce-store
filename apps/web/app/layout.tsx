@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import { Fredoka, Playfair_Display, DM_Sans, DM_Serif_Display } from "next/font/google";
 
 const fredoka = Fredoka({
@@ -33,13 +32,13 @@ const dmSerifDisplay = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ummies-essence.vercel.app"),
+  metadataBase: new URL("https://ummieessence.store"),
   title: {
     default: "Ummie's Essence | Luxury Perfumes & Cosmetics Kenya",
     template: "%s | Ummie's Essence"
   },
   description: "Exquisite fragrances and premium cosmetics curated for the modern connoisseur. Experience the essence of luxury in Kenya with M-Pesa convenience.",
-  keywords: ["perfumes Kenya", "luxury fragrances", "designer scents Nairobi", "Oud collection Kenya", "premium cosmetics", "Ummie's Essence"],
+  keywords: ["perfumes Kenya", "luxury fragrances", "designer scents Nairobi", "Oud collection Kenya", "premium cosmetics", "Ummie's Essence", "perfumes Nairobi", "buy perfumes Kenya", "oud perfume Kenya"],
   authors: [{ name: "Ummie's Essence" }],
   creator: "Ummie's Essence",
   publisher: "Ummie's Essence",
@@ -51,13 +50,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_KE",
-    url: "https://ummies-essence.vercel.app",
+    url: "https://ummieessence.store",
     siteName: "Ummie's Essence",
     title: "Ummie's Essence | Luxury Perfumes & Cosmetics Kenya",
     description: "Exquisite fragrances and premium cosmetics curated for the modern connoisseur.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "Ummie's Essence Luxury Collection",
@@ -68,7 +67,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ummie's Essence | Luxury Perfumes & Cosmetics Kenya",
     description: "Exquisite fragrances and premium cosmetics curated for the modern connoisseur.",
-    images: ["/og-image.jpg"],
+    images: ["/opengraph-image"],
   },
   icons: {
     icon: [

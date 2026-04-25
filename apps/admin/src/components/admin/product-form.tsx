@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,16 +24,16 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, X, Save, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import { X, Save, ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery, useAction } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { Id } from "@workspaceRoot/convex/_generated/dataModel";
-import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
+import { ImageUploader } from "@/components/admin/image-uploader";
 
 const productSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -52,10 +52,13 @@ type ProductFormValues = z.infer<typeof productSchema>;
 export function ProductForm({ initialData }: { initialData?: any }) {
     const router = useRouter();
     const [images, setImages] = useState<string[]>(initialData?.images || []);
+    const [generatingDesc, setGeneratingDesc] = useState(false);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const categories = useQuery(api.categories.list);
 
     const createProduct = useMutation(api.products.create);
     const updateProduct = useMutation(api.products.update);
+    const generateDescription = useAction(api.adminActions.generateProductDescription);
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productSchema) as any,
@@ -83,20 +86,68 @@ export function ProductForm({ initialData }: { initialData?: any }) {
     });
 
     const name = form.watch("name");
+    const brand = form.watch("brand");
+    const gender = form.watch("gender");
+    const categoryId = form.watch("categoryId");
 
     useEffect(() => {
-        // Auto-generate slug from name if we're creating a new product
         if (!initialData && name) {
             const generatedSlug = name
                 .toLowerCase()
                 .trim()
-                .replace(/[^\w\s-]/g, "") // Remove non-word characters except spaces and hyphens
-                .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
-                .replace(/^-+|-+$/g, "");   // Remove leading/trailing hyphens
-            
+                .replace(/[^\w\s-]/g, "")
+                .replace(/[\s_-]+/g, "-")
+                .replace(/^-+|-+$/g, "");
             form.setValue("slug", generatedSlug, { shouldValidate: true });
         }
     }, [name, form, initialData]);
+
+    // Auto-generate description when name is long enough (debounced, new products only)
+    useEffect(() => {
+        if (initialData) return; // don't overwrite existing descriptions
+        if (!name || name.trim().length < 3) return;
+
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(async () => {
+            const categoryName = categories?.find(c => c._id === categoryId)?.name;
+            try {
+                setGeneratingDesc(true);
+                const desc = await generateDescription({
+                    name: name.trim(),
+                    brand: brand || undefined,
+                    gender: gender || undefined,
+                    categoryName: categoryName || undefined,
+                });
+                if (desc) form.setValue("description", desc, { shouldValidate: true });
+            } catch {
+                // Fail silently — user can still type manually
+            } finally {
+                setGeneratingDesc(false);
+            }
+        }, 1200); // wait 1.2s after user stops typing
+
+        return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [name, brand, gender, categoryId]);
+
+    async function handleRegenerateDescription() {
+        if (!name || name.trim().length < 3) return;
+        const categoryName = categories?.find(c => c._id === categoryId)?.name;
+        try {
+            setGeneratingDesc(true);
+            const desc = await generateDescription({
+                name: name.trim(),
+                brand: brand || undefined,
+                gender: gender || undefined,
+                categoryName: categoryName || undefined,
+            });
+            if (desc) form.setValue("description", desc, { shouldValidate: true });
+        } catch {
+            // Fail silently
+        } finally {
+            setGeneratingDesc(false);
+        }
+    }
 
     const onSubmit = async (data: ProductFormValues) => {
         try {
@@ -243,9 +294,41 @@ export function ProductForm({ initialData }: { initialData?: any }) {
                                     name="description"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-neutral-400">Description</FormLabel>
+                                            <div className="flex items-center justify-between mb-1.5">
+                                                <FormLabel className="text-neutral-400 mb-0">Description</FormLabel>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRegenerateDescription}
+                                                    disabled={generatingDesc || !name || name.trim().length < 3}
+                                                    className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-primary hover:text-primary/80 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                                    {generatingDesc ? (
+                                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                                    ) : (
+                                                        <Sparkles className="w-3 h-3" />
+                                                    )}
+                                                    {generatingDesc ? "Generating..." : "AI Generate"}
+                                                </button>
+                                            </div>
                                             <FormControl>
-                                                <Textarea {...field} className="bg-neutral-800 border-neutral-700 focus-visible:ring-primary/50 min-h-[150px] leading-relaxed" placeholder="Describe the olfactory journey..." />
+                                                <div className="relative">
+                                                    <Textarea
+                                                        {...field}
+                                                        className={cn(
+                                                            "bg-neutral-800 border-neutral-700 focus-visible:ring-primary/50 min-h-[150px] leading-relaxed transition-opacity",
+                                                            generatingDesc && "opacity-50"
+                                                        )}
+                                                        placeholder="Describe the olfactory journey..."
+                                                    />
+                                                    {generatingDesc && (
+                                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                            <div className="flex items-center gap-2 bg-neutral-900/80 px-3 py-1.5 rounded-full">
+                                                                <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
+                                                                <span className="text-xs text-neutral-300 font-serif italic">Writing description...</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -283,23 +366,10 @@ export function ProductForm({ initialData }: { initialData?: any }) {
                                 </div>
 
                                 {images.length < 5 && (
-                                    <UploadDropzone
-                                        endpoint="imageUploader"
-                                        onClientUploadComplete={(res) => {
-                                            if (res) {
-                                                const urls = res.map(file => file.url);
-                                                setImages(prev => [...prev, ...urls].slice(0, 5));
-                                            }
-                                        }}
-                                        onUploadError={(error: Error) => {
-                                            alert(`ERROR! ${error.message}`);
-                                        }}
-                                        className="ut-label:text-primary ut-button:bg-primary ut-button:rounded-full ut-allowed-content:text-neutral-500 border-neutral-800 bg-neutral-900/50 hover:bg-neutral-800/50 transition-colors h-40"
-                                        appearance={{
-                                            button: "bg-primary text-primary-foreground px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all",
-                                            label: "text-neutral-400 font-serif text-sm",
-                                            allowedContent: "text-[10px] text-neutral-600 uppercase tracking-widest mt-1",
-                                            container: "border-2 border-dashed border-neutral-800 rounded-2xl hover:border-primary/50 transition-all",
+                                    <ImageUploader
+                                        maxFiles={5 - images.length}
+                                        onUploadComplete={(urls) => {
+                                            setImages(prev => [...prev, ...urls].slice(0, 5));
                                         }}
                                     />
                                 )}

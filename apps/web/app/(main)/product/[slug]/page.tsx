@@ -79,7 +79,7 @@ export default async function ProductDetailPage(props: { params: Promise<{ slug:
             "price": product.price,
             "priceCurrency": "KES",
             "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-            "url": `https://ummies-essence.vercel.app/product/${params.slug}`
+            "url": `https://ummieessence.store/product/${params.slug}`
         }
     };
 

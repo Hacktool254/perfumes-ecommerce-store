@@ -5,8 +5,16 @@ import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
 export const metadata = {
-    title: "Shop All Collections | Ummie's Essence",
-    description: "Browse our signature collection of luxury perfumes, colognes, and body mists.",
+    title: "Shop All Perfumes & Cosmetics | Ummie's Essence",
+    description: "Browse our signature collection of luxury perfumes, Oud fragrances, designer colognes, and premium cosmetics. Free delivery in Nairobi. M-Pesa accepted.",
+    openGraph: {
+        title: "Shop All Perfumes & Cosmetics | Ummie's Essence",
+        description: "Luxury perfumes and premium cosmetics curated for Kenya. Free delivery in Nairobi.",
+        url: "https://ummieessence.store/shop",
+    },
+    alternates: {
+        canonical: "https://ummieessence.store/shop",
+    },
 };
 
 function ShopLoading() {

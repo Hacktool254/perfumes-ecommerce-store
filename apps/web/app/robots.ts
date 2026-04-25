@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/admin/', '/account/', '/api/', '/seed/'],
         },
-        sitemap: 'https://ummies-essence.vercel.app/sitemap.xml',
+        sitemap: 'https://ummieessence.store/sitemap.xml',
     };
 }

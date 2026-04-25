@@ -3,6 +3,7 @@ import { CheckCircle2, Package, ArrowRight, Download } from "lucide-react";
 
 export const metadata = {
     title: "Order Confirmed | Ummie's Essence",
+    robots: { index: false, follow: false },
 };
 
 export default function OrderConfirmationPage({ params }: { params: { id: string } }) {
