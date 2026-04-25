@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePaginatedQuery, useMutation, useQuery, useConvex } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import {
@@ -47,7 +47,13 @@ import { AdminStatCard } from "@/components/admin/admin-stat-card";
 export default function AdminProductsPage() {
     const [selectedCategoryId, setSelectedCategoryId] = useState<Id<"categories"> | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const convex = useConvex();
+
+    useEffect(() => {
+        const t = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 400);
+        return () => clearTimeout(t);
+    }, [searchQuery]);
     const [isExporting, setIsExporting] = useState(false);
 
     const handleExportInventory = async () => {
@@ -67,8 +73,9 @@ export default function AdminProductsPage() {
     const categories = useQuery(api.categories.list);
     const { results: products, status, loadMore } = usePaginatedQuery(
         api.products.list,
-        { 
-            categoryIds: selectedCategoryId ? [selectedCategoryId] : undefined 
+        {
+            categoryIds: selectedCategoryId ? [selectedCategoryId] : undefined,
+            searchTerm: debouncedSearch || undefined,
         },
         { initialNumItems: 20 }
     );
@@ -294,8 +301,8 @@ export default function AdminProductsPage() {
                                                             </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem asChild>
-                                                            <Link 
-                                                                href={`http://localhost:3001/product/${product.slug}`} 
+                                                            <Link
+                                                                href={`https://ummieessence.store/product/${product.slug}`}
                                                                 target="_blank"
                                                                 className="flex items-center gap-4 p-4 rounded-xl cursor-pointer hover:bg-surface-container transition-colors"
                                                             >
