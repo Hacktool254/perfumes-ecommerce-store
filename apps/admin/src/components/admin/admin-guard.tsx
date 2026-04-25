@@ -11,7 +11,7 @@ import {
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isAdmin = useQuery(api.users.isAdmin);
+    const isAdmin = useQuery(api.supervisor.isAdmin);
     const router = useRouter();
 
     const isAuthPage = pathname === "/login" || pathname === "/register";
