@@ -81,12 +81,12 @@ export default function AdminProductsPage() {
     );
 
     const isLoading = status === "LoadingFirstPage";
-    const softDeleteProduct = useMutation(api.products.softDelete);
+    const deleteProduct = useMutation(api.products.deleteProduct);
 
     const handleDelete = async (id: Id<"products">) => {
-        if (!confirm("Are you sure you want to retire this product from the boutique?")) return;
+        if (!confirm("This will permanently delete the product. This cannot be undone.")) return;
         try {
-            await softDeleteProduct({ id });
+            await deleteProduct({ id });
         } catch (error) {
             console.error("Failed to delete product", error);
         }

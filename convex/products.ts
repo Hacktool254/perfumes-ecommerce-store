@@ -472,16 +472,29 @@ export const update = mutation({
 });
 
 /**
- * Soft delete a product (mark inactive).
+ * Permanently delete a product and all associated cart/wishlist entries.
  */
-export const softDelete = mutation({
+export const deleteProduct = mutation({
     args: { id: v.id("products") },
     handler: async (ctx, args) => {
         await requireAdmin(ctx);
-        await ctx.db.patch(args.id, {
-            isActive: false,
-            updatedAt: Date.now(),
-        });
+
+        // Remove from any active carts
+        const cartItems = await ctx.db
+            .query("cartItems")
+            .filter((q) => q.eq(q.field("productId"), args.id))
+            .collect();
+        await Promise.all(cartItems.map((item) => ctx.db.delete(item._id)));
+
+        // Remove from any wishlists
+        const wishlistItems = await ctx.db
+            .query("wishlistItems")
+            .filter((q) => q.eq(q.field("productId"), args.id))
+            .collect();
+        await Promise.all(wishlistItems.map((item) => ctx.db.delete(item._id)));
+
+        // Hard delete the product
+        await ctx.db.delete(args.id);
     },
 });
 
