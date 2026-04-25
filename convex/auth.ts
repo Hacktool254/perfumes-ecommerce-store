@@ -28,20 +28,38 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
                 return;
             }
             
-            // The auth library creates/updates the user in its `users` table.
-            // We patch in our app-specific defaults if they're missing.
-            const user = await ctx.db.get(args.userId);
+            // Setup User Profile if missing
+            const profile = await ctx.db
+                .query("userProfiles")
+                .withIndex("by_user", (q) => q.eq("userId", args.userId!))
+                .first();
 
-            if (user && !user.role) {
-                // If this is the very first user in the entire database, make them an admin.
-                const allUsers = await ctx.db.query("users").collect();
-                const isFirstUser = allUsers.length === 1;
-
-                await ctx.db.patch(args.userId, {
-                    role: isFirstUser ? "admin" : "customer",
+            if (!profile) {
+                await ctx.db.insert("userProfiles", {
+                    userId: args.userId,
                     createdAt: Date.now(),
                     updatedAt: Date.now(),
                 });
+            }
+
+            // Check if this is the very first user in the entire database, make them an admin
+            const allAdmins = await ctx.db.query("adminProfiles").collect();
+            const isAdmin = await ctx.db
+                .query("adminProfiles")
+                .withIndex("by_user", (q) => q.eq("userId", args.userId!))
+                .first();
+
+            if (allAdmins.length === 0 && !isAdmin) {
+                const user = await ctx.db.get(args.userId);
+                if (user?.email) {
+                    await ctx.db.insert("adminProfiles", {
+                        userId: args.userId,
+                        email: user.email,
+                        username: user.email.split("@")[0],
+                        createdAt: Date.now(),
+                        updatedAt: Date.now(),
+                    });
+                }
             }
         },
     },

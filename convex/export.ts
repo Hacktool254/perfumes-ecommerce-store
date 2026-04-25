@@ -59,14 +59,20 @@ export const patrons = query({
     handler: async (ctx) => {
         await requireAdmin(ctx);
         const users = await ctx.db.query("users").order("desc").collect();
+        const profiles = await ctx.db.query("userProfiles").collect();
+        const admins = await ctx.db.query("adminProfiles").collect();
         
-        return users.map(u => ({
-            id: u._id,
-            name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.name || "Anonymous",
-            email: u.email || "N/A",
-            role: u.role || "customer",
-            joined: new Date(u._creationTime).toISOString()
-        }));
+        return users.map(u => {
+            const profile = profiles.find(p => p.userId === u._id);
+            const isAdmin = admins.some(a => a.userId === u._id);
+            return {
+                id: u._id,
+                name: `${profile?.firstName || ""} ${profile?.lastName || ""}`.trim() || u.name || "Anonymous",
+                email: u.email || "N/A",
+                role: isAdmin ? "admin" : "customer",
+                joined: new Date(u._creationTime).toISOString()
+            };
+        });
     }
 });
 

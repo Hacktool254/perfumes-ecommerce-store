@@ -30,10 +30,9 @@ export const getAdminEmails = query({
     args: {},
     handler: async (ctx) => {
         const admins = await ctx.db
-            .query("users")
-            .filter((q) => q.eq(q.field("role"), "admin"))
+            .query("adminProfiles")
             .collect();
-        return admins.map(u => ({ email: u.email, name: u.name }));
+        return admins.map(a => ({ email: a.email, username: a.username }));
     },
 });
 
@@ -41,6 +40,6 @@ export const getRecentUsers = query({
     args: {},
     handler: async (ctx) => {
         const users = await ctx.db.query("users").order("desc").take(5);
-        return users.map(u => ({ email: u.email, name: u.name, role: u.role }));
+        return users.map(u => ({ email: u.email, name: u.name }));
     },
 });

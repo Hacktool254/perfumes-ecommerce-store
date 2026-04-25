@@ -42,6 +42,11 @@ export const getDashboardStats = query({
             .order("desc")
             .take(5);
 
+        const profile = await ctx.db
+            .query("userProfiles")
+            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .first();
+
         return {
             orderCount: orders.length,
             wishlistCount: wishlistItems.length,
@@ -50,8 +55,8 @@ export const getDashboardStats = query({
             recentSearches,
             user: {
                 name: user.name,
-                firstName: user.firstName,
-                lastName: user.lastName,
+                firstName: profile?.firstName,
+                lastName: profile?.lastName,
                 email: user.email,
                 phone: user.phone,
                 image: user.image,

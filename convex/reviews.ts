@@ -17,12 +17,17 @@ export const getByProduct = query({
         const reviewsWithUsers = await Promise.all(
             reviews.map(async (review) => {
                 const user = await ctx.db.get(review.userId);
+                const profile = await ctx.db
+                    .query("userProfiles")
+                    .withIndex("by_user", (q) => q.eq("userId", review.userId))
+                    .first();
+
                 return {
                     ...review,
                     user: user
                         ? {
-                            firstName: user.firstName,
-                            lastName: user.lastName,
+                            firstName: profile?.firstName,
+                            lastName: profile?.lastName,
                             email: user.email,
                         }
                         : null,

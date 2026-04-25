@@ -176,7 +176,11 @@ export const applyPasswordReset = internalMutation({
         const user = await ctx.db.query("users")
             .withIndex("email", q => q.eq("email", args.email)).first();
         if (user) {
-            await ctx.db.patch(user._id, { hashedPassword: args.hashedPassword, updatedAt: Date.now() });
+            const profile = await ctx.db.query("userProfiles")
+                .withIndex("by_user", q => q.eq("userId", user._id)).first();
+            if (profile) {
+                await ctx.db.patch(profile._id, { hashedPassword: args.hashedPassword, updatedAt: Date.now() });
+            }
         }
         await ctx.db.patch(args.tokenId, { used: true });
     },

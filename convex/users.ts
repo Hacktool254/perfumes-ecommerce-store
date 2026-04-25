@@ -1,11 +1,13 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
+import { checkAdmin, isAdmin } from "./supervisor";
+
+export const requireAdmin = checkAdmin;
+export { isAdmin };
 
 /**
- * Returns the currently authenticated user.
- * Since @convex-dev/auth stores users directly in the `users` table,
- * the auth userId IS the user document ID.
+ * Returns the currently authenticated user's profile and auth record.
  */
 export const viewer = query({
     args: {},
@@ -15,6 +17,18 @@ export const viewer = query({
         const user = await ctx.db.get(userId);
         if (!user) return null;
 
+        // Fetch user profile (Spoke 1)
+        const profile = await ctx.db
+            .query("userProfiles")
+            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .first();
+
+        // Also check if admin for context
+        const adminProfile = await ctx.db
+            .query("adminProfiles")
+            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .first();
+
         let imageUrl = user.image;
         if (user.image && !user.image.startsWith("http")) {
             const url = await ctx.storage.getUrl(user.image as any);
@@ -23,44 +37,17 @@ export const viewer = query({
 
         return {
             ...user,
+            ...profile,
             image: imageUrl,
+            role: adminProfile ? "admin" : "customer",
+            isAdmin: !!adminProfile,
         };
     },
 });
 
 /**
- * Helper query to quickly check if the current user is an admin.
- */
-export const isAdmin = query({
-    args: {},
-    handler: async (ctx) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) return false;
-
-        const user = await ctx.db.get(userId);
-        return user?.role === "admin";
-    },
-});
-
-/**
- * Internal helper for mutations/queries to assert the user is an admin.
- * Throws an error if not authenticated or not an admin.
- */
-export async function requireAdmin(ctx: any) {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await ctx.db.get(userId);
-    if (user?.role !== "admin") {
-        throw new Error("Forbidden: Admin access only");
-    }
-
-    return user;
-}
-
-/**
  * Internal helper to assert a user is authenticated.
- * Returns the user document.
+ * Returns the user document and their profile.
  */
 export async function requireUser(ctx: any) {
     const userId = await getAuthUserId(ctx);
@@ -98,10 +85,20 @@ export const promoteToAdmin = internalMutation({
             throw new Error(`No user found with email: ${email}`);
         }
 
-        await ctx.db.patch(user._id, {
-            role: "admin",
-            updatedAt: Date.now(),
-        });
+        const existingAdmin = await ctx.db
+            .query("adminProfiles")
+            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .first();
+
+        if (!existingAdmin) {
+            await ctx.db.insert("adminProfiles", {
+                userId: user._id,
+                email: email,
+                username: email.split("@")[0], // default username
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            });
+        }
 
         return { success: true, userId: user._id, email };
     },
@@ -122,24 +119,32 @@ export const seedAdmin = internalMutation({
             .withIndex("email", (q: any) => q.eq("email", email))
             .unique();
 
-        if (existing) {
-            // Just promote to admin
-            await ctx.db.patch(existing._id, {
-                role: "admin",
-                updatedAt: Date.now(),
+        let userId = existing?._id;
+
+        if (!existing) {
+            // Create a new core user
+            userId = await ctx.db.insert("users", {
+                email,
             });
-            return { action: "promoted", userId: existing._id };
         }
 
-        // Create a new admin user (they'll need to sign up via the auth flow to set a password)
-        const userId = await ctx.db.insert("users", {
-            email,
-            role: "admin",
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-        });
+        // Add admin profile if missing
+        const existingAdmin = await ctx.db
+            .query("adminProfiles")
+            .withIndex("by_user", (q) => q.eq("userId", userId!))
+            .first();
 
-        return { action: "created", userId };
+        if (!existingAdmin) {
+            await ctx.db.insert("adminProfiles", {
+                userId: userId!,
+                email: email,
+                username: email.split("@")[0], // default username
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            });
+        }
+
+        return { action: existing ? "promoted" : "created", userId: userId! };
     },
 });
 
@@ -164,11 +169,30 @@ export const updateProfile = mutation({
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
 
+    let profile = await ctx.db
+        .query("userProfiles")
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .first();
+
+    if (!profile) {
+        const profileId = await ctx.db.insert("userProfiles", {
+            userId: user._id,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+        profile = await ctx.db.get(profileId);
+    }
+
+    // Update core user for standard auth fields if needed
     await ctx.db.patch(user._id, {
+      name: `${args.firstName} ${args.lastName}`.trim(),
+      phone: args.phone,
+    });
+
+    // Update Spoke 1 profile
+    await ctx.db.patch(profile!._id, {
       firstName: args.firstName,
       lastName: args.lastName,
-      phone: args.phone,
-      name: `${args.firstName} ${args.lastName}`.trim(),
       updatedAt: Date.now(),
     });
 
@@ -186,11 +210,20 @@ export const updateSecurity = mutation({
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
+    
+    let profile = await ctx.db
+        .query("userProfiles")
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .first();
+
+    if (!profile) {
+        throw new Error("User profile not found.");
+    }
 
     // If the user already has a hashedPassword, verify the current one
-    if (user.hashedPassword) {
+    if (profile.hashedPassword) {
       const hashedCurrent = await hashPassword(args.currentPassword);
-      if (user.hashedPassword !== hashedCurrent) {
+      if (profile.hashedPassword !== hashedCurrent) {
         throw new Error("Invalid current security key.");
       }
     }
@@ -198,7 +231,7 @@ export const updateSecurity = mutation({
     // Hash and store the new password
     const hashedNew = await hashPassword(args.newPassword);
     
-    await ctx.db.patch(user._id, {
+    await ctx.db.patch(profile._id, {
       hashedPassword: hashedNew,
       updatedAt: Date.now(),
     });
@@ -213,15 +246,13 @@ export const updateSecurity = mutation({
 export const clearAllAdmins = internalMutation({
     args: {},
     handler: async (ctx) => {
-        const users = await ctx.db.query("users").collect();
+        const admins = await ctx.db.query("adminProfiles").collect();
         let count = 0;
-        for (const user of users) {
-            if (user.role === "admin") {
-                await ctx.db.patch(user._id, { role: "customer" });
-                count++;
-            }
+        for (const admin of admins) {
+            await ctx.db.delete(admin._id);
+            count++;
         }
-        return `Cleared ${count} admin accounts.`;
+        return `Deleted ${count} admin profiles.`;
     }
 });
 /**
@@ -234,7 +265,6 @@ export const updateImage = mutation({
         
         await ctx.db.patch(user._id, {
             image: args.storageId,
-            updatedAt: Date.now(),
         });
 
         return { success: true };
@@ -250,7 +280,7 @@ export const list = query({
         searchTerm: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        await requireAdmin(ctx);
+        await checkAdmin(ctx);
 
         let users;
         if (args.searchTerm) {
@@ -259,7 +289,7 @@ export const list = query({
                 .query("users")
                 .collect();
             
-            // Basic filtering as Convex doesn't have native multi-field text search on the free tier easily
+            // Basic filtering
             users = users.filter(u => 
                 u.name?.toLowerCase().includes(normalizedSearch) || 
                 u.email?.toLowerCase().includes(normalizedSearch)
@@ -288,6 +318,10 @@ export const list = query({
             }
 
             const metrics = orderMetrics[user._id] || { spent: 0, count: 0 };
+            const adminProfile = await ctx.db
+                .query("adminProfiles")
+                .withIndex("by_user", (q) => q.eq("userId", user._id))
+                .first();
 
             return {
                 ...user,
@@ -295,6 +329,7 @@ export const list = query({
                 totalSpent: metrics.spent,
                 orderCount: metrics.count,
                 status: metrics.spent > 50000 ? "VIP" : metrics.count > 0 ? "Active" : "New",
+                role: adminProfile ? "admin" : "customer",
             };
         }));
 
@@ -308,7 +343,7 @@ export const list = query({
 export const getPatron = query({
     args: { userId: v.id("users") },
     handler: async (ctx, args) => {
-        await requireAdmin(ctx);
+        await checkAdmin(ctx);
         const user = await ctx.db.get(args.userId);
         if (!user) return null;
 
@@ -326,12 +361,18 @@ export const getPatron = query({
             if (url) imageUrl = url;
         }
 
+        const adminProfile = await ctx.db
+            .query("adminProfiles")
+            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .first();
+
         return {
             ...user,
             image: imageUrl,
             totalSpent,
             orderCount: orders.length,
             recentOrders: orders.slice(0, 10),
+            role: adminProfile ? "admin" : "customer",
         };
     },
 });

@@ -260,7 +260,10 @@ export const getStats = query({
         const authUserId = await getAuthUserId(ctx);
         if (!authUserId) return null;
         const authUser = await ctx.db.get(authUserId);
-        if (authUser?.role !== "admin") return null;
+        if (!authUser) return null;
+
+        const adminProfile = await ctx.db.query("adminProfiles").withIndex("by_user", q => q.eq("userId", authUserId)).first();
+        if (!adminProfile) return null;
 
         const allOrders = await ctx.db.query("orders").collect();
         const allProducts = await ctx.db.query("products").collect();
