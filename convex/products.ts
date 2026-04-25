@@ -294,6 +294,30 @@ export const listRecent = query({
 });
 
 /**
+ * New arrivals: the most recently added or restocked products.
+ * Sorted by updatedAt desc so admin edits (e.g. stock replenishment) bubble products up.
+ */
+export const getNewArrivals = query({
+    args: { limit: v.optional(v.number()) },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("products")
+            .withIndex("by_updatedAt")
+            .filter((q) =>
+                q.and(
+                    q.or(
+                        q.eq(q.field("isActive"), true),
+                        q.eq(q.field("isActive"), undefined)
+                    ),
+                    q.gt(q.field("stock"), 0)
+                )
+            )
+            .order("desc")
+            .take(args.limit ?? 4);
+    },
+});
+
+/**
  * Get a single product by slug.
  */
 export const getBySlug = query({

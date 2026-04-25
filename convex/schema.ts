@@ -105,6 +105,7 @@ export default defineSchema({
         .index("by_brand", ["brand"])
         .index("by_gender", ["gender"])
         .index("by_createdAt", ["createdAt"])
+        .index("by_updatedAt", ["updatedAt"])
         .index("by_category_createdAt", ["categoryId", "createdAt"])
         .searchIndex("search_by_name", {
             searchField: "name",

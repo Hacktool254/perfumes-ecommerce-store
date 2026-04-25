@@ -6,7 +6,7 @@ import Image from "next/image";
 import { User, X, Menu, ChevronDown, ArrowUpRight, Search, ShoppingBag } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "@/hooks/use-cart";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@workspaceRoot/convex/_generated/api";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 
@@ -102,49 +102,21 @@ function ShopDropdown() {
 }
 
 // ─── Dropdown: NEW ARRIVALS ─────────────────────────────────────────────────
-// Shows different products than Best Sellers and Collections
-
-const newArrivalProducts = [
-    {
-        id: "h1",
-        name: "Angham",
-        brand: "Lattafa",
-        image: "/products/Lattafa-Angham.jpg",
-        href: "/product/lattafa-angham"
-    },
-    {
-        id: "h2",
-        name: "Rimmah",
-        brand: "Lattafa",
-        image: "/products/Lattafa-Rimmah.jpg",
-        href: "/product/lattafa-rimmah"
-    },
-    {
-        id: "h3",
-        name: "Scarlet",
-        brand: "Lattafa",
-        image: "/products/Lattafa-Scarlet.jpg",
-        href: "/product/lattafa-scarlet"
-    },
-    {
-        id: "h4",
-        name: "Atheri",
-        brand: "Lattafa",
-        image: "/products/Lattafa-Atheri.jpg",
-        href: "/product/lattafa-atheri"
-    }
-];
 
 function NewArrivalsDropdown() {
+    const products = useQuery(api.products.getNewArrivals, { limit: 4 });
+
     return (
         <div className="absolute left-0 top-full w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-[60] pointer-events-none group-hover:pointer-events-auto">
             <div className="w-full bg-white shadow-xl shadow-black/10 border-t border-gray-100">
                 <div className="w-full px-4 md:px-8 xl:px-12 py-10 relative">
                     <div className="flex justify-between gap-6 w-full">
-                        {newArrivalProducts.map((p) => (
-                            <Link key={p.id} href={p.href} className="group/item flex flex-col flex-1 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1">
+                        {(products ?? []).map((p) => (
+                            <Link key={p._id} href={`/product/${p.slug}`} className="group/item flex flex-col flex-1 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1">
                                 <div className="relative aspect-[4/3] bg-[#f7f7f7] w-full overflow-hidden">
-                                    <Image src={p.image} alt={p.name} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-[1.03]" />
+                                    {p.images[0] && (
+                                        <Image src={p.images[0]} alt={p.name} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-[1.03]" />
+                                    )}
                                 </div>
                                 <div className="flex items-center justify-between p-5 bg-white">
                                     <p className="font-serif text-[#1c2e36] text-[15px]">{p.name}</p>

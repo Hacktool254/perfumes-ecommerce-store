@@ -5,13 +5,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ArrowRight, Check } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
-
-const newArrivalProducts = [
-    { id: "h1", name: "Angham", brand: "Lattafa", image: "/products/Lattafa-Angham.jpg", imageHover: "/products/Lattafa-Angham-1.jpg", slug: "lattafa-angham", price: 4500 },
-    { id: "h2", name: "Rimmah", brand: "Lattafa", image: "/products/Lattafa-Rimmah.jpg", imageHover: "/products/Lattafa-Rimmah-1.jpg", slug: "lattafa-rimmah", price: 4200 },
-    { id: "h3", name: "Scarlet", brand: "Lattafa", image: "/products/Lattafa-Scarlet.jpg", imageHover: "/products/Lattafa-Scarlet-1.jpg", slug: "lattafa-scarlet", price: 3800 },
-    { id: "h4", name: "Atheri", brand: "Lattafa", image: "/products/Lattafa-Atheri.jpg", imageHover: "/products/Lattafa-Atheri-1.jpg", slug: "lattafa-atheri", price: 4000 },
-];
+import { useQuery } from "convex/react";
+import { api } from "@workspaceRoot/convex/_generated/api";
 
 const bestSellerProducts = [
     { id: "b1", name: "Asad", brand: "Lattafa", image: "/products/Lattafa-Assad.jpg", imageHover: "/products/Lattafa-Assad-1.jpg", slug: "lattafa-asad", price: 5500 },
@@ -24,6 +19,18 @@ export function PopularProducts() {
     const [activeTab, setActiveTab] = useState<"new" | "best">("best");
     const { addItem } = useCart();
     const [addedId, setAddedId] = useState<string | null>(null);
+
+    const newArrivalsRaw = useQuery(api.products.getNewArrivals, { limit: 4 });
+
+    const newArrivalProducts = (newArrivalsRaw ?? []).map(p => ({
+        id: p._id,
+        name: p.name,
+        brand: p.brand ?? "",
+        image: p.images[0] ?? "",
+        imageHover: p.images[1] ?? p.images[0] ?? "",
+        slug: p.slug,
+        price: p.price,
+    }));
 
     const currentProducts = activeTab === "best" ? bestSellerProducts : newArrivalProducts;
 
@@ -81,7 +88,16 @@ export function PopularProducts() {
                         transition={{ duration: 0.3 }}
                         className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
                     >
-                        {currentProducts.map((product, idx) => (
+                        {activeTab === "new" && newArrivalsRaw === undefined ? (
+                            [1,2,3,4].map(i => (
+                                <div key={i} className="animate-pulse">
+                                    <div className="aspect-[4/5] bg-gray-100 rounded-[16px] mb-4" />
+                                    <div className="h-3 bg-gray-100 rounded w-1/3 mb-2" />
+                                    <div className="h-4 bg-gray-100 rounded w-2/3 mb-2" />
+                                    <div className="h-4 bg-gray-100 rounded w-1/4" />
+                                </div>
+                            ))
+                        ) : currentProducts.map((product, idx) => (
                             <Link href={`/product/${product.slug}`} key={product.id} className="group block cursor-pointer flex flex-col">
                                 {/* Image Container */}
                                 <div className="relative aspect-[4/5] bg-[#f7f7f7] rounded-[16px] overflow-hidden mb-4 p-4 flex items-center justify-center isolate">
