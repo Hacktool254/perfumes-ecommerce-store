@@ -18,9 +18,10 @@ export default defineSchema({
         phone: v.optional(v.string()),
         phoneVerificationTime: v.optional(v.number()),
         isAnonymous: v.optional(v.boolean()),
-        role: v.optional(v.string()),
+        // --- Custom fields ---
         createdAt: v.optional(v.number()),
         updatedAt: v.optional(v.number()),
+        role: v.optional(v.string()),
     })
         // Auth library's required indexes (must keep these exact names)
         .index("email", ["email"])
