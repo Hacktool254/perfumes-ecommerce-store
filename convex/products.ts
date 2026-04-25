@@ -294,6 +294,29 @@ export const listRecent = query({
 });
 
 /**
+ * Return all active product slugs + updatedAt for sitemap generation.
+ * Uses a simple full-collection scan — only called at build time by sitemap.ts.
+ */
+export const getAllSlugs = query({
+    args: {},
+    handler: async (ctx) => {
+        const products = await ctx.db
+            .query("products")
+            .filter((q) =>
+                q.and(
+                    q.or(
+                        q.eq(q.field("isActive"), true),
+                        q.eq(q.field("isActive"), undefined)
+                    ),
+                    q.neq(q.field("slug"), "")
+                )
+            )
+            .collect();
+        return products.map(p => ({ slug: p.slug, updatedAt: p.updatedAt }));
+    },
+});
+
+/**
  * New arrivals: the most recently added or restocked products.
  * Sorted by updatedAt desc so admin edits (e.g. stock replenishment) bubble products up.
  */

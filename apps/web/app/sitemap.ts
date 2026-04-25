@@ -21,12 +21,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Dynamically include all product pages
     let productRoutes: MetadataRoute.Sitemap = [];
     try {
-        const products = await fetchQuery(api.products.list, {});
-        productRoutes = (products?.products ?? [])
+        const products = await fetchQuery(api.products.getAllSlugs, {});
+        productRoutes = (products ?? [])
             .filter((p: { slug?: string }) => p.slug)
-            .map((p: { slug: string; _creationTime?: number }) => ({
+            .map((p: { slug: string; updatedAt?: number }) => ({
                 url: `${BASE_URL}/product/${p.slug}`,
-                lastModified: p._creationTime ? new Date(p._creationTime) : new Date(),
+                lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(),
                 changeFrequency: 'weekly' as const,
                 priority: 0.8,
             }));
