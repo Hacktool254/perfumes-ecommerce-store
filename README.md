@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ummies Essence — Perfumes E-Commerce Store
+
+A full-stack e-commerce platform for **Ummies Essence**, a perfume and fragrance brand. Built as a turborepo monorepo with Next.js 16, Convex backend, and GSAP/Framer Motion animations.
+
+---
+
+## Apps
+
+This is a **npm workspaces monorepo** with two Next.js applications:
+
+| App | Port | Description |
+|---|---|---|
+| **web** (`apps/web`) | 3001 | Customer-facing storefront |
+| **admin** (`apps/admin`) | 3000 | Admin dashboard for product and order management |
+
+---
+
+## Features
+
+### Storefront
+- Product catalogue with category and filter browsing
+- Product detail pages with fragrance notes and descriptions
+- Cart and wishlist management
+- Customer authentication via Convex Auth
+- Order placement and history
+- Address book management
+
+### Admin Dashboard
+- Product management — create, edit, delete with image uploads
+- Order management and status updates
+- Category management
+- Customer management
+- Coupon and discount code creation
+- Site settings (banners, featured products)
+- Analytics overview
+- AI chatbot supervisor
+- Export functionality
+
+### Platform
+- Real-time data via Convex subscriptions
+- Cron jobs for automated tasks (email reminders, stock checks)
+- Review and rating system
+- Search functionality
+- Preference management
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Monorepo | npm workspaces + Turborepo |
+| Framework | Next.js 16 (App Router) + TypeScript |
+| Backend / DB | Convex (real-time, serverless) |
+| Auth | Convex Auth |
+| Styling | Tailwind CSS |
+| UI components | Radix UI, shadcn/ui |
+| Animations | GSAP, Framer Motion |
+| Forms | React Hook Form + Zod |
+| Shared package | `@ummies/ui` — shared component library |
+
+---
+
+## Project Structure
+
+```
+perfumes-ecommerce-store/
+├── apps/
+│   ├── admin/           # Admin dashboard (port 3000)
+│   └── web/             # Customer storefront (port 3001)
+├── packages/
+│   └── ui/              # Shared component library (@ummies/ui)
+└── convex/              # Shared Convex backend
+    ├── schema.ts        # Full data schema
+    ├── products.ts      # Product queries and mutations
+    ├── orders.ts        # Order management
+    ├── cart.ts          # Cart operations
+    ├── categories.ts    # Categories
+    ├── payments.ts      # Payment processing
+    ├── reviews.ts       # Review system
+    ├── chatbot.ts       # AI chatbot
+    └── crons.ts         # Scheduled background tasks
+```
+
+---
+
+## Prerequisites
+
+- **Node.js** 18+
+- A **Convex** account — [convex.dev](https://convex.dev)
+
+---
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
+
+# Start Convex dev server
+npx convex dev
+
+# Start all apps
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Or start individually
+npm run dev --workspace=apps/web
+npm run dev --workspace=apps/admin
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Description |
+|---|---|
+| `CONVEX_DEPLOYMENT` | Convex deployment name |
+| `NEXT_PUBLIC_CONVEX_URL` | Convex URL for the frontend |
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Both apps deploy independently to **Vercel**. The `vercel.json` at the root handles configuration.
